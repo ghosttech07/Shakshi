@@ -158,7 +158,7 @@ export function Checkout() {
       });
       if (!r.ok) throw new Error(r.offline ? "We can't place orders online just this moment. Your bag is saved: please try again shortly, or WhatsApp our concierge and we'll complete it for you." : r.error);
       const j = r.data;
-      addOrder({ id: j.id, token: j.token, createdAt: j.createdAt, deliveryDate: j.deliveryDate, total: j.total, items: cart, giftCodes: j.giftCodes });
+      addOrder({ id: j.id, token: j.token, createdAt: j.createdAt, deliveryDate: j.deliveryDate, total: j.total, items: cart, giftCodes: j.giftCodes, customer: d, discount, removal: removalFee });
       track("purchase", { order: j.id, total: j.total, items: cart.length });
       const acct = useAccount.getState();
       if (promo && promo.code === acct.referredBy) acct.setReferredBy(null);

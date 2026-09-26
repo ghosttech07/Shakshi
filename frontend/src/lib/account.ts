@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Answers } from "@shakshi/shared/quiz";
-import type { OrderItem } from "@shakshi/shared/orders";
+import type { Customer, OrderItem } from "@shakshi/shared/orders";
 import { POINTS } from "@shakshi/shared/orders";
 
 export type LocalOrder = {
@@ -15,6 +15,9 @@ export type LocalOrder = {
   items: OrderItem[];
   sample?: boolean;
   giftCodes?: { code: string; amount: number; to: string }[];
+  customer?: Customer;
+  discount?: number;
+  removal?: number;
 };
 
 export type JournalEntry = { date: string; quality: number; hours: number; note?: string };

@@ -477,3 +477,11 @@ html[data-theme="night"] .hero-poster { background-image: url("/hero/night-mobil
   .hero-poster { background-image: url("/hero/day-desktop.webp"); }
   html[data-theme="night"] .hero-poster { background-image: url("/hero/night-desktop.webp"); }
 }
+
+/* ---------- Print (invoices): just the document ---------- */
+@media print {
+  header, footer, .grain, .concierge-fab, .cursor-ring, .cursor-dot, .preloader, [data-no-print], #concierge-panel { display: none !important; }
+  html, body { background: #fff !important; }
+  main { padding: 0 !important; }
+  @page { margin: 14mm; }
+}

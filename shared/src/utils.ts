@@ -9,7 +9,8 @@ export const formatINR = (n: number) => inr.format(n);
 /** No-cost EMI over 12 months, rounded up to the rupee */
 export const emiFrom = (total: number, months = 12) => Math.ceil(total / months);
 
-export const EASE = [0.22, 1, 0.36, 1] as const;
+/** The house easing (power3.inOut): slow to leave, slow to arrive. Nothing linear, nothing bouncy. */
+export const EASE = [0.65, 0, 0.35, 1] as const;
 export const DRIFT = [0.65, 0, 0.35, 1] as const;
 
 export const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));

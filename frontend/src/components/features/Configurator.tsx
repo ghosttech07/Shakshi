@@ -2,7 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLoad3D } from "@/lib/use3d";
+import { track } from "@/lib/analytics";
+import { Img } from "@/components/ui/Img";
 import { SIZES, COVERS, FRAMES, PILLOW_OPTIONS, priceFor, type SizeId } from "@shakshi/shared/products";
 import { IMG } from "@shakshi/shared/images";
 import { useStore } from "@/lib/store";
@@ -35,6 +38,9 @@ function Step({ n, title, value, children }: { n: number; title: string; value: 
 }
 
 export function Configurator() {
+  const stage = useRef<HTMLDivElement>(null);
+  const [force3D, setForce3D] = useState(false);
+  const { go, policy } = useLoad3D(stage);
   const [slug, setSlug] = useState("signature");
   const [size, setSize] = useState<SizeId>("king");
   const [cover, setCover] = useState(COVERS[0].id);
@@ -42,6 +48,19 @@ export function Configurator() {
   const [frameId, setFrameId] = useState("aurelia");
   const [added, setAdded] = useState(false);
   const addToCart = useStore((s) => s.addToCart);
+
+  // Count the configurator as used (once per visit) when the visitor first changes anything.
+  const initial = useRef(true);
+  const tracked = useRef(false);
+  useEffect(() => {
+    if (initial.current) {
+      initial.current = false;
+      return;
+    }
+    if (tracked.current) return;
+    tracked.current = true;
+    track("configurator_use", { mattress: slug, size, cover, frame: frameId, pillows });
+  }, [slug, size, cover, frameId, pillows]);
 
   // On small screens the price bar is pinned to the bottom; lift the concierge above it.
   useEffect(() => {
@@ -77,8 +96,24 @@ export function Configurator() {
   return (
     <div className="grid gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-14">
       <div className="lg:sticky lg:top-24 lg:h-[calc(100svh-8rem)]">
-        <div className="relative h-[52svh] min-h-[340px] overflow-hidden bg-[radial-gradient(90%_80%_at_50%_30%,#fbf6ee,#e7dccb)] lg:h-full">
-          <BedScene layers={product.layers} cover={c.hex} widthCm={s.cm[0]} depthCm={s.cm[1]} frame={frame} pillows={pillows} />
+        <div ref={stage} className="stage-light relative h-[52svh] min-h-[340px] overflow-hidden bg-[radial-gradient(90%_80%_at_50%_30%,#fbf6ee,#e7dccb)] lg:h-full">
+          {go || force3D ? (
+            <BedScene layers={product.layers} cover={c.hex} widthCm={s.cm[0]} depthCm={s.cm[1]} frame={frame} pillows={pillows} />
+          ) : policy === "never" ? (
+            // Slow connection or modest device: a still room, and the 3D preview only on request.
+            <div className="absolute inset-0">
+              <Img src={product.images[0]} alt={`${product.name} in a bedroom`} sizes="(min-width: 1024px) 55vw, 100vw" wrapperClassName="absolute inset-0" />
+              <div className="absolute inset-0 grid place-items-center bg-midnight/25">
+                <button onClick={() => setForce3D(true)} className="btn btn-gold">
+                  Load the 3D preview
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="skeleton grid h-full w-full place-items-center">
+              <p className="eyebrow text-stone">Preparing your bed…</p>
+            </div>
+          )}
           <div className="glass pointer-events-none absolute left-4 top-4 rounded-full px-4 py-2 text-[0.65rem] uppercase tracking-[0.2em] text-ink">Drag to look around</div>
           <AnimatePresence mode="wait">
             <motion.div key={`${slug}${size}${cover}${frameId}`} className="pointer-events-none absolute bottom-4 left-4 right-4 flex flex-wrap gap-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.7, ease: EASE }}>

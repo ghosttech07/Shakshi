@@ -38,7 +38,8 @@ export function SmoothScroll() {
     gsap.registerPlugin(ScrollTrigger);
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    lenis = new Lenis({ duration: 1.25, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true });
+    // Inertia-based: each frame closes 8% of the gap, so the page glides to a stop.
+    lenis = new Lenis({ lerp: 0.08, smoothWheel: true, wheelMultiplier: 0.9 });
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis?.raf(time * 1000);
     gsap.ticker.add(tick);

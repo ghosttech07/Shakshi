@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { ADDONS, SIZES, PRODUCTS, priceFor, getProduct, type AddonId, type Product, type SizeId } from "@/lib/products";
+import { ADDONS, SIZES, priceFor, type AddonId, type Product, type Review, type SizeId } from "@/lib/products";
+import { useCatalog } from "@/lib/catalog-context";
 import { IMG } from "@/lib/images";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";
@@ -13,7 +14,10 @@ import { FirmnessScale, Stars } from "@/components/ui/Bits";
 import { Img } from "@/components/ui/Img";
 import { Reveal } from "@/components/ui/Reveal";
 import { SizePicker } from "@/components/commerce/SizePicker";
-import { ProductCard } from "@/components/commerce/ProductCard";
+import { RecommendedRow } from "@/components/commerce/RecommendedRow";
+import { Certifications } from "@/components/commerce/Certifications";
+import { BrandComparison } from "@/components/home/BrandComparison";
+import { EmiCalculator, lowestMonthly } from "./EmiCalculator";
 import { TrustBadges } from "@/components/commerce/CartDrawer";
 import { Gallery } from "./Gallery";
 import { DeliveryEstimator } from "./DeliveryEstimator";
@@ -25,7 +29,7 @@ const ADDON_IMAGES: Record<AddonId, string> = { pillows: IMG.pillowWhite, protec
 const TABS = ["Materials", "Dimensions", "Care", "Delivery & Trial", "Reviews"] as const;
 type Tab = (typeof TABS)[number];
 
-function Tabs({ product }: { product: Product }) {
+function Tabs({ product, extraReviews }: { product: Product; extraReviews: Review[] }) {
   const [tab, setTab] = useState<Tab>("Materials");
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const onKey = (e: KeyboardEvent, i: number) => {
@@ -149,7 +153,7 @@ function Tabs({ product }: { product: Product }) {
               ))}
             </div>
           )}
-          {tab === "Reviews" && <Reviews product={product} />}
+          {tab === "Reviews" && <Reviews product={product} extra={extraReviews} />}
         </motion.div>
       </AnimatePresence>
     </section>
@@ -197,7 +201,8 @@ function StickyBar({ product, size, total, onAdd, visible }: { product: Product;
   );
 }
 
-export function ProductDetail({ product }: { product: Product }) {
+export function ProductDetail({ product, extraReviews = [] }: { product: Product; extraReviews?: Review[] }) {
+  const catalog = useCatalog();
   const hydrated = useHydrated();
   const [size, setSize] = useState<SizeId>("queen");
   const [addons, setAddons] = useState<AddonId[]>([]);
@@ -232,8 +237,7 @@ export function ProductDetail({ product }: { product: Product }) {
     setTimeout(() => setAdded(false), 2500);
   };
 
-  const recentProducts = hydrated ? recent.filter((s) => s !== product.slug).map((s) => getProduct(s)).filter((p): p is Product => !!p).slice(0, 4) : [];
-  const alsoLove = PRODUCTS.filter((p) => p.slug !== product.slug && !recentProducts.includes(p)).slice(0, 3);
+  const recentProducts = hydrated ? recent.filter((s) => s !== product.slug).map((s) => catalog.get(s)).filter((p): p is Product => !!p).slice(0, 4) : [];
 
   return (
     <>
@@ -255,6 +259,10 @@ export function ProductDetail({ product }: { product: Product }) {
             <a href="#details" className="mt-4 flex items-center gap-2 text-sm text-stone hover:text-ink">
               <Stars value={product.rating} size={14} /> {product.rating.toFixed(1)} · {product.reviewCount.toLocaleString("en-IN")} reviews
             </a>
+            <p className="mt-3 text-sm">
+              From <strong className="font-semibold">{formatINR(lowestMonthly(priceFor(product, "single")))}/month</strong>
+              <span className="text-stone"> with EMI · or {formatINR(priceFor(product, "single"))} upfront</span>
+            </p>
             <p className="mt-6 font-serif text-2xl italic leading-snug text-ink/85">{product.tagline}</p>
             <p className="mt-4 leading-relaxed text-stone">{product.description}</p>
 
@@ -309,6 +317,9 @@ export function ProductDetail({ product }: { product: Product }) {
                   12 months, no-cost EMI
                 </p>
               </div>
+              <div className="mt-4">
+                <EmiCalculator total={total} />
+              </div>
               <div className="mt-5 flex gap-3">
                 <button className="btn btn-gold flex-1" onClick={add}>
                   <AnimatePresence mode="wait" initial={false}>
@@ -333,6 +344,10 @@ export function ProductDetail({ product }: { product: Product }) {
             </div>
             <div className="mt-8">
               <TrustBadges />
+            </div>
+            <div className="mt-8 border-t border-ink/10 pt-6">
+              <p className="eyebrow mb-4 text-stone">Certified materials</p>
+              <Certifications compact />
             </div>
           </div>
         </div>
@@ -361,7 +376,9 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
       </section>
 
-      <Tabs product={product} />
+      <Tabs product={product} extraReviews={extraReviews} />
+
+      <BrandComparison />
 
       {recentProducts.length > 0 && (
         <section className="container-lux pb-16" aria-labelledby="recent-title">
@@ -380,15 +397,7 @@ export function ProductDetail({ product }: { product: Product }) {
         </section>
       )}
 
-      <section className="container-lux pb-28" aria-labelledby="also-title">
-        <div className="gold-rule mb-16" />
-        <h2 id="also-title" className="display text-4xl lg:text-5xl">You may also <em>love</em></h2>
-        <div className="mt-12 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-          {alsoLove.map((p, i) => (
-            <ProductCard key={p.slug} product={p} index={i} />
-          ))}
-        </div>
-      </section>
+      <RecommendedRow exclude={[product.slug]} fallbackTitle="You may also love" className="pt-0" />
 
       <StickyBar product={product} size={size} total={total} onAdd={add} visible={sticky} />
     </>

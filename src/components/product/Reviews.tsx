@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useAccount } from "@/lib/account";
+import { Dialog } from "@/components/ui/Dialog";
 import { REVIEWS, POSITION_LABELS, type Position, type Product, type Review } from "@/lib/products";
 import { Stars } from "@/components/ui/Bits";
 import { EASE, cn } from "@/lib/utils";
-import { IconThumb, IconCheck } from "@/components/ui/Icons";
+import { IconThumb, IconCheck, IconStar } from "@/components/ui/Icons";
 
 const VOTES_KEY = "shakshi-helpful";
 const BODY_LABELS = { petite: "Petite frame", average: "Average frame", broad: "Broad frame" } as const;
@@ -14,7 +16,8 @@ type Body = keyof typeof BODY_LABELS;
 
 const dateFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
-export function Reviews({ product }: { product: Product }) {
+export function Reviews({ product, extra = [] }: { product: Product; extra?: Review[] }) {
+  const [writing, setWriting] = useState(false);
   const [position, setPosition] = useState<Position | "all">("all");
   const [body, setBody] = useState<Body | "all">("all");
   const [withPhotos, setWithPhotos] = useState(false);
@@ -38,9 +41,9 @@ export function Reviews({ product }: { product: Product }) {
   };
 
   const reviews = useMemo(() => {
-    const list = REVIEWS.filter((r) => (r.product === "*" || r.product === product.slug) && (position === "all" || r.position === position) && (body === "all" || r.body_type === body) && (!withPhotos || r.photo));
+    const list = [...extra, ...REVIEWS].filter((r) => (r.product === "*" || r.product === product.slug) && (position === "all" || r.position === position) && (body === "all" || r.body_type === body) && (!withPhotos || r.photo));
     return list.sort((a, b) => (sort === "helpful" ? b.helpful - a.helpful : b.date.localeCompare(a.date)));
-  }, [product.slug, position, body, withPhotos, sort]);
+  }, [product.slug, position, body, withPhotos, sort, extra]);
 
   const distribution = [5, 4, 3, 2, 1].map((s) => ({ s, pct: s === 5 ? 86 : s === 4 ? 11 : s === 3 ? 2 : 1 }));
 
@@ -50,6 +53,9 @@ export function Reviews({ product }: { product: Product }) {
         <p className="display text-7xl">{product.rating.toFixed(1)}</p>
         <Stars value={product.rating} size={18} className="mt-3" />
         <p className="mt-2 text-sm text-stone">{product.reviewCount.toLocaleString("en-IN")} verified reviews</p>
+        <button onClick={() => setWriting(true)} className="btn btn-outline mt-6 !py-3">
+          Write a review
+        </button>
         <ul className="mt-6 space-y-2" aria-label="Rating distribution">
           {distribution.map(({ s, pct }) => (
             <li key={s} className="flex items-center gap-3 text-xs text-stone">
@@ -105,6 +111,12 @@ export function Reviews({ product }: { product: Product }) {
                 </div>
                 <h4 className="mt-3 text-2xl">{r.title}</h4>
                 <p className="mt-2 max-w-2xl leading-relaxed text-ink/80">{r.body}</p>
+                {r.reply && (
+                  <div className="mt-4 max-w-2xl border-l border-gold pl-5">
+                    <p className="eyebrow text-gold-ink">From the atelier</p>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/75">{r.reply}</p>
+                  </div>
+                )}
                 {r.photo && (
                   <button onClick={() => setLightbox(r.photo!)} className="relative mt-4 block h-24 w-32 overflow-hidden" aria-label={`Enlarge photo from ${r.name}`}>
                     <Image src={r.photo} alt={`Photo shared by ${r.name}`} fill sizes="128px" className="object-cover transition-transform duration-1000 ease-silk hover:scale-105" />
@@ -135,6 +147,8 @@ export function Reviews({ product }: { product: Product }) {
         {reviews.length === 0 && <p className="py-12 text-stone">No reviews match these filters yet.</p>}
       </div>
 
+      <WriteReview product={product} open={writing} onClose={() => setWriting(false)} />
+
       <AnimatePresence>
         {lightbox && (
           <motion.button
@@ -152,5 +166,96 @@ export function Reviews({ product }: { product: Product }) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function WriteReview({ product, open, onClose }: { product: Product; open: boolean; onClose: () => void }) {
+  const profile = useAccount((s) => s.profile);
+  const noteReview = useAccount((s) => s.noteReview);
+  const [f, setF] = useState({ rating: 5, title: "", body: "", name: "", email: "", position: "side" as Position, body_type: "average" as Body });
+  const [state, setState] = useState<"idle" | "busy" | "done">("idle");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (open && profile) setF((x) => ({ ...x, name: x.name || profile.name, email: x.email || profile.email }));
+  }, [open, profile]);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setState("busy");
+    setError("");
+    try {
+      const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, product: product.slug }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error);
+      noteReview();
+      setState("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Please try again.");
+      setState("idle");
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} title={`Review ${product.name}`} className="sm:max-w-xl">
+      {state === "done" ? (
+        <div className="px-6 pb-10 pt-4" role="status">
+          <p className="display text-3xl">Thank you for sharing your nights.</p>
+          <p className="mt-3 text-sm text-stone">Your review will appear once our team has read it, usually within a day. We&rsquo;ve added 250 Sleep Society points to your account.</p>
+          <button onClick={onClose} className="btn btn-dark mt-8">Close</button>
+        </div>
+      ) : (
+        <form onSubmit={submit} className="space-y-5 px-6 pb-8 pt-2">
+          <fieldset>
+            <legend className="eyebrow text-stone">Your rating</legend>
+            <div role="radiogroup" aria-label="Rating" className="mt-2 flex gap-1">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button type="button" key={n} role="radio" aria-checked={f.rating === n} aria-label={`${n} star${n > 1 ? "s" : ""}`} onClick={() => setF({ ...f, rating: n })} className="p-1 text-gold">
+                  <IconStar size={26} filled={n <= f.rating} />
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <label className="block">
+            <span className="eyebrow text-stone">Title</span>
+            <input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} maxLength={100} className="field" required />
+          </label>
+          <label className="block">
+            <span className="eyebrow text-stone">Your review</span>
+            <textarea value={f.body} onChange={(e) => setF({ ...f, body: e.target.value })} rows={4} maxLength={2000} className="field resize-none" required placeholder="How do you feel in the morning? What surprised you?" />
+          </label>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label>
+              <span className="eyebrow text-stone">How you sleep</span>
+              <select value={f.position} onChange={(e) => setF({ ...f, position: e.target.value as Position })} className="field">
+                {Object.entries(POSITION_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="eyebrow text-stone">Your frame</span>
+              <select value={f.body_type} onChange={(e) => setF({ ...f, body_type: e.target.value as Body })} className="field">
+                {Object.entries(BODY_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="eyebrow text-stone">Name to show</span>
+              <input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} maxLength={40} className="field" required autoComplete="name" />
+            </label>
+            <label>
+              <span className="eyebrow text-stone">Email (never shown)</span>
+              <input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} className="field" required autoComplete="email" />
+            </label>
+          </div>
+          {error && <p className="text-sm text-[#9a5a4a]" role="alert">{error}</p>}
+          <button type="submit" disabled={state === "busy"} className="btn btn-dark w-full">
+            {state === "busy" ? "Sending…" : "Submit review"}
+          </button>
+        </form>
+      )}
+    </Dialog>
   );
 }

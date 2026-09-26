@@ -1,0 +1,22 @@
+import type { NextConfig } from "next";
+
+// The backend (API, database, studio). The storefront keeps working if it's unreachable.
+const API_URL = process.env.API_URL ?? "http://localhost:4000";
+
+const nextConfig: NextConfig = {
+  devIndicators: false,
+  transpilePackages: ["@shakshi/shared"],
+  images: {
+    // All photography is served from Unsplash's CDN, which resizes on the fly.
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
+    qualities: [60, 75, 85],
+  },
+  async rewrites() {
+    // Browser calls to /api/* go to the backend (same origin, so no CORS and no exposed backend URL).
+    // Routes that exist here (e.g. /api/revalidate) are matched first.
+    return [{ source: "/api/:path*", destination: `${API_URL}/api/:path*` }];
+  },
+};
+
+export default nextConfig;

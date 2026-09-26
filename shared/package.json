@@ -1,0 +1,12 @@
+{
+  "name": "@shakshi/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Catalogue, business rules and record types used by both the storefront and the backend.",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  }
+}

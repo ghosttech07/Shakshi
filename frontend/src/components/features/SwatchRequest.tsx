@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { COVERS } from "@shakshi/shared/products";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { IconCheck, IconMail } from "@/components/ui/Icons";
+import { postJSON } from "@/lib/api";
 
 type Errors = Partial<Record<"swatches" | "name" | "email" | "address" | "pincode", string>>;
 
@@ -13,10 +14,12 @@ export function SwatchRequest() {
   const [form, setForm] = useState({ name: "", email: "", address: "", pincode: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [sendError, setSendError] = useState("");
 
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length >= 3 ? p : [...p, id]));
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const err: Errors = {};
     if (!picked.length) err.swatches = "Choose at least one swatch.";
@@ -29,7 +32,12 @@ export function SwatchRequest() {
       document.getElementById(`sw-${Object.keys(err)[0]}`)?.focus();
       return;
     }
-    setSent(true);
+    setBusy(true);
+    setSendError("");
+    const r = await postJSON("/api/leads", { kind: "swatches", email: form.email, fields: { name: form.name, address: form.address, pincode: form.pincode, swatches: picked } });
+    setBusy(false);
+    if (r.ok) setSent(true);
+    else setSendError(r.error);
   };
 
   const field = (key: keyof typeof form, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
@@ -92,8 +100,9 @@ export function SwatchRequest() {
             {field("address", "Delivery address", { autoComplete: "street-address" })}
             {field("pincode", "Pincode", { inputMode: "numeric", autoComplete: "postal-code" })}
           </div>
-          <button type="submit" className="btn btn-dark mt-10">
-            Send my free swatches
+          {sendError && <p className="mt-6 text-sm text-[#9a5a4a]" role="alert">{sendError}</p>}
+          <button type="submit" disabled={busy} aria-busy={busy} className="btn btn-dark mt-10">
+            {busy ? "Sending…" : "Send my free swatches"}
           </button>
         </motion.form>
       )}

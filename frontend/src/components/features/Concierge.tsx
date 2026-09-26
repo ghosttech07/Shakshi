@@ -8,6 +8,7 @@ import { useStore } from "@/lib/store";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { IconChat, IconClose, IconSend, IconSparkle, IconWhatsApp } from "@/components/ui/Icons";
 import { CONTACT } from "@shakshi/shared/products";
+import { guideReply } from "@shakshi/shared/concierge-knowledge";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -91,7 +92,7 @@ export function Concierge() {
         // The greeting is ours, not the guest's, so the conversation sent begins with them.
         body: JSON.stringify({ messages: history.slice(1) }),
       });
-      if (!res.ok || !res.body) throw new Error(String(res.status));
+      if (!res.ok || !res.body || !res.headers.get("content-type")?.startsWith("text/plain")) throw new Error(String(res.status));
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let acc = "";
@@ -102,10 +103,8 @@ export function Concierge() {
         setMessages([...history, { role: "assistant", content: acc }]);
       }
     } catch {
-      setMessages([
-        ...history,
-        { role: "assistant", content: `Forgive me, I couldn't connect just now. Our concierges are always a call away on ${CONTACT.phone}, or on WhatsApp.` },
-      ]);
+      // The backend is unreachable: answer from the built-in guide, which ships with the storefront.
+      setMessages([...history, { role: "assistant", content: guideReply(content) }]);
     } finally {
       setBusy(false);
     }

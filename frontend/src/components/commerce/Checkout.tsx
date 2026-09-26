@@ -7,6 +7,7 @@ import { useStore, cartSubtotal } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";
 import { useAccount } from "@/lib/account";
 import { useSettings } from "@/lib/settings-context";
+import { postJSON } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { POINTS } from "@shakshi/shared/orders";
 import { FREE_GIFT_THRESHOLD } from "@shakshi/shared/products";
@@ -84,15 +85,13 @@ export function Checkout() {
     const code = raw.trim().toUpperCase();
     if (!code) return;
     setPromoError("");
-    try {
-      const res = await fetch("/api/promo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code, subtotal, hasMattress }) });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j.error);
-      setPromo({ code: j.code, amount: j.amount, label: j.label });
+    const r = await postJSON<{ code: string; amount: number; label: string }>("/api/promo", { code, subtotal, hasMattress });
+    if (r.ok) {
+      setPromo({ code: r.data.code, amount: r.data.amount, label: r.data.label });
       setPromoInput("");
-    } catch (e) {
+    } else {
       setPromo(null);
-      setPromoError(e instanceof Error && e.message ? e.message : "We couldn't apply that code.");
+      setPromoError(r.offline ? "Codes can't be checked just now. Please try again in a moment." : r.error);
     }
   };
 
@@ -146,13 +145,19 @@ export function Checkout() {
     setPlacing(true);
     setPlaceError("");
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cart, customer: d, deliveryDate: new Date(slot).toISOString(), payment: pay, months: pay === "emi" ? months : undefined, removal, note, promoCode: promo?.code, cartId }),
+      const r = await postJSON<{ id: string; token: string; createdAt: string; deliveryDate: string; total: number; giftCodes: { code: string; amount: number; to: string }[] }>("/api/orders", {
+        items: cart,
+        customer: d,
+        deliveryDate: new Date(slot).toISOString(),
+        payment: pay,
+        months: pay === "emi" ? months : undefined,
+        removal,
+        note,
+        promoCode: promo?.code,
+        cartId,
       });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j.error);
+      if (!r.ok) throw new Error(r.offline ? "We can't place orders online just this moment. Your bag is saved: please try again shortly, or WhatsApp our concierge and we'll complete it for you." : r.error);
+      const j = r.data;
       addOrder({ id: j.id, token: j.token, createdAt: j.createdAt, deliveryDate: j.deliveryDate, total: j.total, items: cart, giftCodes: j.giftCodes });
       track("purchase", { order: j.id, total: j.total, items: cart.length });
       const acct = useAccount.getState();
@@ -373,7 +378,14 @@ export function Checkout() {
                 </form>
               </div>
             )}
-            {placeError && <p className="mt-6 text-sm text-[#9a5a4a]" role="alert">{placeError}</p>}
+            {placeError && (
+              <p className="mt-6 text-sm text-[#9a5a4a]" role="alert">
+                {placeError}{" "}
+                <a href={settings.whatsapp} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                  WhatsApp us
+                </a>
+              </p>
+            )}
 
             <div className="mt-12 flex items-center justify-between gap-4">
               {step > 0 ? (

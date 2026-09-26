@@ -4,16 +4,25 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useId, useState, type FormEvent } from "react";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { IconArrow, IconCheck } from "@/components/ui/Icons";
+import { postJSON } from "@/lib/api";
 
 export function NewsletterForm({ dark, compact }: { dark?: boolean; compact?: boolean }) {
   const id = useId();
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "error" | "done">("idle");
+  const [state, setState] = useState<"idle" | "error" | "busy" | "done">("idle");
+  const [message, setMessage] = useState("");
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setState("error");
-    setState("done");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setMessage("Please share a valid email address.");
+      return setState("error");
+    }
+    setState("busy");
+    const r = await postJSON("/api/leads", { kind: "newsletter", email, fields: { source: location.pathname } });
+    if (r.ok) return setState("done");
+    setMessage(r.offline ? "We couldn't add you just now. Please try again in a moment." : r.error);
+    setState("error");
   };
 
   return (
@@ -45,7 +54,7 @@ export function NewsletterForm({ dark, compact }: { dark?: boolean; compact?: bo
             </button>
             {state === "error" && (
               <p id={`${id}-err`} className="mt-2 text-xs text-blush">
-                Please share a valid email address.
+                {message}
               </p>
             )}
           </motion.form>

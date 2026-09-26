@@ -5,19 +5,25 @@ import { useState, type FormEvent } from "react";
 import { CONTACT } from "@shakshi/shared/products";
 import { EASE } from "@shakshi/shared/utils";
 import { IconCheck, IconPhone, IconWhatsApp, IconMail } from "@/components/ui/Icons";
+import { postJSON } from "@/lib/api";
 
 export function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", topic: "Choosing a mattress", message: "" });
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
 
-  const submit = (e: FormEvent) => {
+  const [busy, setBusy] = useState(false);
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) || form.message.trim().length < 5) {
       return setError("Please share your name, a valid email and a short message.");
     }
     setError("");
-    setSent(true);
+    setBusy(true);
+    const r = await postJSON("/api/leads", { kind: "contact", email: form.email, fields: { name: form.name, topic: form.topic, message: form.message } });
+    setBusy(false);
+    if (r.ok) setSent(true);
+    else setError(r.error);
   };
 
   return (
@@ -76,8 +82,8 @@ export function ContactForm() {
               <textarea rows={4} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="field resize-none" />
             </label>
             {error && <p className="text-sm text-[#9a5a4a] sm:col-span-2" role="alert">{error}</p>}
-            <button type="submit" className="btn btn-dark justify-self-start">
-              Send message
+            <button type="submit" disabled={busy} aria-busy={busy} className="btn btn-dark justify-self-start">
+              {busy ? "Sending…" : "Send message"}
             </button>
           </motion.form>
         )}

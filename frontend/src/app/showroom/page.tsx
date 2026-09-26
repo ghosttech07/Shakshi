@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/showroom" },
 };
 
-export default async function ShowroomPage({ searchParams }: { searchParams: Promise<{ city?: string }> }) {
-  const { city } = await searchParams;
+export default async function ShowroomPage({ searchParams }: { searchParams: Promise<{ city?: string; kind?: string }> }) {
+  const { city, kind } = await searchParams;
   return (
     <>
       <header className="container-lux pb-14 pt-36 lg:pb-20 lg:pt-44">
@@ -22,7 +22,7 @@ export default async function ShowroomPage({ searchParams }: { searchParams: Pro
           <RevealText text="Some things must be felt to be believed." />
         </h1>
       </header>
-      <ShowroomClient initialCity={city ?? ""} />
+      <ShowroomClient initialCity={city ?? ""} initialKind={kind === "video" || kind === "home" ? kind : undefined} />
       <section id="contact" className="container-lux scroll-mt-24 py-24 lg:py-32" aria-labelledby="contact-title">
         <SectionHeading eyebrow="Contact" title={<span id="contact-title">We&rsquo;re always <em>awake</em> for you.</span>} className="mb-14" />
         <ContactForm />

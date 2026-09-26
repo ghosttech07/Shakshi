@@ -10,7 +10,8 @@ begin
   foreach t in array array[
     'orders', 'bookings', 'quiz_results', 'leads', 'abandoned_carts', 'events', 'reviews',
     'gift_cards', 'warranties', 'referrals', 'stock', 'products', 'articles',
-    'login_attempts', 'discount_codes', 'settings'
+    'login_attempts', 'discount_codes', 'settings',
+    'pages', 'page_versions', 'content', 'media', 'audit_log'
   ] loop
     execute format($f$
       create table if not exists public.%1$I (

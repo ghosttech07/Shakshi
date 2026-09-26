@@ -24,7 +24,12 @@ export type Table =
   | "articles"
   | "login_attempts"
   | "discount_codes"
-  | "settings";
+  | "settings"
+  | "pages"
+  | "page_versions"
+  | "content"
+  | "media"
+  | "audit_log";
 
 export type Row<T = Record<string, unknown>> = {
   id: string;

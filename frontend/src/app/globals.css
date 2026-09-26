@@ -485,3 +485,20 @@ html[data-theme="night"] .hero-poster { background-image: url("/hero/night-mobil
   main { padding: 0 !important; }
   @page { margin: 14mm; }
 }
+
+/* ---------- About: "The Thread" ---------- */
+/* On this page the cursor becomes a lamp; the ring and dot step aside. */
+html.lamp-mode .cursor-ring, html.lamp-mode .cursor-dot { opacity: 0 !important; }
+.lamp-photo {
+  transform: translate3d(var(--px, 0), var(--py, 0), 0) rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+html.lamp-mode .lamp-photo .lamp-color {
+  -webkit-mask-image: radial-gradient(circle 170px at var(--lx, -500px) var(--ly, -500px), #000 0%, rgb(0 0 0 / 0.55) 45%, transparent 100%);
+  mask-image: radial-gradient(circle 170px at var(--lx, -500px) var(--ly, -500px), #000 0%, rgb(0 0 0 / 0.55) 45%, transparent 100%);
+}
+.year {
+  transform: translate3d(var(--mx, 0), var(--my, 0), 0) rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+  will-change: transform;
+}

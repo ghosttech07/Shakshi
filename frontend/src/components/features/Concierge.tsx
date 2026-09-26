@@ -1,13 +1,14 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { Fragment, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { IconChat, IconClose, IconSend, IconSparkle, IconWhatsApp } from "@/components/ui/Icons";
-import { CONTACT } from "@shakshi/shared/products";
 import { guideReply } from "@shakshi/shared/concierge-knowledge";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -47,6 +48,7 @@ function Rich({ text, onNavigate }: { text: string; onNavigate: () => void }) {
 }
 
 export function Concierge() {
+  const { contact } = useSite();
   const open = useStore((s) => s.conciergeOpen);
   const setOpen = useStore((s) => s.setConciergeOpen);
   const reduce = useReducedMotion();
@@ -162,7 +164,7 @@ export function Concierge() {
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" /> At your service, day and night
                 </p>
               </div>
-              <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Continue on WhatsApp" className="grid h-9 w-9 place-items-center rounded-full hover:bg-pearl/10">
+              <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Continue on WhatsApp" className="grid h-9 w-9 place-items-center rounded-full hover:bg-pearl/10">
                 <IconWhatsApp size={18} />
               </a>
             </header>

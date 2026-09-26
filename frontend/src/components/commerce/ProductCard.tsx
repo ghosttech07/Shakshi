@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";

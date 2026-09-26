@@ -1,5 +1,6 @@
 "use client";
 
+import { prefersCalm } from "@/lib/motion";
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 
@@ -24,7 +25,7 @@ export function FlyToCart() {
       const open = (e as CustomEvent<{ open?: boolean }>).detail?.open;
       const icon = document.querySelector("[data-cart-icon]");
       const rect = icon?.getBoundingClientRect();
-      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reduce = prefersCalm();
       if (reduce || !rect || !rect.width || Date.now() - last.t > 4000) {
         pulse(icon ?? null);
         if (open) setCartOpen(true);

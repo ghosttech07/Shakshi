@@ -1,5 +1,6 @@
 "use client";
 
+import { prefersCalm } from "@/lib/motion";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -36,7 +37,7 @@ export function SmoothScroll() {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersCalm()) return;
 
     // Inertia-based: each frame closes 8% of the gap, so the page glides to a stop.
     lenis = new Lenis({ lerp: 0.08, smoothWheel: true, wheelMultiplier: 0.9 });

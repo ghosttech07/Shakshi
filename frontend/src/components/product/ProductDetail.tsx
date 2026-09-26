@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ADDONS, SIZES, priceFor, type AddonId, type Product, type Review, type SizeId } from "@shakshi/shared/products";
 import { useCatalog } from "@/lib/catalog-context";

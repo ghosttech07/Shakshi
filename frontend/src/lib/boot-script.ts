@@ -6,7 +6,7 @@ export const NIGHT_UNTIL = 6;
  * Runs in <head> before first paint, so the page never flashes the wrong palette.
  * Also marks returning visitors who have already seen the preloader this session.
  */
-export const BOOT_SCRIPT = `(function(){try{var d=document.documentElement,p='auto';var s=JSON.parse(localStorage.getItem('shakshi-account')||'null');if(s&&s.state&&s.state.theme)p=s.state.theme;var h=new Date().getHours();d.dataset.theme=(p==='night'||(p==='auto'&&(h>=${NIGHT_FROM}||h<${NIGHT_UNTIL})))?'night':'day';if(sessionStorage.getItem('shk-seen'))d.classList.add('seen');}catch(e){}})();`;
+export const bootScript = (nightMode = true) => `(function(){try{var d=document.documentElement,p='auto';var s=JSON.parse(localStorage.getItem('shakshi-account')||'null');if(s&&s.state&&s.state.theme)p=s.state.theme;var h=new Date().getHours();d.dataset.theme=(p==='night'||(p==='auto'&&(h>=${NIGHT_FROM}||h<${NIGHT_UNTIL})))?'night':'day';${nightMode ? "" : "d.dataset.theme='day';"}if(sessionStorage.getItem('shk-seen'))d.classList.add('seen');}catch(e){}})();`;
 
 const LT_ESCAPE = String.fromCharCode(92) + "u003c"; // the six characters <
 

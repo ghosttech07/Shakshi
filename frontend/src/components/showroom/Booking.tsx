@@ -1,8 +1,8 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { SHOWROOMS } from "@shakshi/shared/products";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { IconArrow, IconArrowLeft, IconCalendar, IconCheck } from "@/components/ui/Icons";
 import { postJSON } from "@/lib/api";
@@ -31,6 +31,7 @@ function toICS(title: string, start: Date, minutes: number, location: string, no
 }
 
 export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: string; setSalon: (id: string) => void; initialKind?: Kind }) {
+  const SHOWROOMS = useSite().showrooms;
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);

@@ -6,7 +6,8 @@ import { Dialog } from "@/components/ui/Dialog";
 import { Img } from "@/components/ui/Img";
 import { useStore, cartSubtotal } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";
-import { ACCESSORIES, FREE_GIFT_THRESHOLD } from "@shakshi/shared/products";
+import { ACCESSORIES } from "@shakshi/shared/products";
+import { useSite } from "@/lib/site-context";
 import { EASE, emiFrom, formatINR } from "@shakshi/shared/utils";
 import { IconMinus, IconPlus, IconGift, IconLock, IconMoon, IconShield } from "@/components/ui/Icons";
 
@@ -29,6 +30,7 @@ export function TrustBadges({ dark }: { dark?: boolean }) {
 }
 
 export function GiftProgress({ subtotal }: { subtotal: number }) {
+  const FREE_GIFT_THRESHOLD = useSite().commerce.freeGiftThreshold;
   const pct = Math.min(100, (subtotal / FREE_GIFT_THRESHOLD) * 100);
   const reached = subtotal >= FREE_GIFT_THRESHOLD;
   return (

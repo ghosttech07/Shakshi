@@ -1,8 +1,10 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { useCallback, useEffect, useState } from "react";
-import { TESTIMONIALS } from "@shakshi/shared/products";
+import { TESTIMONIALS as DEFAULT_ITEMS } from "@shakshi/shared/products";
+import { fieldFn } from "@/components/cms/text";
 import { EASE } from "@shakshi/shared/utils";
 import { Img } from "@/components/ui/Img";
 import { Stars } from "@/components/ui/Bits";
@@ -42,7 +44,11 @@ function ScoreRing({ before, after }: { before: number; after: number }) {
   );
 }
 
-export function Testimonials() {
+type Item = (typeof DEFAULT_ITEMS)[number];
+
+export function Testimonials({ eyebrow = "Sleepers, in their own words", items, edit }: { eyebrow?: string; items?: Item[]; edit?: boolean }) {
+  const f = fieldFn(edit);
+  const TESTIMONIALS = items?.length ? items : DEFAULT_ITEMS;
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduce = useReducedMotion();
@@ -55,7 +61,7 @@ export function Testimonials() {
     return () => clearInterval(t);
   }, [paused, reduce, go]);
 
-  const t = TESTIMONIALS[i];
+  const t = TESTIMONIALS[i % n];
 
   return (
     <section
@@ -68,7 +74,7 @@ export function Testimonials() {
       onBlurCapture={() => setPaused(false)}
     >
       <div className="container-lux">
-        <p className="eyebrow text-gold-ink">Sleepers, in their own words</p>
+        {eyebrow && <p className="eyebrow text-gold-ink" {...f("eyebrow")}>{eyebrow}</p>}
         <div className="mt-10 grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div className="relative aspect-[4/5] max-h-[560px] overflow-hidden">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -89,6 +95,7 @@ export function Testimonials() {
             <AnimatePresence mode="wait" initial={false}>
               <motion.figure
                 key={t.name}
+                {...f(`items.${i % n}.quote`)}
                 initial={{ opacity: 0, y: reduce ? 0 : 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: reduce ? 0 : -12 }}
@@ -119,7 +126,7 @@ export function Testimonials() {
               </button>
               <div className="ml-2 flex gap-2">
                 {TESTIMONIALS.map((x, k) => (
-                  <button key={x.name} onClick={() => setI(k)} aria-label={`Show testimonial ${k + 1}`} aria-current={k === i} className="group grid h-6 place-items-center">
+                  <button key={k} onClick={() => setI(k)} aria-label={`Show testimonial ${k + 1}`} aria-current={k === i} className="group grid h-6 place-items-center">
                     <span className={`block h-px transition-all duration-1000 ease-silk ${k === i ? "w-10 bg-gold-ink" : "w-5 bg-ink/25 group-hover:bg-ink/50"}`} />
                   </button>
                 ))}

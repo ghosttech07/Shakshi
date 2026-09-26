@@ -15,40 +15,20 @@ import { ThemeToggle } from "@/components/ambient/ThemeToggle";
 import { Img } from "@/components/ui/Img";
 import { Logo } from "@/components/brand/Logo";
 import { lockScroll, unlockScroll } from "./SmoothScroll";
-import { useSettings } from "@/lib/settings-context";
+import { isLive, useSite } from "@/lib/site-context";
+import type { NavItem } from "@shakshi/shared/cms/types";
 
-export const NAV = [
-  { href: "/shop", label: "Mattresses" },
-  { href: "/quiz", label: "Sleep Quiz" },
-  { href: "/build-your-bed", label: "Build Your Bed" },
-];
+type Child = NonNullable<NavItem["children"]>[number];
+/** A dropdown's links, split into two even columns. */
+const columns = (links: Child[]) => {
+  const half = Math.ceil(links.length / 2);
+  return [links.slice(0, half), links.slice(half)].filter((c) => c.length);
+};
 
-export const DISCOVER = [
-  {
-    title: "Explore",
-    links: [
-      { href: "/sleep-studio", label: "Sleep Studio", note: "Feel the firmness, time your cycles" },
-      { href: "/sleep-library", label: "Sleep Library", note: "Essays on resting well" },
-      { href: "/real-bedrooms", label: "Real Bedrooms", note: "Our sleepers, at home" },
-      { href: "/about", label: "Craftsmanship", note: "Inside the atelier" },
-    ],
-  },
-  {
-    title: "Belong",
-    links: [
-      { href: "/sleep-society", label: "Sleep Society", note: "Rewards, tiers and referrals" },
-      { href: "/gift-cards", label: "Gift Cards", note: "The gift of deep sleep" },
-      { href: "/hospitality", label: "Hospitality & Trade", note: "Hotels, homes and offices" },
-      { href: "/setup", label: "Setup Guide", note: "Unboxing, and the first 24 hours" },
-    ],
-  },
-];
-
-
-function DiscoverMenu({ open, setOpen }: { open: boolean; setOpen: (o: boolean) => void }) {
+function DiscoverMenu({ item, open, setOpen }: { item: NavItem | undefined; open: boolean; setOpen: (o: boolean) => void }) {
   return (
     <AnimatePresence>
-      {open && (
+      {open && item?.children && (
         <motion.div
           id="discover-panel"
           className="glass absolute inset-x-0 top-full border-x-0 text-ink shadow-lift"
@@ -59,11 +39,11 @@ function DiscoverMenu({ open, setOpen }: { open: boolean; setOpen: (o: boolean) 
           onMouseLeave={() => setOpen(false)}
         >
           <div className="container-lux grid grid-cols-[1fr_1fr_1.1fr] gap-12 py-10">
-            {DISCOVER.map((g) => (
-              <div key={g.title}>
-                <p className="eyebrow text-gold-ink">{g.title}</p>
+            {columns(item.children).map((links, i) => (
+              <div key={i}>
+                <p className="eyebrow text-gold-ink">{i === 0 ? item.label : " "}</p>
                 <ul className="mt-5 space-y-4">
-                  {g.links.map((l) => (
+                  {links.map((l) => (
                     <li key={l.href}>
                       <Link href={l.href} onClick={() => setOpen(false)} className="group block">
                         <span className="link-lux font-serif text-2xl">{l.label}</span>
@@ -105,7 +85,12 @@ export function Header() {
   const [discover, setDiscover] = useState(false);
   const [darkHero, setDarkHero] = useState(false);
   const discoverBtn = useRef<HTMLButtonElement>(null);
-  const { announcement } = useSettings();
+  const site = useSite();
+  const { announcement } = site;
+  const links = site.nav.filter((n) => !n.children?.length);
+  const dropdown = site.nav.find((n) => n.children?.length);
+  const [live, setLive] = useState(false);
+  useEffect(() => setLive(isLive(announcement)), [announcement]);
   const [barClosed, setBarClosed] = useState(false);
   useEffect(() => {
     try {
@@ -176,7 +161,7 @@ export function Header() {
 
   const onDark = darkHero && !scrolled && !menu && !discover;
   const count = hydrated ? cartCount(cart) : 0;
-  const discoverActive = DISCOVER.some((g) => g.links.some((l) => pathname.startsWith(l.href)));
+  const discoverActive = !!dropdown?.children?.some((l) => pathname.startsWith(l.href));
 
   return (
     <>
@@ -190,7 +175,7 @@ export function Header() {
         transition={{ duration: 0.9, ease: EASE }}
       >
         <AnimatePresence initial={false}>
-          {announcement.enabled && announcement.text && !barClosed && !scrolled && !menu && (
+          {announcement.enabled && announcement.text && live && !barClosed && !scrolled && !menu && (
             <motion.div
               className="relative overflow-hidden bg-midnight text-pearl"
               initial={{ height: 0 }}
@@ -236,32 +221,30 @@ export function Header() {
 
           <nav aria-label="Primary" className="hidden flex-1 lg:block">
             <ul className="flex items-center gap-7 xl:gap-9">
-              {NAV.map((n) => (
-                <li key={n.href}>
-                  <Link href={n.href} className="link-lux text-[0.8rem] tracking-[0.06em]" aria-current={pathname.startsWith(n.href) ? "page" : undefined}>
-                    {n.label}
-                  </Link>
-                </li>
-              ))}
-              <li onMouseEnter={() => setDiscover(true)}>
-                <button
-                  ref={discoverBtn}
-                  onClick={() => setDiscover(!discover)}
-                  aria-expanded={discover}
-                  aria-controls="discover-panel"
-                  className={cn("link-lux inline-flex items-center gap-1.5 text-[0.8rem] tracking-[0.06em]", discoverActive && "bg-[length:100%_1px]")}
-                >
-                  Discover
-                  <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden className={cn("transition-transform duration-500", discover && "rotate-180")}>
-                    <path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" />
-                  </svg>
-                </button>
-              </li>
-              <li>
-                <Link href="/showroom" className="link-lux text-[0.8rem] tracking-[0.06em]" aria-current={pathname.startsWith("/showroom") ? "page" : undefined}>
-                  Showrooms
-                </Link>
-              </li>
+              {site.nav.map((n) =>
+                n.children?.length ? (
+                  <li key={n.label} onMouseEnter={() => setDiscover(true)}>
+                    <button
+                      ref={discoverBtn}
+                      onClick={() => setDiscover(!discover)}
+                      aria-expanded={discover}
+                      aria-controls="discover-panel"
+                      className={cn("link-lux inline-flex items-center gap-1.5 text-[0.8rem] tracking-[0.06em]", discoverActive && "bg-[length:100%_1px]")}
+                    >
+                      {n.label}
+                      <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden className={cn("transition-transform duration-500", discover && "rotate-180")}>
+                        <path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" />
+                      </svg>
+                    </button>
+                  </li>
+                ) : (
+                  <li key={n.href + n.label}>
+                    <Link href={n.href} className="link-lux text-[0.8rem] tracking-[0.06em]" aria-current={pathname.startsWith(n.href) ? "page" : undefined}>
+                      {n.label}
+                    </Link>
+                  </li>
+                )
+              )}
             </ul>
           </nav>
 
@@ -298,7 +281,7 @@ export function Header() {
           </div>
         </div>
         <div className="hidden lg:block">
-          <DiscoverMenu open={discover} setOpen={setDiscover} />
+          <DiscoverMenu item={dropdown} open={discover} setOpen={setDiscover} />
         </div>
       </motion.header>
 
@@ -317,8 +300,8 @@ export function Header() {
           >
             <nav aria-label="Mobile" className="container-lux flex min-h-full flex-col justify-between gap-10 pb-10 pt-28">
               <ul className="space-y-2">
-                {[{ href: "/", label: "Home" }, ...NAV, { href: "/showroom", label: "Showrooms" }].map((n, i) => (
-                  <motion.li key={n.href} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.2 + i * 0.05, ease: EASE }}>
+                {[{ href: "/", label: "Home" }, ...links].map((n, i) => (
+                  <motion.li key={n.href + n.label} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.2 + i * 0.05, ease: EASE }}>
                     <Link href={n.href} className="font-serif text-4xl font-light">
                       {n.label}
                     </Link>
@@ -326,11 +309,11 @@ export function Header() {
                 ))}
               </ul>
               <motion.div className="grid grid-cols-2 gap-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 1 }}>
-                {DISCOVER.map((g) => (
-                  <div key={g.title}>
-                    <p className="eyebrow text-gold">{g.title}</p>
+                {dropdown?.children && columns(dropdown.children).map((col, i) => (
+                  <div key={i}>
+                    <p className="eyebrow text-gold">{i === 0 ? dropdown.label : " "}</p>
                     <ul className="mt-3 space-y-2">
-                      {g.links.map((l) => (
+                      {col.map((l) => (
                         <li key={l.href}>
                           <Link href={l.href} className="font-serif text-xl">
                             {l.label}
@@ -353,7 +336,7 @@ export function Header() {
                   </Link>
                 </div>
                 <div className="gold-rule" />
-                <p className="eyebrow text-gold">100-night trial · Free white-glove delivery</p>
+                <p className="eyebrow text-gold">{site.brand.tagline}</p>
               </motion.div>
             </nav>
           </motion.div>

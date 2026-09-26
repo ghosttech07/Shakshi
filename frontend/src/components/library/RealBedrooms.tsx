@@ -1,10 +1,11 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { BEDROOMS, type Bedroom, type Hotspot } from "@shakshi/shared/bedrooms";
+import type { Bedroom, Hotspot } from "@shakshi/shared/bedrooms";
 import { ACCESSORIES } from "@shakshi/shared/products";
 import { useCatalog } from "@/lib/catalog-context";
 import { useStore } from "@/lib/store";
@@ -85,6 +86,7 @@ function Dots({ b, active, onPick }: { b: Bedroom; active?: number; onPick?: (i:
 }
 
 export function RealBedrooms({ limit }: { limit?: number }) {
+  const BEDROOMS = useSite().bedrooms as Bedroom[];
   const { products } = useCatalog();
   const [filter, setFilter] = useState<string>("all");
   const [open, setOpen] = useState<Bedroom | null>(null);

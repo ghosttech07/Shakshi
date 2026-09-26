@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { useEffect, useState, type ReactNode } from "react";
 import { useAccount } from "@/lib/account";
 import { useHydrated } from "@/lib/useHydrated";
@@ -49,8 +50,8 @@ const STEPS: { title: string; body: string; art: ReactNode }[] = [
 const STEP_MS = 5200;
 
 /** An unboxing film: a real video if one is configured, otherwise six illustrated scenes that play in turn. */
-export function UnboxingFilm() {
-  const video = process.env.NEXT_PUBLIC_UNBOXING_VIDEO_URL;
+export function UnboxingFilm({ video: chosen }: { video?: string } = {}) {
+  const video = chosen || process.env.NEXT_PUBLIC_UNBOXING_VIDEO_URL;
   const reduce = useReducedMotion();
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(!reduce);

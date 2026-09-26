@@ -3,15 +3,11 @@
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
 import { cn } from "@shakshi/shared/utils";
+import { SECTIONS } from "@shakshi/shared/cms/sections";
 
-// Placeholder claims for the storefront design: confirm each certificate before launch.
-const CERTS = [
-  { id: "certipur", mark: "CP", name: "CertiPUR-US®", scope: "Foams", body: "Our foams are made without ozone depleters, PBDE flame retardants, mercury, lead or formaldehyde, and are tested for low emissions (VOCs) for indoor air quality." },
-  { id: "oeko", mark: "OT", name: "OEKO-TEX® Standard 100", scope: "Covers & textiles", body: "Every thread, button and zip that touches you is tested for harmful substances, to the strictest class for products in direct contact with skin." },
-  { id: "gots", mark: "GO", name: "GOTS", scope: "Organic cotton", body: "The Global Organic Textile Standard certifies our cotton from field to finished cover: organic fibre, and responsible processing all the way through." },
-  { id: "gols", mark: "GL", name: "GOLS", scope: "Natural latex", body: "The Global Organic Latex Standard confirms our latex is made from certified organic rubber, with strict limits on fillers and chemicals." },
-  { id: "iso", mark: "ISO", name: "ISO 9001", scope: "Our atelier", body: "Our workshop's quality management is independently audited, so every mattress is built, checked and finished the same careful way." },
-];
+// Placeholder claims for the storefront design: confirm each certificate before launch (editable in the studio).
+type Cert = { mark: string; name: string; scope: string; body: string };
+const CERTS = SECTIONS.certifications.defaults.items as Cert[];
 
 function Seal({ mark }: { mark: string }) {
   return (
@@ -26,15 +22,16 @@ function Seal({ mark }: { mark: string }) {
 }
 
 /** Certification badges; each opens a short plain-language explanation. */
-export function Certifications({ className, compact }: { className?: string; compact?: boolean }) {
-  const [open, setOpen] = useState<string | null>(null);
-  const c = CERTS.find((x) => x.id === open);
+export function Certifications({ className, compact, items }: { className?: string; compact?: boolean; items?: Cert[] }) {
+  const list = items?.length ? items : CERTS;
+  const [open, setOpen] = useState<number | null>(null);
+  const c = open === null ? undefined : list[open];
   return (
     <>
       <ul className={cn("flex flex-wrap gap-x-6 gap-y-4", className)} aria-label="Certifications">
-        {CERTS.map((x) => (
-          <li key={x.id}>
-            <button onClick={() => setOpen(x.id)} className="group flex items-center gap-3 text-left text-gold-ink transition-colors duration-500 hover:text-ink" aria-haspopup="dialog">
+        {list.map((x, i) => (
+          <li key={i}>
+            <button onClick={() => setOpen(i)} className="group flex items-center gap-3 text-left text-gold-ink transition-colors duration-500 hover:text-ink" aria-haspopup="dialog">
               <Seal mark={x.mark} />
               {!compact && (
                 <span>

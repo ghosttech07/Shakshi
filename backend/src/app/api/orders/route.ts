@@ -1,4 +1,5 @@
 import { get, insert, update, upsert } from "@/lib/server/db";
+import { getSite } from "@/lib/server/content";
 import { getCatalog, getStock, stockKey } from "@/lib/server/catalog";
 import { checkPromo, newGiftCode, newOrderNumber, newToken, serverPrice } from "@/lib/server/commerce";
 import { bad, body, isEmail, isPhone, json, limited, num, str } from "@/lib/server/http";
@@ -73,7 +74,8 @@ export async function POST(req: Request) {
   const madeToOrder = [...need].some(([k, n]) => typeof stock[k] === "number" && (stock[k] as number) < n);
 
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const removal = b.removal && !items.some((i) => i.ref === "removal") ? 1500 : 0;
+  const { commerce } = await getSite();
+  const removal = b.removal && !items.some((i) => i.ref === "removal") ? commerce.removalFee : 0;
   let discount = 0;
   let discountLabel: string | undefined;
   let promoCode: string | undefined;

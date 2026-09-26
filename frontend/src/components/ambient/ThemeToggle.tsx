@@ -1,5 +1,6 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import { useEffect } from "react";
 import { useAccount, type ThemePref } from "@/lib/account";
 import { useHydrated } from "@/lib/useHydrated";
@@ -9,7 +10,7 @@ const NEXT: Record<ThemePref, ThemePref> = { auto: "night", night: "day", day: "
 const LABEL: Record<ThemePref, string> = { auto: "Theme follows the time of day", night: "Night mode", day: "Day mode" };
 
 /** Cycles Auto → Night → Day. Auto turns moonlit at 7pm and back at 6am. */
-export function ThemeToggle() {
+function ThemeToggleInner() {
   const hydrated = useHydrated();
   const pref = useAccount((s) => s.theme);
   const setTheme = useAccount((s) => s.setTheme);
@@ -43,4 +44,8 @@ export function ThemeToggle() {
       {pref === "auto" && hydrated && <span className="absolute bottom-2 right-2 text-[0.5rem] font-semibold">A</span>}
     </button>
   );
+}
+
+export function ThemeToggle() {
+  return useSite().theme.toggles.nightMode ? <ThemeToggleInner /> : null;
 }

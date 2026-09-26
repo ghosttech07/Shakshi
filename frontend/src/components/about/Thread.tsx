@@ -2,23 +2,20 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { IMG } from "@shakshi/shared/images";
+import { SECTIONS } from "@shakshi/shared/cms/sections";
+import { Emph, lines as splitLines, fieldFn } from "@/components/cms/text";
 import { Logo } from "@/components/brand/Logo";
 
 const EASE = [0.65, 0, 0.35, 1] as const;
 
-const CHAPTERS = [
-  { year: "2012", title: "The Beginning", lines: ["It began with one bed, stitched by hand", "for our own family, in a small room in Bengaluru.", "It took eleven days. We have never hurried since."], image: IMG.sleepMono, alt: "Someone asleep in soft white linen" },
-  { year: "2014", title: "The First Workshop", lines: ["A rented workshop among coconut groves,", "four craftspeople, and a long wooden table", "where every mattress was tufted, tied and signed."], image: IMG.artisan, alt: "An artisan's hands at a workbench" },
-  { year: "2016", title: "The Material Search", lines: ["We went looking for the softest things on earth:", "wool from the hills, latex from Kerala's rubber trees,", "cotton grown without a single shortcut."], image: IMG.sheep, alt: "A flock of woolly sheep in a meadow" },
-  { year: "2019", title: "The First Bed", lines: ["The first Shakshi collection left the workshop.", "Families wrote to tell us they slept through the night.", "We kept every letter."], image: IMG.tufted, alt: "A tufted headboard above crisp bedding" },
-  { year: "2024", title: "Today", lines: ["Forty hands, twelve hours for every mattress,", "and homes across India that rest a little deeper.", "The table is longer now. The care is the same."], image: IMG.grandSuite, alt: "A calm suite in evening light" },
-  { year: "2030", title: "What's Next", lines: ["Beds that give back more than they take:", "fully recyclable, repaired rather than replaced,", "and made to be handed down."], image: IMG.forest, alt: "Light falling through a quiet forest" },
-];
+type Chapter = { year: string; label?: string; title: string; lines: string; image: string; alt: string };
+type ThreadData = { intro?: string; hint?: string; chapters?: Chapter[]; closing?: string; ctaText?: string; ctaLink?: string };
+const DEFAULTS = SECTIONS["thread-journey"].defaults as ThreadData;
 
 // ---------- the lamp: one eased pointer shared by every glowing thing on the page ----------
 type LampTarget = { el: HTMLElement; kind: "image" | "year" };
@@ -111,7 +108,10 @@ function Lines({ lines, reduce }: { lines: string[]; reduce: boolean }) {
   );
 }
 
-export function Thread() {
+export function Thread({ data = {}, edit }: { data?: ThreadData; edit?: boolean }) {
+  const f = fieldFn(edit);
+  const t = { ...DEFAULTS, ...data };
+  const CHAPTERS = (t.chapters ?? []).map((c) => ({ ...c, lines: splitLines(c.lines) }));
   const reduce = !!useReducedMotion();
   const [fine, setFine] = useState(false);
   useEffect(() => setFine(matchMedia("(pointer: fine)").matches), []);
@@ -134,7 +134,7 @@ export function Thread() {
       if (!box) return;
       const pts = [{ x: box.width / 2, y: 0 }];
       for (const a of anchors.current) {
-        if (!a) continue;
+        if (!a || !a.isConnected) continue;
         const r = a.getBoundingClientRect();
         pts.push({ x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 });
       }
@@ -193,7 +193,7 @@ export function Thread() {
         .fromTo(logo.current, { opacity: 0, scale: 0.85, filter: "blur(6px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", ease: "power3.inOut" }, "<0.2");
     }, wrap);
     return () => ctx.revert();
-  }, [d, reduce, lampOn]);
+  }, [d, reduce, lampOn, CHAPTERS.length]);
 
   const knotAt = d ? d.match(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)\s+c 0,26/)?.slice(1).map(Number) : null;
 
@@ -211,11 +211,13 @@ export function Thread() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.6, delay: 0.4, ease: EASE }}
         >
-          Every great night begins with a <em className="text-gold-soft">single stitch.</em>
+          <span {...f("intro")}>
+            <Emph text={t.intro ?? ""} emClassName="text-gold-soft" />
+          </span>
         </motion.h1>
         <span aria-hidden className="absolute left-1/2 top-0 h-[30vh] w-px -translate-x-1/2 bg-gradient-to-b from-transparent to-gold" />
         <motion.p className="eyebrow absolute bottom-10 text-pearl/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1.4 }} aria-hidden>
-          Follow the thread
+          {t.hint}
         </motion.p>
       </section>
 
@@ -244,7 +246,7 @@ export function Thread() {
         {CHAPTERS.map((c, i) => {
           const right = i % 2 === 1;
           return (
-            <section key={c.year} className="container-lux relative z-10 grid min-h-[120svh] items-center gap-12 py-24 lg:grid-cols-2 lg:gap-24" aria-labelledby={`ch-${c.year}`}>
+            <section key={i} className="container-lux relative z-10 grid min-h-[120svh] items-center gap-12 py-24 lg:grid-cols-2 lg:gap-24" aria-labelledby={`ch-${i}`} {...f(`chapters.${i}.title`)}>
               <div className={right ? "lg:order-2" : ""}>
                 <div
                   ref={(el) => {
@@ -259,8 +261,8 @@ export function Thread() {
                     {c.year}
                   </span>
                 </div>
-                <p className="eyebrow mt-8 text-gold">{c.year === "2030" ? "Next" : c.year}</p>
-                <h2 id={`ch-${c.year}`} className="mt-3 text-4xl sm:text-5xl">
+                <p className="eyebrow mt-8 text-gold">{c.label || c.year}</p>
+                <h2 id={`ch-${i}`} className="mt-3 text-4xl sm:text-5xl">
                   {c.title}
                 </h2>
                 <Lines lines={c.lines} reduce={reduce} />
@@ -268,7 +270,7 @@ export function Thread() {
               <div className={right ? "lg:order-1" : ""} style={{ perspective: 1200 }}>
                 <figure ref={lampOn ? register("image") : undefined} className="lamp-photo relative aspect-[4/5] w-full max-w-md overflow-hidden lg:mx-auto">
                   {/* In darkness… */}
-                  <Image src={c.image} alt={c.alt} fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:brightness(0.14)_saturate(0.4)]" data-keep-bright />
+                  <Image src={c.image} alt={c.alt ?? ""} fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:brightness(0.14)_saturate(0.4)]" data-keep-bright />
                   {/* …until the lamp finds it */}
                   <div className="lamp-color absolute inset-0" aria-hidden style={{ opacity: lampOn || reduce ? 1 : 0 }}>
                     <Image src={c.image} alt="" fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:sepia(0.18)_saturate(1.1)_brightness(1.05)]" data-keep-bright />
@@ -285,11 +287,15 @@ export function Thread() {
             <Logo variant="lockup" tone="light" className="h-20 [background-color:var(--color-gold)]! sm:h-28" />
           </div>
           <h2 id="thread-end" className="display mt-14 text-4xl font-light sm:text-6xl">
-            The thread continues <em className="text-gold-soft">with you.</em>
+            <span {...f("closing")}>
+              <Emph text={t.closing ?? ""} emClassName="text-gold-soft" />
+            </span>
           </h2>
-          <Link href="/quiz" className="btn btn-gold mt-12">
-            Find Your Mattress
-          </Link>
+          {t.ctaText && (
+            <Link href={t.ctaLink || "/quiz"} className="btn btn-gold mt-12" {...f("ctaText")}>
+              {t.ctaText}
+            </Link>
+          )}
         </section>
       </div>
     </div>

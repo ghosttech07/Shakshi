@@ -9,12 +9,14 @@ import { recommend } from "@/lib/recommend";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@shakshi/shared/utils";
+import { fieldFn } from "@/components/cms/text";
 
 /**
  * "Recommended for you": appears only once we know something about the visitor.
  * With `fallbackTitle`, shows a plain selection under that title when there are no signals yet.
  */
-export function RecommendedRow({ exclude, title = "Recommended for you", fallbackTitle, className }: { exclude?: string[]; title?: string; fallbackTitle?: string; className?: string }) {
+export function RecommendedRow({ exclude, title = "Recommended for you", fallbackTitle, className, edit }: { exclude?: string[]; title?: string; fallbackTitle?: string; className?: string; edit?: boolean }) {
+  const f = fieldFn(edit);
   const hydrated = useHydrated();
   const { products } = useCatalog();
   const recent = useStore((s) => s.recent);
@@ -29,7 +31,7 @@ export function RecommendedRow({ exclude, title = "Recommended for you", fallbac
     <section className={cn("container-lux py-20 lg:py-28", className)} aria-labelledby="recs-title">
       <Reveal>
         <p className="eyebrow text-gold-ink">{recs.length ? "Chosen with you in mind" : "The collection"}</p>
-        <h2 id="recs-title" className="display mt-4 text-4xl lg:text-5xl">
+        <h2 id="recs-title" className="display mt-4 text-4xl lg:text-5xl" {...f(recs.length ? "title" : "fallbackTitle")}>
           {recs.length ? title : fallbackTitle}
         </h2>
       </Reveal>

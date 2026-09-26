@@ -1,5 +1,6 @@
 "use client";
 
+import { prefersCalm } from "@/lib/motion";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -13,7 +14,7 @@ export function Cursor() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    const ok = matchMedia("(pointer: fine) and (hover: hover)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ok = matchMedia("(pointer: fine) and (hover: hover)").matches && !prefersCalm();
     setEnabled(ok);
     if (!ok) return;
     const root = document.documentElement;

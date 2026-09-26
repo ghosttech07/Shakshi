@@ -1,7 +1,7 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import { AnimatePresence, motion } from "framer-motion";
-import { SHOWROOMS } from "@shakshi/shared/products";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { Img } from "@/components/ui/Img";
 import { IconPin, IconPhone, IconClock, IconArrow } from "@/components/ui/Icons";
@@ -10,6 +10,7 @@ import { IconPin, IconPhone, IconClock, IconArrow } from "@/components/ui/Icons"
 const project = (lat: number, lng: number) => ({ x: ((lng - 68) / (90 - 68)) * 100, y: ((36 - lat) / (36 - 7)) * 100 });
 
 export function Showrooms({ active, onSelect: setActive, onBook }: { active: string; onSelect: (id: string) => void; onBook: (id: string) => void }) {
+  const SHOWROOMS = useSite().showrooms;
   const s = SHOWROOMS.find((x) => x.id === active)!;
   const pts = SHOWROOMS.map((x) => ({ ...x, ...project(x.lat, x.lng) }));
   const bbox = `${s.lng - 0.02},${s.lat - 0.012},${s.lng + 0.02},${s.lat + 0.012}`;

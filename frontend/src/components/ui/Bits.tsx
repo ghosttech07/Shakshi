@@ -49,8 +49,11 @@ export function SectionHeading({
   dark,
   align = "left",
   className,
+  f,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
+  /** Studio preview: tags each part with its field name. */
+  f?: (path: string) => object;
   title: React.ReactNode;
   intro?: string;
   dark?: boolean;
@@ -59,9 +62,19 @@ export function SectionHeading({
 }) {
   return (
     <div className={cn(align === "center" && "mx-auto text-center", "max-w-2xl", className)}>
-      <p className={cn("eyebrow", dark ? "text-gold" : "text-gold-ink")}>{eyebrow}</p>
-      <h2 className="display mt-5 text-[2.6rem] sm:text-5xl lg:text-6xl">{title}</h2>
-      {intro && <p className={cn("mt-6 text-base leading-relaxed sm:text-lg", dark ? "text-pearl/70" : "text-stone")}>{intro}</p>}
+      {eyebrow && (
+        <p className={cn("eyebrow mb-5", dark ? "text-gold" : "text-gold-ink")} {...f?.("eyebrow")}>
+          {eyebrow}
+        </p>
+      )}
+      <h2 className="display text-[2.6rem] sm:text-5xl lg:text-6xl" {...f?.("title")}>
+        {title}
+      </h2>
+      {intro && (
+        <p className={cn("mt-6 text-base leading-relaxed sm:text-lg", dark ? "text-pearl/70" : "text-stone")} {...f?.("intro")}>
+          {intro}
+        </p>
+      )}
     </div>
   );
 }

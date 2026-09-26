@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useAccount } from "@/lib/account";
 import { useHydrated } from "@/lib/useHydrated";
-import { useSettings } from "@/lib/settings-context";
+import { useSite } from "@/lib/site-context";
 import { Logo } from "@/components/brand/Logo";
 import { formatINR } from "@shakshi/shared/utils";
 
@@ -16,7 +16,7 @@ export function Invoice({ id }: { id: string }) {
   const hydrated = useHydrated();
   const order = useAccount((s) => s.orders.find((o) => o.id === id));
   const profile = useAccount((s) => s.profile);
-  const settings = useSettings();
+  const { brand, contact: settings } = useSite();
 
   if (!hydrated) return <div className="skeleton h-[70vh]" />;
   if (!order)
@@ -63,7 +63,7 @@ export function Invoice({ id }: { id: string }) {
         <section className="grid gap-8 py-8 text-sm sm:grid-cols-2">
           <div>
             <p className="eyebrow text-[#6b635a]">Sold by</p>
-            <p className="mt-2 font-semibold">{settings.storeName}</p>
+            <p className="mt-2 font-semibold">{brand.name}</p>
             <p>{settings.address}</p>
             <p>GSTIN: to be added</p>
           </div>

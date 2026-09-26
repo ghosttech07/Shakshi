@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { getProduct } from "@shakshi/shared/products";
 import { cn } from "@shakshi/shared/utils";
 import { layerKind } from "@/components/three/MattressModel";
@@ -42,7 +42,8 @@ const SURFACES: Record<string, { top: string; side: string }> = {
   },
 };
 
-export function Anatomy() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean } = {}) {
   const product = getProduct("signature")!;
   const layers = product.layers;
   const n = layers.length;

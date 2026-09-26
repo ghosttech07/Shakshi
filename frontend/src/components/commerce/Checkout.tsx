@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/motion";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useStore, cartSubtotal } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";
 import { useAccount } from "@/lib/account";
-import { useSettings } from "@/lib/settings-context";
+import { useSite } from "@/lib/site-context";
 import { postJSON } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { POINTS } from "@shakshi/shared/orders";
-import { FREE_GIFT_THRESHOLD } from "@shakshi/shared/products";
 import { EASE, cn, emiFrom, estimateDelivery, formatINR, addDeliveryDays } from "@shakshi/shared/utils";
 import { Img } from "@/components/ui/Img";
 import { TrustBadges, GiftProgress } from "./CartDrawer";
@@ -64,10 +64,11 @@ export function Checkout() {
   const addOrder = useAccount((s) => s.addOrder);
   const prefilled = useRef(false);
 
+  const site = useSite();
   const subtotal = cartSubtotal(cart);
   const hasRemovalInCart = cart.some((c) => c.ref === "removal");
   const hasMattress = cart.some((c) => c.kind === "mattress");
-  const removalFee = removal && !hasRemovalInCart ? 1500 : 0;
+  const removalFee = removal && !hasRemovalInCart ? site.commerce.removalFee : 0;
   const discount = promo ? Math.min(promo.amount, subtotal) : 0;
   const total = Math.max(0, subtotal + removalFee - discount);
 
@@ -100,10 +101,9 @@ export function Checkout() {
     if (hydrated && referredBy && hasMattress && !promo) applyPromo(referredBy);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, referredBy, hasMattress]);
-  const gift = subtotal >= FREE_GIFT_THRESHOLD;
+  const gift = subtotal >= site.commerce.freeGiftThreshold;
 
-  const settings = useSettings();
-  const estimate = useMemo(() => estimateDelivery(d.pincode, settings), [d.pincode, settings]);
+  const estimate = useMemo(() => estimateDelivery(d.pincode, site.commerce), [d.pincode, site.commerce]);
   const dates = useMemo(() => {
     if (!estimate.ok) return [];
     return Array.from({ length: 6 }, (_, i) => addDeliveryDays(estimate.earliest, i).toDateString()).filter((v, i, a) => a.indexOf(v) === i);
@@ -295,7 +295,7 @@ export function Checkout() {
                       <span className="block">Take away my old mattress</span>
                       <span className="block text-sm text-stone">Responsibly recycled or donated.</span>
                     </span>
-                    <span className="text-sm">{formatINR(1500)}</span>
+                    <span className="text-sm">{formatINR(site.commerce.removalFee)}</span>
                   </label>
                 )}
                 <label className="mt-6 block">
@@ -381,7 +381,7 @@ export function Checkout() {
             {placeError && (
               <p className="mt-6 text-sm text-[#9a5a4a]" role="alert">
                 {placeError}{" "}
-                <a href={settings.whatsapp} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                <a href={site.contact.whatsapp} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
                   WhatsApp us
                 </a>
               </p>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useAccount, type SoundId } from "@/lib/account";
@@ -31,7 +32,7 @@ function Wave({ playing }: { playing: boolean }) {
 }
 
 /** Ambient sound: always off until chosen, and remembered only as a preference, never autoplayed. */
-export function AmbientControl() {
+function AmbientControlInner() {
   const sound = useAccount((s) => s.sound);
   const setSound = useAccount((s) => s.setSound);
   const volume = useAccount((s) => s.volume);
@@ -126,4 +127,8 @@ export function AmbientControl() {
       </AnimatePresence>
     </div>
   );
+}
+
+export function AmbientControl() {
+  return useSite().theme.toggles.ambientSound ? <AmbientControlInner /> : null;
 }

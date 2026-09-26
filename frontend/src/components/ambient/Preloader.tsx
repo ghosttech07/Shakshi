@@ -1,5 +1,6 @@
 "use client";
 
+import { prefersCalm } from "@/lib/motion";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 
@@ -13,7 +14,7 @@ export function Preloader() {
   useEffect(() => {
     const root = document.documentElement;
     if (root.classList.contains("seen")) return setDone(true);
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = prefersCalm();
     const minimum = new Promise((r) => setTimeout(r, reduce ? 250 : Math.max(0, 1300 - performance.now())));
     const fonts = Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => setTimeout(r, 1800))]);
     let alive = true;

@@ -1,13 +1,15 @@
 "use client";
 
+import { useSite } from "@/lib/site-context";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, type FormEvent } from "react";
-import { CONTACT } from "@shakshi/shared/products";
+import { phoneHref } from "@shakshi/shared/settings";
 import { EASE } from "@shakshi/shared/utils";
 import { IconCheck, IconPhone, IconWhatsApp, IconMail } from "@/components/ui/Icons";
 import { postJSON } from "@/lib/api";
 
 export function ContactForm() {
+  const CONTACT = useSite().contact;
   const [form, setForm] = useState({ name: "", email: "", topic: "Choosing a mattress", message: "" });
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -36,7 +38,7 @@ export function ContactForm() {
             <span className="block text-sm text-stone">Replies within minutes, 9am–11pm</span>
           </span>
         </a>
-        <a href={CONTACT.phoneHref} className="flex items-center gap-4 border border-ink/10 p-5 transition-colors duration-700 hover:border-gold">
+        <a href={phoneHref(CONTACT.phone)} className="flex items-center gap-4 border border-ink/10 p-5 transition-colors duration-700 hover:border-gold">
           <span className="grid h-12 w-12 place-items-center rounded-full bg-midnight text-gold"><IconPhone size={22} /></span>
           <span>
             <span className="block font-serif text-xl">{CONTACT.phone}</span>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getArticles } from "@/lib/server/catalog";
+import { getArticles } from "@/lib/data";
 import { LibraryIndex } from "@/components/library/LibraryIndex";
 import { Reveal, RevealText } from "@/components/ui/Reveal";
 import { SITE_URL } from "@shakshi/shared/site";

@@ -1,5 +1,5 @@
-import type { Product } from "./products";
-import { matchMattresses, type Answers } from "./quiz";
+import type { Product } from "@shakshi/shared/products";
+import { matchMattresses, type Answers } from "@shakshi/shared/quiz";
 
 export type Signals = { quiz?: { answers: Answers } | null; recent?: string[]; wishlist?: string[]; exclude?: string[] };
 export type Recommendation = { product: Product; reason: string; score: number };

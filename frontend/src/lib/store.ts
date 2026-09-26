@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { SizeId } from "./products";
+import type { SizeId } from "@shakshi/shared/products";
 import { track } from "./analytics";
 
 export type CartItem = {

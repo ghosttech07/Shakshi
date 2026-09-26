@@ -1,6 +1,6 @@
 "use client";
 
-import type { EventName } from "./records";
+import type { EventName } from "@shakshi/shared/records";
 
 type Queued = { name: EventName; props: Record<string, string | number | boolean>; path: string; at: string };
 

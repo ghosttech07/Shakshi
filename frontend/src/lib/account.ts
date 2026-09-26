@@ -2,9 +2,9 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Answers } from "./quiz";
-import type { OrderItem } from "./orders";
-import { POINTS } from "./orders";
+import type { Answers } from "@shakshi/shared/quiz";
+import type { OrderItem } from "@shakshi/shared/orders";
+import { POINTS } from "@shakshi/shared/orders";
 
 export type LocalOrder = {
   id: string;

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { REVIEWS, priceFor, type Review } from "@shakshi/shared/products";
-import { getCatalog } from "@/lib/server/catalog";
-import { list } from "@/lib/server/db";
-import type { ReviewData } from "@shakshi/shared/records";
+import { REVIEWS, priceFor } from "@shakshi/shared/products";
+import { getApprovedReviews, getCatalog } from "@/lib/data";
 import { jsonLd } from "@/lib/boot-script";
 import { ProductDetail } from "@/components/product/ProductDetail";
 import { SITE_URL } from "@shakshi/shared/site";
@@ -20,17 +18,6 @@ export const revalidate = 300;
 
 const find = async (slug: string) => (await getCatalog()).find((p) => p.slug === slug);
 
-/** Approved reviews from the studio, shaped like the built-in ones (with any reply from the atelier). */
-async function storedReviews(slug: string): Promise<Review[]> {
-  try {
-    const rows = await list<ReviewData>("reviews", { status: "approved", limit: 300 });
-    return rows
-      .filter((r) => r.data.product === slug)
-      .map((r) => ({ id: r.id, product: slug, name: r.data.name, rating: r.data.rating, title: r.data.title, body: r.data.body, position: r.data.position, body_type: r.data.body_type, date: r.created_at.slice(0, 10), helpful: r.data.helpful, verified: false, reply: r.data.reply }));
-  } catch {
-    return [];
-  }
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await find((await params).slug);
@@ -47,7 +34,7 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const product = await find(slug);
   if (!product) notFound();
-  const extraReviews = await storedReviews(slug);
+  const extraReviews = await getApprovedReviews(slug);
 
   const ld = {
     "@context": "https://schema.org",

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ARTICLES, getArticle, type Block } from "@shakshi/shared/articles";
-import { getArticles, getCatalog } from "@/lib/server/catalog";
+import { getArticles, getCatalog } from "@/lib/data";
 import { ArticleCard, ArticleMeta } from "@/components/library/LibraryIndex";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { Img } from "@/components/ui/Img";

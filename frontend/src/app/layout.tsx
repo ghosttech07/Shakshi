@@ -9,8 +9,7 @@ import { GlobalWidgets } from "@/components/ambient/GlobalWidgets";
 import { Preloader } from "@/components/ambient/Preloader";
 import { Toaster } from "@/components/ui/Toaster";
 import { CatalogProvider } from "@/lib/catalog-context";
-import { getCatalog, getStock } from "@/lib/server/catalog";
-import { getSettings } from "@/lib/server/settings";
+import { getStorefront } from "@/lib/data";
 import { SettingsProvider } from "@/lib/settings-context";
 import { BOOT_SCRIPT, jsonLd } from "@/lib/boot-script";
 import { CONTACT, SHOWROOMS } from "@shakshi/shared/products";
@@ -66,7 +65,7 @@ const orgJsonLd = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [products, stock, settings] = await Promise.all([getCatalog(), getStock(), getSettings()]);
+  const { products, stock, settings } = await getStorefront();
   return (
     <html lang="en-IN" className={`${cormorant.variable} ${manrope.variable}`} data-theme="day" suppressHydrationWarning>
       <head>

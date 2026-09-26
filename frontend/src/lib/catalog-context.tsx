@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { PRODUCTS, type Product, type SizeId } from "./products";
+import { PRODUCTS, type Product, type SizeId } from "@shakshi/shared/products";
 
 type Catalog = { products: Product[]; stock: Record<string, number | null> };
 

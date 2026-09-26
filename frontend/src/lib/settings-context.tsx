@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { DEFAULT_SETTINGS } from "./settings";
-import type { StoreSettings } from "./records";
+import { DEFAULT_SETTINGS } from "@shakshi/shared/settings";
+import type { StoreSettings } from "@shakshi/shared/records";
 
 const Ctx = createContext<StoreSettings>(DEFAULT_SETTINGS);
 

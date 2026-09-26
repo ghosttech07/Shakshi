@@ -1,4 +1,4 @@
-import { ADDONS, SIZES, priceFor, type AddonId, type Product, type SizeId } from "./products";
+import { ADDONS, SIZES, priceFor, type AddonId, type Product, type SizeId } from "@shakshi/shared/products";
 import type { CartItem } from "./store";
 
 export function mattressItem(p: Product, size: SizeId): Omit<CartItem, "qty"> {

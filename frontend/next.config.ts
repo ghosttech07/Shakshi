@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
     loaderFile: "./src/lib/image-loader.ts",
     qualities: [60, 75, 85],
   },
+  async redirects() {
+    // The studio runs on the backend; /admin on the shop takes you there.
+    const studio = process.env.STUDIO_URL ?? `${API_URL}/admin`;
+    return [
+      { source: "/admin", destination: studio, permanent: false },
+      { source: "/admin/:path*", destination: `${studio}/:path*`, permanent: false },
+    ];
+  },
   async rewrites() {
     // Browser calls to /api/* go to the backend (same origin, so no CORS and no exposed backend URL).
     // Routes that exist here (e.g. /api/revalidate) are matched first.

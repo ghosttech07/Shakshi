@@ -17,11 +17,11 @@ npm run dev            # starts backend (4000) and frontend (3000) together
 npm run build && npm start
 ```
 
-`studio:setup` prints the studio address (`http://localhost:4000/studio-…`) and a generated password. See `.env.example` for every setting.
+`studio:setup` prints the studio address (`http://localhost:4000/admin`; `/admin` on the shop forwards there) and a generated password. See `.env.example` for every setting.
 
 ## The studio
 
-Sign in with the password only. The studio lives at a private address set by `ADMIN_PATH` (never `/admin`), is `noindex`, and isn't listed in robots or the sitemap. The password is checked on the server against a bcrypt hash. A signed, httpOnly, `sameSite=strict` session lasts 8 hours. Five failed attempts lock an IP out for 15 minutes, and every attempt is logged.
+Sign in with the password only. The studio lives at `/admin` on the backend (change it with `ADMIN_PATH`), is `noindex`, and isn't listed in robots or the sitemap. The password is checked on the server against a bcrypt hash. A signed, httpOnly, `sameSite=strict` session lasts 8 hours. Five failed attempts lock an IP out for 15 minutes, and every attempt is logged.
 
 - **Overview**: today's orders, revenue this week and month, pending deliveries, low stock, quiz completions, bookings, a daily revenue chart and the visitor funnel.
 - **Commerce**: Orders (search, filter, status that updates the customer's timeline), Products (details, images, price and stock per size, visibility), Discount codes (percent or flat, expiry, usage limit, minimum order), Abandoned carts (email and WhatsApp templates).

@@ -32,7 +32,7 @@ const frontendEnv = join(root, "frontend", ".env.local");
 const existing = existsSync(backendEnv) ? readFileSync(backendEnv, "utf8") : "";
 const keep = (k) => existing.match(new RegExp(`^${k}=(.+)$`, "m"))?.[1];
 
-const adminPath = keep("ADMIN_PATH") ?? `studio-${randomBytes(6).toString("hex")}`;
+const adminPath = keep("ADMIN_PATH") ?? "admin";
 const revalidate = keep("REVALIDATE_SECRET") ?? randomBytes(24).toString("hex");
 
 merge(backendEnv, {

@@ -1,6 +1,5 @@
 import { CONTACT, SHOWROOMS, TESTIMONIALS, FREE_GIFT_THRESHOLD } from "../products";
 import { BEDROOMS } from "../bedrooms";
-import { IMG } from "../images";
 import { DEFAULT_SETTINGS } from "../settings";
 import { SECTIONS } from "./sections";
 import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
@@ -9,7 +8,7 @@ import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
 export const DEFAULT_SITE: SiteConfig = {
   brand: { name: "Shakshi", tagline: "A Commitment for Complete Rest" },
   announcement: { enabled: false, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
-  nav: [{ label: "Products", href: "/shop", menu: "categories" }],
+  nav: [{ label: "Products", href: "/shop", menu: "products" }],
   footer: {
     columns: [
       { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, ] },
@@ -48,11 +47,6 @@ export const DEFAULT_SITE: SiteConfig = {
     exitIntent: { enabled: true, eyebrow: "Before you drift away", title: "Talk to a *sleep specialist*.", body: "Fifteen unhurried minutes on video, always free. We’ll help you find the mattress your body has been waiting for.", ctaText: "Book a free video call", ctaLink: "/showroom?kind=video#book", offer: "Or join the Sleep Society and receive a complimentary Silk Protector with your first mattress.", image: "https://images.unsplash.com/photo-1531353826977-0941b4779a1c" },
     newsletterOffer: "A complimentary Silk Protector with your first mattress.",
   },
-  categories: [
-    { slug: "plush", name: "Plush & Cocooning", description: "Sink in slowly and be held. Soft layers that ease shoulders and hips.", image: IMG.whiteLux },
-    { slug: "balanced", name: "Balanced", description: "Supportive, with a gentle give. Right for most sleepers.", image: IMG.elegant },
-    { slug: "firm", name: "Firm & Supportive", description: "Sculpted, lifting support that keeps the spine aligned.", image: IMG.grandSuite },
-  ],
   showrooms: SHOWROOMS.map((s) => ({ ...s })),
   bedrooms: BEDROOMS.map((b) => ({ ...b, spots: b.spots.map((s) => ({ ...s })) })),
 };

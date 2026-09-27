@@ -1,6 +1,6 @@
 import { get, insert, update, upsert } from "@/lib/server/db";
 import { getSite } from "@/lib/server/content";
-import { getCatalog, getStock, stockKey } from "@/lib/server/catalog";
+import { getAccessories, getCatalog, getStock, stockKey } from "@/lib/server/catalog";
 import { checkPromo, newGiftCode, newOrderNumber, newToken, serverPrice } from "@/lib/server/commerce";
 import { bad, body, isEmail, isPhone, json, limited, num, str } from "@/lib/server/http";
 import type { Customer, OrderData, OrderItem } from "@shakshi/shared/orders";
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   if (isNaN(delivery.getTime()) || delivery < today || delivery.getTime() - today.getTime() > 45 * 86400000) return bad("Please choose a delivery day.");
 
   // Price every line on the server.
-  const catalog = await getCatalog();
+  const [catalog, accessories] = await Promise.all([getCatalog(), getAccessories()]);
   const items: OrderItem[] = [];
   for (const raw of b.items) {
     const qty = Math.round(num(raw.qty));
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
       qty,
       gift: raw.kind === "giftcard" && raw.gift ? { to: str(raw.gift.to, 60), email: str(raw.gift.email, 120), from: str(raw.gift.from, 60), message: str(raw.gift.message, 400), design: str(raw.gift.design, 20) } : undefined,
     };
-    const price = serverPrice(item, catalog);
+    const price = serverPrice(item, catalog, accessories);
     if (price === null) return bad(`We couldn't price "${item.name}". Please remove it and add it again.`);
     items.push({ ...item, price });
   }

@@ -16,7 +16,8 @@ import { Img } from "@/components/ui/Img";
 import { Logo } from "@/components/brand/Logo";
 import { lockScroll, unlockScroll } from "./SmoothScroll";
 import { isLive, useSite } from "@/lib/site-context";
-import type { NavItem, ProductCategory } from "@shakshi/shared/cms/types";
+import type { NavItem } from "@shakshi/shared/cms/types";
+import { ACCESSORY_RANGES } from "@shakshi/shared/products";
 import { useCatalog } from "@/lib/catalog-context";
 
 type Child = NonNullable<NavItem["children"]>[number];
@@ -26,47 +27,72 @@ const columns = (links: Child[]) => {
   return [links.slice(0, half), links.slice(half)].filter((c) => c.length);
 };
 
-const hasMenu = (n: NavItem) => n.menu === "categories" || !!n.children?.length;
+const hasMenu = (n: NavItem) => n.menu === "products" || !!n.children?.length;
 
-/** The Products panel: each category with its photo, a line about it, and how many mattresses it holds. */
-function CategoryPanel({ item, categories, close }: { item: NavItem; categories: ProductCategory[]; close: () => void }) {
-  const { products } = useCatalog();
-  const count = (slug: string) => products.filter((p) => p.category === slug).length;
-  const shown = categories.filter((c) => c.slug && c.name);
+/** Mattresses, pillows and covers: each heading opens its range; each name opens that product. */
+function useProductGroups(shopHref: string) {
+  const { products, accessories } = useCatalog();
+  return [
+    { label: "Mattresses", href: shopHref, items: products.map((p) => ({ key: p.slug, label: p.name, note: p.firmnessLabel, href: `/mattress/${p.slug}` })) },
+    ...ACCESSORY_RANGES.map((r) => ({
+      label: r.label,
+      href: `/shop/${r.slug}`,
+      items: accessories.filter((a) => a.kind === r.kind).map((a) => ({ key: a.id, label: a.name, note: a.note, href: `/shop/${r.slug}#${a.id}` })),
+    })),
+  ];
+}
+
+function ProductsPanel({ item, close }: { item: NavItem; close: () => void }) {
+  const groups = useProductGroups(item.href || "/shop");
   return (
-    <div className="container-lux py-10">
-      <div className="mb-6 flex items-baseline justify-between">
-        <p className="eyebrow text-gold-ink">Shop by feel</p>
-        <Link href={item.href || "/shop"} onClick={close} className="link-lux inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]">
-          All products <IconArrow size={14} />
-        </Link>
-      </div>
-      <ul className={cn("grid gap-6", shown.length >= 4 ? "grid-cols-4" : shown.length === 2 ? "grid-cols-2" : "grid-cols-3")}>
-        {shown.map((c) => {
-          const n = count(c.slug);
-          return (
-            <li key={c.slug}>
-              <Link href={`/shop/${c.slug}`} onClick={close} className="group block">
-                <span className="relative block aspect-[16/10] overflow-hidden">
-                  {c.image && <Img src={c.image} alt="" sizes="(min-width: 1024px) 28vw, 50vw" wrapperClassName="absolute inset-0" className="transition-transform duration-[1400ms] ease-silk group-hover:scale-105" />}
-                </span>
-                <span className="mt-4 flex items-baseline justify-between gap-3">
-                  <span className="link-lux font-serif text-2xl">{c.name}</span>
-                  <span className="shrink-0 text-xs text-stone">
-                    {n} {n === 1 ? "mattress" : "mattresses"}
-                  </span>
-                </span>
-                {c.description && <span className="mt-1 block text-sm leading-relaxed text-stone">{c.description}</span>}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+    <div className="container-lux grid grid-cols-3 gap-12 py-10">
+      {groups.map((g) => (
+        <div key={g.label}>
+          <Link href={g.href} onClick={close} className="group inline-flex items-center gap-2">
+            <span className="eyebrow text-gold-ink">{g.label}</span>
+            <IconArrow size={12} className="text-gold-ink transition-transform duration-500 ease-silk group-hover:translate-x-1" />
+          </Link>
+          <ul className="mt-5 space-y-3">
+            {g.items.map((it) => (
+              <li key={it.key}>
+                <Link href={it.href} onClick={close} className="group block">
+                  <span className="link-lux font-serif text-xl">{it.label}</span>
+                  {it.note && <span className="block text-xs text-stone">{it.note}</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }
 
-function DiscoverMenu({ item, categories, open, setOpen }: { item: NavItem | undefined; categories: ProductCategory[]; open: boolean; setOpen: (o: boolean) => void }) {
+function MobileProductGroups({ shopHref }: { shopHref: string }) {
+  const groups = useProductGroups(shopHref);
+  return (
+    <div className="col-span-2 space-y-7">
+      {groups.map((g) => (
+        <div key={g.label}>
+          <Link href={g.href} className="eyebrow text-gold">
+            {g.label}
+          </Link>
+          <ul className="mt-3 space-y-2">
+            {g.items.map((it) => (
+              <li key={it.key}>
+                <Link href={it.href} className="font-serif text-xl">
+                  {it.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DiscoverMenu({ item, open, setOpen }: { item: NavItem | undefined; open: boolean; setOpen: (o: boolean) => void }) {
   return (
     <AnimatePresence>
       {open && item && hasMenu(item) && (
@@ -79,8 +105,8 @@ function DiscoverMenu({ item, categories, open, setOpen }: { item: NavItem | und
           transition={{ duration: 0.7, ease: EASE }}
           onMouseLeave={() => setOpen(false)}
         >
-          {item.menu === "categories" ? (
-            <CategoryPanel item={item} categories={categories} close={() => setOpen(false)} />
+          {item.menu === "products" ? (
+            <ProductsPanel item={item} close={() => setOpen(false)} />
           ) : (
           <div className="container-lux grid grid-cols-[1fr_1fr_1.1fr] gap-12 py-10">
             {columns(item.children ?? []).map((links, i) => (
@@ -134,7 +160,6 @@ export function Header() {
   const { announcement } = site;
   const links = site.nav.filter((n) => n.href && !n.children?.length);
   const dropdown = site.nav.find(hasMenu);
-  const categories = site.categories ?? [];
   const [live, setLive] = useState(false);
   useEffect(() => setLive(isLive(announcement)), [announcement]);
   const [barClosed, setBarClosed] = useState(false);
@@ -207,7 +232,7 @@ export function Header() {
 
   const onDark = darkHero && !scrolled && !menu && !discover;
   const count = hydrated ? cartCount(cart) : 0;
-  const discoverActive = dropdown?.menu === "categories" ? pathname.startsWith(dropdown.href || "/shop") : !!dropdown?.children?.some((l) => pathname.startsWith(l.href));
+  const discoverActive = dropdown?.menu === "products" ? pathname.startsWith(dropdown.href || "/shop") : !!dropdown?.children?.some((l) => pathname.startsWith(l.href));
 
   return (
     <>
@@ -280,7 +305,7 @@ export function Header() {
                       onClick={() => setDiscover(!discover)}
                       aria-expanded={discover}
                       aria-controls="discover-panel"
-                      aria-label={n.href ? `Show ${n.label.toLowerCase()} categories` : undefined}
+                      aria-label={n.href ? `Show the ${n.label.toLowerCase()} menu` : undefined}
                       className={cn("inline-flex items-center gap-1.5 text-[0.8rem] tracking-[0.06em]", !n.href && "link-lux", !n.href && discoverActive && "bg-[length:100%_1px]")}
                     >
                       {!n.href && n.label}
@@ -333,7 +358,7 @@ export function Header() {
           </div>
         </div>
         <div className="hidden lg:block">
-          <DiscoverMenu item={dropdown} categories={categories} open={discover} setOpen={setDiscover} />
+          <DiscoverMenu item={dropdown} open={discover} setOpen={setDiscover} />
         </div>
       </motion.header>
 
@@ -361,23 +386,8 @@ export function Header() {
                 ))}
               </ul>
               <motion.div className="grid grid-cols-2 gap-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 1 }}>
-                {dropdown?.menu === "categories" && (
-                  <div className="col-span-2">
-                    <p className="eyebrow text-gold">Shop by feel</p>
-                    <ul className="mt-3 space-y-2">
-                      {categories
-                        .filter((c) => c.slug && c.name)
-                        .map((c) => (
-                          <li key={c.slug}>
-                            <Link href={`/shop/${c.slug}`} className="font-serif text-2xl">
-                              {c.name}
-                            </Link>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                )}
-                {dropdown?.menu !== "categories" && dropdown?.children && columns(dropdown.children).map((col, i) => (
+                {dropdown?.menu === "products" && <MobileProductGroups shopHref={dropdown.href || "/shop"} />}
+                {dropdown?.menu !== "products" && dropdown?.children && columns(dropdown.children).map((col, i) => (
                   <div key={i}>
                     <p className="eyebrow text-gold">{i === 0 ? dropdown.label : " "}</p>
                     <ul className="mt-3 space-y-2">

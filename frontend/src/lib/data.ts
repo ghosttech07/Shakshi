@@ -1,5 +1,5 @@
 import "server-only";
-import { PRODUCTS, type Product, type Review } from "@shakshi/shared/products";
+import { ACCESSORIES, PRODUCTS, type Accessory, type Product, type Review } from "@shakshi/shared/products";
 import { ARTICLES, type Article } from "@shakshi/shared/articles";
 import { DEFAULT_PAGES, DEFAULT_SITE } from "@shakshi/shared/cms/defaults";
 import type { PageDoc, SiteConfig } from "@shakshi/shared/cms/types";
@@ -23,12 +23,13 @@ async function fromBackend<T>(path: string, fallback: T, revalidate = 60): Promi
   }
 }
 
-export type Storefront = { products: Product[]; stock: Record<string, number | null>; site: SiteConfig };
+export type Storefront = { products: Product[]; accessories: Accessory[]; stock: Record<string, number | null>; site: SiteConfig };
 
 export const getStorefront = async (): Promise<Storefront> => {
   const r = await fromBackend<Partial<Storefront>>("/api/public/storefront", {});
   return {
     products: r.products ?? PRODUCTS.filter((p) => p.published !== false),
+    accessories: r.accessories ?? ACCESSORIES.filter((a) => a.published !== false),
     stock: r.stock ?? {},
     site: r.site ?? DEFAULT_SITE,
   };

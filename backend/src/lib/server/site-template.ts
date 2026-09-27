@@ -7,7 +7,6 @@ export const SITE_TEMPLATE: SiteConfig = {
   brand: { name: "", tagline: "", logo: "", logoLight: "" },
   announcement: { enabled: true, text: "", link: "", start: "", end: "" },
   nav: [{ label: "", href: "", menu: "", children: [{ label: "", href: "", note: "" }] }],
-  categories: [{ slug: "", name: "", description: "", image: "" }],
   footer: { columns: [{ title: "", links: [{ label: "", href: "" }] }], note: "" },
   social: [{ network: "", url: "" }],
   seo: { titleTemplate: "", defaultTitle: "", description: "", ogImage: "", favicon: "" },

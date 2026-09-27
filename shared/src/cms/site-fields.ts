@@ -50,7 +50,7 @@ export const SITE_GROUPS: SiteGroup[] = [
         of: [
           t("label", "Label"),
           link("href", "Link"),
-          sel("menu", "On hover, show", [["", "Nothing (or the dropdown links below)"], ["categories", "The product categories"]]),
+          sel("menu", "On hover, show", [["", "Nothing (or the dropdown links below)"], ["products", "The products menu (mattresses, pillows, covers)"]]),
           { key: "children", label: "Dropdown links", type: "list", itemLabel: "label", of: [t("label", "Label"), link("href", "Link"), t("note", "Short note")] },
         ],
       },
@@ -155,13 +155,6 @@ export const SITE_GROUPS: SiteGroup[] = [
       date("exitIntent.end", "Show until (optional)"),
       t("newsletterOffer", "Newsletter welcome offer"),
     ],
-  },
-  {
-    id: "categories",
-    title: "Product categories",
-    description: "How products are grouped in the Products menu. Each category has its own page at /shop/<address>. Choose each mattress's category under Products.",
-    path: "",
-    fields: [{ key: "categories", label: "Categories", type: "list", itemLabel: "name", of: [t("name", "Name"), t("slug", "Address (e.g. plush)"), ta("description", "One line about it"), img("image", "Photo")] }],
   },
   {
     id: "showrooms",

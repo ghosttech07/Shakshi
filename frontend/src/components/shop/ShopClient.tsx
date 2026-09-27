@@ -8,8 +8,7 @@ import { Dialog } from "@/components/ui/Dialog";
 import { EASE, cn, formatINR } from "@shakshi/shared/utils";
 import { CompareBar } from "./Compare";
 import { useCatalog } from "@/lib/catalog-context";
-import { useSite } from "@/lib/site-context";
-import Link from "next/link";
+import { RangeTabs } from "./RangeTabs";
 
 type Firm = "plush" | "medium" | "firm";
 const FIRM: { id: Firm; label: string; test: (f: number) => boolean }[] = [
@@ -94,31 +93,7 @@ function FilterPanel({ f, set }: { f: Filters; set: (f: Filters) => void }) {
   );
 }
 
-/** Tabs across the top of the shop: all products, then each category. */
-function CategoryTabs({ current }: { current?: string }) {
-  const categories = useSite().categories.filter((c) => c.slug && c.name);
-  if (!categories.length) return null;
-  const tab = (href: string, label: string, on: boolean) => (
-    <Link
-      key={href}
-      href={href}
-      aria-current={on ? "page" : undefined}
-      className={cn("whitespace-nowrap border-b pb-2 text-sm transition-colors duration-500", on ? "border-gold text-ink" : "border-transparent text-stone hover:text-ink")}
-    >
-      {label}
-    </Link>
-  );
-  return (
-    <nav aria-label="Product categories" className="-mx-5 mb-8 overflow-x-auto px-5 md:mx-0 md:px-0">
-      <div className="flex gap-8">
-        {tab("/shop", "All products", !current)}
-        {categories.map((c) => tab(`/shop/${c.slug}`, c.name, current === c.slug))}
-      </div>
-    </nav>
-  );
-}
-
-export function ShopClient({ category }: { category?: string } = {}) {
+export function ShopClient() {
   const [f, setF] = useState<Filters>(initial);
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("featured");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -127,7 +102,6 @@ export function ShopClient({ category }: { category?: string } = {}) {
   const results = useMemo(() => {
     const list = PRODUCTS.filter(
       (p) =>
-        (!category || p.category === category) &&
         (!f.firm.length || f.firm.some((id) => FIRM.find((x) => x.id === id)!.test(p.firmness))) &&
         (!f.materials.length || f.materials.every((m) => p.materials.includes(m))) &&
         (!f.positions.length || f.positions.some((pos) => p.positions.includes(pos))) &&
@@ -141,13 +115,13 @@ export function ShopClient({ category }: { category?: string } = {}) {
       firm: (a: (typeof list)[0], b: (typeof list)[0]) => b.firmness - a.firmness,
     }[sort];
     return [...list].sort(by);
-  }, [f, sort, PRODUCTS, category]);
+  }, [f, sort, PRODUCTS]);
 
   const activeCount = f.firm.length + f.materials.length + f.positions.length + (f.max < PRICE_CEILING ? 1 : 0);
 
   return (
     <div className="container-lux pb-32">
-      <CategoryTabs current={category} />
+      <RangeTabs current="mattresses" />
       <div className="sticky top-16 z-20 -mx-5 flex items-center justify-between gap-4 border-b border-ink/10 bg-ivory/90 px-5 py-4 backdrop-blur md:-mx-10 md:px-10 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
         <button className="chip lg:hidden" onClick={() => setMobileOpen(true)} aria-haspopup="dialog">
           Refine{activeCount > 0 && <span className="grid h-5 w-5 place-items-center rounded-full bg-gold text-[0.65rem] text-midnight">{activeCount}</span>}

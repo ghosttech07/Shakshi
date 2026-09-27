@@ -1,7 +1,7 @@
-import { PRODUCTS, SIZES, type Product, type SizeId } from "@shakshi/shared/products";
+import { ACCESSORIES, PRODUCTS, SIZES, type Accessory, type Product, type SizeId } from "@shakshi/shared/products";
 import { ARTICLES, type Article } from "@shakshi/shared/articles";
 import { IMG } from "@shakshi/shared/images";
-import { list } from "./db";
+import { get, list } from "./db";
 
 /**
  * The catalogue = the built-in collection, with the studio's edits laid over it, plus any
@@ -94,4 +94,19 @@ export async function getArticles(opts: { all?: boolean } = {}): Promise<StudioA
     .filter((a) => !removed.has(a.slug))
     .filter((a) => opts.all || (a.published && (!a.publishAt || a.publishAt <= now)))
     .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/**
+ * Pillows, covers and bedding. The built-in range until the studio saves its own list
+ * (stored whole, so items can be added and removed). Hidden items are left out unless `all`.
+ */
+export async function getAccessories(opts: { all?: boolean } = {}): Promise<Accessory[]> {
+  let items = ACCESSORIES;
+  try {
+    const row = await get<{ list: Accessory[] }>("content", "accessories");
+    if (Array.isArray(row?.data.list)) items = row.data.list;
+  } catch (e) {
+    console.error("[accessories] using the built-in range", e);
+  }
+  return items.filter((a) => opts.all || a.published !== false);
 }

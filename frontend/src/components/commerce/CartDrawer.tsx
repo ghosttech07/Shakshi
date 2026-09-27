@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ui/Dialog";
 import { Img } from "@/components/ui/Img";
 import { useStore, cartSubtotal } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";
-import { ACCESSORIES } from "@shakshi/shared/products";
+import { useCatalog } from "@/lib/catalog-context";
 import { useSite } from "@/lib/site-context";
 import { EASE, emiFrom, formatINR } from "@shakshi/shared/utils";
 import { IconMinus, IconPlus, IconGift, IconLock, IconMoon, IconShield } from "@/components/ui/Icons";
@@ -63,7 +63,9 @@ export function CartDrawer() {
   const addToCart = useStore((s) => s.addToCart);
   const subtotal = cartSubtotal(cart);
   const close = () => setOpen(false);
-  const upsells = ACCESSORIES.filter((a) => !cart.some((c) => c.ref === a.id));
+  const { accessories } = useCatalog();
+  // One suggestion of each kind (a pillow, a cover, bedding) that isn't already in the bag.
+  const upsells = (["pillow", "cover", "bedding"] as const).map((k) => accessories.find((a) => a.kind === k && !cart.some((c) => c.ref === a.id))).filter((a) => !!a);
 
   return (
     <Dialog open={open && hydrated} onClose={close} title="Your Bag" variant="right">

@@ -42,14 +42,11 @@ export type Product = {
   prices?: Partial<Record<SizeId, number>>;
   /** Hidden from the shop when false. */
   published?: boolean;
-  /** Slug of the product category it is listed under (Site & theme, Product categories). */
-  category?: string;
 };
 
 export const PRODUCTS: Product[] = [
   {
     slug: "cirrus",
-    category: "plush",
     name: "The Cirrus",
     tier: "Plush",
     tagline: "Weightless, like sleeping on a held breath.",
@@ -82,7 +79,6 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "signature",
-    category: "balanced",
     name: "The Shakshi Signature",
     tier: "Balanced",
     tagline: "The perfect middle of the night.",
@@ -115,7 +111,6 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "lumen",
-    category: "balanced",
     name: "The Lumen",
     tier: "Cool",
     tagline: "A cool sheet on a summer night, always.",
@@ -147,7 +142,6 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "atelier",
-    category: "firm",
     name: "The Atelier",
     tier: "Natural",
     tagline: "Pure materials, patiently made.",
@@ -180,7 +174,6 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "sovereign",
-    category: "firm",
     name: "The Sovereign",
     tier: "Luxe Firm",
     tagline: "Our most indulgent creation.",
@@ -240,12 +233,27 @@ export const POSITION_LABELS: Record<Position, string> = {
 };
 
 // Add-ons & accessories
-export type Accessory = { id: string; name: string; price: number; image: string; note: string };
+/** Pillows, mattress covers and bedding: simple products with one price. Edited in the studio (Pillows & covers). */
+export type AccessoryKind = "pillow" | "cover" | "bedding";
+export type Accessory = { id: string; kind: AccessoryKind; name: string; price: number; image: string; note: string; description?: string; published?: boolean };
 
+/** The ranges shown in the Products menu, each with its own page at /shop/<slug>. */
+export const ACCESSORY_RANGES: { kind: AccessoryKind; slug: string; label: string; intro: string }[] = [
+  { kind: "pillow", slug: "pillows", label: "Pillows", intro: "A pillow for every way you sleep: cloud-soft, sculpted, natural or cool." },
+  { kind: "cover", slug: "covers", label: "Mattress Covers", intro: "Protectors and covers that keep your mattress fresh, and you comfortable, for years." },
+];
+
+// Starting ranges (prices and details are placeholders to confirm in the studio).
 export const ACCESSORIES: Accessory[] = [
-  { id: "pillows", name: "Cloud Pillow, pair", price: 8900, image: IMG.pillowWhite, note: "Down-alternative, adjustable loft" },
-  { id: "protector", name: "Silk Mattress Protector", price: 6400, image: IMG.linen, note: "Waterproof, silent, breathable" },
-  { id: "sheets", name: "Stonewashed Linen Set", price: 12900, image: IMG.pillowsBed, note: "Belgian flax, 4 pieces" },
+  { id: "pillows", kind: "pillow", name: "Cloud Pillow, pair", price: 8900, image: IMG.pillowWhite, note: "Down-alternative, adjustable loft", description: "Two plump, hotel-grade pillows filled with a silky down alternative. Unzip to add or remove fill until the height feels right." },
+  { id: "contour-pillow", kind: "pillow", name: "Contour Memory Foam Pillow", price: 6900, image: IMG.cushion, note: "Cradles the neck, for side and back sleepers", description: "A gently curved memory-foam pillow that supports the natural line of the neck." },
+  { id: "latex-pillow", kind: "pillow", name: "Natural Latex Pillow", price: 7900, image: IMG.pillowsBed, note: "Buoyant, breathable, naturally resilient", description: "Pin-cored natural latex that springs back all night and stays cool." },
+  { id: "cooling-pillow", kind: "pillow", name: "Cooling Gel Pillow", price: 7400, image: IMG.linen, note: "Cool to the touch, for warm sleepers", description: "A gel-infused layer draws heat away, so the pillow stays cool on both sides." },
+  { id: "protector", kind: "cover", name: "Silk Mattress Protector", price: 6400, image: IMG.linen, note: "Waterproof, silent, breathable", description: "A mulberry-silk surface over a whisper-quiet waterproof membrane." },
+  { id: "cotton-protector", kind: "cover", name: "Organic Cotton Protector", price: 4900, image: IMG.pillowWhite, note: "Soft, washable, GOTS cotton", description: "Everyday protection in soft organic cotton, machine washable." },
+  { id: "tencel-cover", kind: "cover", name: "Cooling Tencel Cover", price: 7900, image: IMG.cushion, note: "Smooth, cool and moisture-wicking", description: "A fitted Tencel cover that feels cool and dry through warm nights." },
+  { id: "encasement", kind: "cover", name: "Zip-off Waterproof Encasement", price: 5900, image: IMG.pillowsBed, note: "Full six-sided protection", description: "Zips all the way around the mattress for complete protection from spills and dust." },
+  { id: "sheets", kind: "bedding", name: "Stonewashed Linen Set", price: 12900, image: IMG.pillowsBed, note: "Belgian flax, 4 pieces" },
 ];
 
 export const ADDONS = [

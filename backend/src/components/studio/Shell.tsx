@@ -19,6 +19,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
     items: [
       { href: "/orders", label: "Orders", icon: i("M6 7h12l-1 13H7zM9 7a3 3 0 0 1 6 0") },
       { href: "/products", label: "Products", icon: i("M3 16h18v3H3zM5 16v-5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5M8 9V7h8v2") },
+      { href: "/pillows-covers", label: "Pillows & covers", icon: i("M4 8c0-2 2-3 8-3s8 1 8 3v8c0 2-2 3-8 3s-8-1-8-3zM4 12h16") },
       { href: "/discounts", label: "Discount codes", icon: i("M20 12l-8 8-9-9V4h7zM7.5 7.5h.01") },
       { href: "/carts", label: "Abandoned carts", icon: i("M3 4h2l2.4 11h10.2L20 8H6.2M9 20h.01M17 20h.01") },
     ],

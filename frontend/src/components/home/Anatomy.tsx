@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/lib/motion";
@@ -56,7 +56,8 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
   const thick = layers.map((l) => 12 + l.depth * 2.3);
   const restZ = layers.map((_, i) => thick.slice(i + 1).reduce((a, b) => a + b, 0));
 
-  useEffect(() => {
+  // Layout effect: the pin is undone (ctx.revert) before React removes the section on navigation.
+  useLayoutEffect(() => {
     if (reduce || !section.current || !stage.current) {
       stage.current?.style.setProperty("--e", "1");
       return;
@@ -89,6 +90,8 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
   }, [reduce, n]);
 
   return (
+    // The wrapper belongs to React; GSAP's pin spacer is added inside it, never around it.
+    <div>
     <section ref={section} className="relative overflow-hidden bg-midnight text-pearl linen-dark" aria-labelledby="anatomy-title">
       <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_50%,rgb(201_169_110/0.12),transparent_70%)]" />
       <div className={cn("container-lux relative grid items-center gap-6 lg:grid-cols-[0.9fr_1.1fr]", reduce ? "py-24" : "h-[100svh] py-20")}>
@@ -192,5 +195,6 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
         )}
       </div>
     </section>
+    </div>
   );
 }

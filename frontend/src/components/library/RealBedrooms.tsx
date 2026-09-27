@@ -6,7 +6,6 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import type { Bedroom, Hotspot } from "@shakshi/shared/bedrooms";
-import { ACCESSORIES } from "@shakshi/shared/products";
 import { useCatalog } from "@/lib/catalog-context";
 import { useStore } from "@/lib/store";
 import { mattressItem } from "@/lib/cart-helpers";
@@ -16,12 +15,12 @@ import { EASE, cn, formatINR } from "@shakshi/shared/utils";
 import { IconPlus } from "@/components/ui/Icons";
 
 function useSpot(s: Hotspot) {
-  const { get } = useCatalog();
+  const { get, accessory } = useCatalog();
   if (s.kind === "mattress") {
     const p = get(s.ref);
     return p ? { name: p.name, price: p.basePrice, from: true, href: `/mattress/${p.slug}`, image: p.images[0], product: p } : null;
   }
-  const a = ACCESSORIES.find((x) => x.id === s.ref);
+  const a = accessory(s.ref);
   return a ? { name: a.name, price: a.price, from: false, href: undefined, image: a.image, accessory: a } : null;
 }
 
@@ -61,8 +60,8 @@ function SpotCard({ s }: { s: Hotspot }) {
 }
 
 function Dots({ b, active, onPick }: { b: Bedroom; active?: number; onPick?: (i: number) => void }) {
-  const { get } = useCatalog();
-  const label = (s: Hotspot) => (s.kind === "mattress" ? get(s.ref)?.name : ACCESSORIES.find((a) => a.id === s.ref)?.name) ?? "Product";
+  const { get, accessory } = useCatalog();
+  const label = (s: Hotspot) => (s.kind === "mattress" ? get(s.ref)?.name : accessory(s.ref)?.name) ?? "Product";
   return (
     <>
       {b.spots.map((s, i) => (

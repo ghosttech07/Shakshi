@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { ACCESSORIES, ADDONS, SIZES, priceFor, type Product } from "@shakshi/shared/products";
+import { ADDONS, SIZES, priceFor, type Accessory, type Product } from "@shakshi/shared/products";
 import { GIFT_RE, REFERRAL_RE, REFERRAL_REWARD, type OrderItem } from "@shakshi/shared/orders";
 import { get } from "./db";
 import type { DiscountData } from "@shakshi/shared/records";
@@ -20,7 +20,7 @@ export const newOrderNumber = () => `SHK-${code(6)}`;
  * The server's own price for a line, from the catalogue, never from the browser.
  * Returns null for anything it doesn't recognise, which rejects the order.
  */
-export function serverPrice(item: OrderItem, catalog: Product[]): number | null {
+export function serverPrice(item: OrderItem, catalog: Product[], accessories: Accessory[]): number | null {
   switch (item.kind) {
     case "mattress": {
       const p = catalog.find((x) => x.slug === item.ref);
@@ -28,7 +28,7 @@ export function serverPrice(item: OrderItem, catalog: Product[]): number | null 
       return priceFor(p, item.size);
     }
     case "accessory":
-      return ACCESSORIES.find((a) => a.id === item.ref)?.price ?? null;
+      return accessories.find((a) => a.id === item.ref)?.price ?? null;
     case "addon":
       return ADDONS.find((a) => a.id === item.ref)?.price ?? null;
     case "giftcard":

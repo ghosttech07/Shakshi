@@ -25,7 +25,7 @@ export async function proxy(req: NextRequest) {
   const authed = () => verifySession(req.cookies.get(ADMIN_COOKIE)?.value);
 
   if (pathname.startsWith("/api/admin/")) {
-    if (pathname === "/api/admin/login") return privately(NextResponse.next());
+    if (pathname === "/api/admin/login" || pathname === "/api/admin/logout") return privately(NextResponse.next());
     return (await authed()) ? privately(NextResponse.next()) : privately(NextResponse.json({ error: "Unauthorised" }, { status: 401 }));
   }
 

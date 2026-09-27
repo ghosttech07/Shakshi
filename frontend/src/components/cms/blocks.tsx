@@ -12,8 +12,6 @@ import { SleepCalculator } from "@/components/features/SleepCalculator";
 import { SwatchRequest } from "@/components/features/SwatchRequest";
 import { HospitalityForm } from "@/components/features/HospitalityForm";
 import { UnboxingFilm, ExpansionTimer } from "@/components/features/SetupGuide";
-import { Quiz } from "@/components/features/Quiz";
-import { Configurator } from "@/components/features/Configurator";
 import { ShopClient } from "@/components/shop/ShopClient";
 import { GiftCardBuilder } from "@/components/gifts/GiftCardBuilder";
 import { ArticleCard, LibraryIndex } from "@/components/library/LibraryIndex";
@@ -502,31 +500,6 @@ export function Cta({ d, f }: BlockProps) {
 
 // ---------------------------------------------------------------- tools (interactive parts of built-in pages)
 export const ShopCatalog = () => <ShopClient />;
-
-export function QuizBlock({ d, f }: BlockProps) {
-  return (
-    <section data-dark-hero className="relative min-h-[100svh] overflow-hidden bg-midnight pb-28 pt-32 text-pearl linen-dark lg:pt-40">
-      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(50%_40%_at_80%_10%,rgb(201_169_110/0.14),transparent),radial-gradient(40%_40%_at_10%_90%,rgb(230_199_189/0.08),transparent)]" />
-      <div className="container-lux relative">
-        {str(d.eyebrow) && (
-          <p className="eyebrow text-center text-gold" {...f("eyebrow")}>
-            {str(d.eyebrow)}
-          </p>
-        )}
-        <h1 className="sr-only">Find your perfect mattress</h1>
-        <div className="mt-10">
-          <Quiz />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export const ConfiguratorBlock = ({ first }: BlockProps) => (
-  <div className={cn("container-lux pb-28", first ? "pt-32 lg:pt-36" : "")}>
-    <Configurator />
-  </div>
-);
 
 const SplitTool = ({ d, f, id, children, tone, imageAspect = "aspect-square" }: BlockProps & { id: string; children: React.ReactNode; tone?: "linen"; imageAspect?: string }) => (
   <section id={id} className={cn("scroll-mt-24", tone === "linen" && "border-t border-ink/10 bg-ivory-2/50 linen")}>

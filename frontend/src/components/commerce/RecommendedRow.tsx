@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useStore } from "@/lib/store";
-import { useAccount } from "@/lib/account";
 import { useHydrated } from "@/lib/useHydrated";
 import { useCatalog } from "@/lib/catalog-context";
 import { recommend } from "@/lib/recommend";
@@ -21,8 +20,7 @@ export function RecommendedRow({ exclude, title = "Recommended for you", fallbac
   const { products } = useCatalog();
   const recent = useStore((s) => s.recent);
   const wishlist = useStore((s) => s.wishlist);
-  const quiz = useAccount((s) => s.quiz);
-  const recs = useMemo(() => (hydrated ? recommend(products, { quiz, recent, wishlist, exclude }) : []), [hydrated, products, quiz, recent, wishlist, exclude]);
+  const recs = useMemo(() => (hydrated ? recommend(products, { recent, wishlist, exclude }) : []), [hydrated, products, recent, wishlist, exclude]);
 
   const fallback = !recs.length && fallbackTitle ? products.filter((p) => !exclude?.includes(p.slug)).slice(0, 3) : [];
   if (!recs.length && !fallback.length) return null;

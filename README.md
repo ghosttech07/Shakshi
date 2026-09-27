@@ -8,7 +8,7 @@ The site is split into two independent apps so either can fail without taking do
 | --- | --- | --- |
 | `frontend/` | 3000 | The storefront. Renders every page from published content, with built-in fallbacks if the backend is unreachable. |
 | `backend/` | 4000 | API, database access, uploads, and the password-protected **studio** (admin + CMS). |
-| `shared/` | — | Types, catalogue seed, content model (sections, defaults), quiz logic, shared helpers. |
+| `shared/` | — | Types, catalogue seed, content model (sections, defaults), shared helpers. |
 
 ```bash
 npm install
@@ -23,13 +23,12 @@ npm run build && npm start
 
 Sign in with the password only. The studio lives at `/admin` on the backend (change it with `ADMIN_PATH`), is `noindex`, and isn't listed in robots or the sitemap. The password is checked on the server against a bcrypt hash. A signed, httpOnly, `sameSite=strict` session lasts 8 hours. Five failed attempts lock an IP out for 15 minutes, and every attempt is logged.
 
-- **Overview**: today's orders, revenue this week and month, pending deliveries, low stock, quiz completions, bookings, a daily revenue chart and the visitor funnel.
+- **Overview**: today's orders, revenue this week and month, pending deliveries, low stock, reviews to approve, open inquiries, bookings, a daily revenue chart and the visitor funnel.
 - **Commerce**: Orders (search, filter, status that updates the customer's timeline), Products (details, images, price and stock per size, visibility), Discount codes (percent or flat, expiry, usage limit, minimum order), Abandoned carts (email and WhatsApp templates).
-- **People**: Customers (orders and quiz results), Reviews (approve, hide, reply), Bookings (calendar, confirm or cancel), Inquiries (mark handled).
+- **People**: Customers (order history), Reviews (approve, hide, reply), Bookings (calendar, confirm or cancel), Inquiries (mark handled).
 - **Content**:
   - **Pages**: every page is an ordered list of sections. Edit, add, duplicate, hide, delete and drag to reorder, with a live preview at desktop, tablet and mobile sizes. Click anything in the preview to edit it. Autosaves every 10 seconds; drafts go live only on Publish. Each publish keeps a version you can restore, whole or one section at a time. New custom pages get their own address.
   - **Site & theme**: brand, announcement bar, navigation, footer, contact and social links, colours, fonts, feature toggles, animation intensity, SEO defaults, analytics IDs, redirects, delivery pincodes, GST and fees, popups, showrooms, real bedrooms.
-  - **Sleep Quiz**: questions, answers, photos and the matching logic.
   - **Sleep Library**: rich-text essays, categories, scheduled publishing.
   - **Media**: uploads (images become WebP), required alt text, and deletion is blocked while a file is still in use.
 - **Activity log**: every change and every sign-in attempt.
@@ -55,7 +54,6 @@ Only the backend talks to Supabase. Row-level security is on with no public poli
 | Studio screens | `backend/src/app/studio-internal/`, `backend/src/components/studio/` |
 | Studio access guard | `backend/src/proxy.ts`, `backend/src/lib/server/admin-session.ts` |
 | Catalogue seed, sizes, add-ons | `shared/src/products.ts` |
-| Quiz questions and scoring | `shared/src/quiz.ts` |
 | 3D scenes | `frontend/src/components/three/` |
 | Design tokens | `frontend/src/app/globals.css` |
 

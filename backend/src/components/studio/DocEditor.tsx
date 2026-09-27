@@ -15,7 +15,7 @@ const setAt = (v: Doc, path: string, next: Doc): Doc => {
 };
 
 /**
- * Edits a single draftable document (site settings, the quiz) in grouped screens, with the
+ * Edits a single draftable document (the site settings) in grouped screens, with the
  * same safety as pages: 10-second autosave, a warning before leaving unsaved work, and Publish.
  */
 export function DocEditor({

@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { ACCESSORIES, ADDONS, FRAMES, PILLOW_OPTIONS, SIZES, priceFor, type Product } from "@shakshi/shared/products";
+import { ACCESSORIES, ADDONS, SIZES, priceFor, type Product } from "@shakshi/shared/products";
 import { GIFT_RE, REFERRAL_RE, REFERRAL_REWARD, type OrderItem } from "@shakshi/shared/orders";
 import { get } from "./db";
 import type { DiscountData } from "@shakshi/shared/records";
@@ -27,17 +27,10 @@ export function serverPrice(item: OrderItem, catalog: Product[]): number | null 
       if (!p || !item.size || !SIZES.some((s) => s.id === item.size)) return null;
       return priceFor(p, item.size);
     }
-    case "accessory": {
-      if (item.key.startsWith("pillows-")) return PILLOW_OPTIONS.find((o) => `pillows-${o.id}` === item.key)?.price ?? null;
+    case "accessory":
       return ACCESSORIES.find((a) => a.id === item.ref)?.price ?? null;
-    }
     case "addon":
       return ADDONS.find((a) => a.id === item.ref)?.price ?? null;
-    case "bundle": {
-      const f = FRAMES.find((x) => x.id === item.ref);
-      const s = SIZES.find((x) => x.id === item.size);
-      return f && s ? Math.round((f.price * s.factor) / 100) * 100 : null;
-    }
     case "giftcard":
       return Number.isInteger(item.price) && item.price >= GIFT_MIN && item.price <= GIFT_MAX ? item.price : null;
     default:

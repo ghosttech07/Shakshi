@@ -89,7 +89,7 @@ export type SiteConfig = {
   bedrooms: { id: string; image: string; alt: string; name: string; city: string; caption: string; tall?: boolean; spots: { ref: string; kind: "mattress" | "accessory"; x: number; y: number }[] }[];
 };
 
-/** Stored shape for any draftable document (pages, site config, quiz). */
+/** Stored shape for any draftable document (pages, site config). */
 export type Draftable<T> = { draft: T; published: T | null; publishedAt?: string; updatedAt: string; updatedBy?: string };
 
 /** `*words*` in short text fields become <em> accents. Returns alternating plain/emphasis chunks. */

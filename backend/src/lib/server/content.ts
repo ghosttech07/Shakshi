@@ -148,19 +148,19 @@ export async function pageVersions(key: string) {
 }
 
 // ---------- site config (and other single documents) ----------
-export async function getDoc<T>(id: "site" | "quiz", fallback: T): Promise<Draftable<T>> {
+export async function getDoc<T>(id: "site", fallback: T): Promise<Draftable<T>> {
   const row = await get<Draftable<T>>("content", id);
   return row?.data ?? { draft: fallback, published: fallback, updatedAt: "" };
 }
 
-export async function saveDocDraft<T>(id: "site" | "quiz", doc: T, fallback: T) {
+export async function saveDocDraft<T>(id: "site", doc: T, fallback: T) {
   const current = await getDoc(id, fallback);
   const next: Draftable<T> = { ...current, draft: doc, updatedAt: new Date().toISOString() };
   await upsert("content", id, next);
   return next;
 }
 
-export async function publishDoc<T>(id: "site" | "quiz", fallback: T) {
+export async function publishDoc<T>(id: "site", fallback: T) {
   const current = await getDoc(id, fallback);
   const now = new Date().toISOString();
   const next: Draftable<T> = { ...current, published: current.draft, publishedAt: now };

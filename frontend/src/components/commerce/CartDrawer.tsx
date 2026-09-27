@@ -75,7 +75,7 @@ export function CartDrawer() {
             <p className="mt-3 max-w-xs text-sm text-stone">Let us help you find the mattress you&rsquo;ll never want to leave.</p>
             <div className="mt-8 flex flex-col gap-3">
               <Link href="/shop" className="btn btn-dark" onClick={close}>Explore mattresses</Link>
-              <Link href="/quiz" className="btn btn-outline" onClick={close}>Take the Sleep Quiz</Link>
+              <Link href="/showroom?kind=video#book" className="btn btn-outline" onClick={close}>Talk to a specialist</Link>
             </div>
           </div>
         ) : (

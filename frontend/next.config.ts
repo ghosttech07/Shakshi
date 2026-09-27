@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/admin", destination: studio, permanent: false },
       { source: "/admin/:path*", destination: `${studio}/:path*`, permanent: false },
+      // Retired pages: old links and bookmarks land on the collection.
+      { source: "/quiz", destination: "/shop", permanent: true },
+      { source: "/build-your-bed", destination: "/shop", permanent: true },
     ];
   },
   async rewrites() {

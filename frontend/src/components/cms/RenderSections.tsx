@@ -50,8 +50,6 @@ const BLOCKS: Record<string, Block> = {
   "rich-text": B.RichText,
   cta: B.Cta,
   "shop-catalog": B.ShopCatalog,
-  quiz: B.QuizBlock,
-  configurator: B.ConfiguratorBlock,
   "sleep-calculator": B.SleepCalculatorBlock,
   swatches: B.SwatchesBlock,
   showrooms: () => <ShowroomsBlock />,

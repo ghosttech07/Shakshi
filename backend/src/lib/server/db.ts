@@ -11,7 +11,6 @@ import { randomUUID } from "crypto";
 export type Table =
   | "orders"
   | "bookings"
-  | "quiz_results"
   | "leads"
   | "abandoned_carts"
   | "events"

@@ -11,7 +11,6 @@ const EDITABLE: Partial<Record<Table, string[]>> = {
   orders: STAGES.map((s) => s.id),
   bookings: ["requested", "confirmed", "completed", "cancelled"],
   leads: ["new", "handled"],
-  quiz_results: ["new", "contacted"],
   abandoned_carts: ["open", "contacted", "recovered", "closed"],
   reviews: ["pending", "approved", "hidden"],
 };

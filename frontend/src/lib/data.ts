@@ -3,7 +3,6 @@ import { PRODUCTS, type Product, type Review } from "@shakshi/shared/products";
 import { ARTICLES, type Article } from "@shakshi/shared/articles";
 import { DEFAULT_PAGES, DEFAULT_SITE } from "@shakshi/shared/cms/defaults";
 import type { PageDoc, SiteConfig } from "@shakshi/shared/cms/types";
-import { DEFAULT_QUIZ, type QuizConfig } from "@shakshi/shared/quiz";
 
 /**
  * The storefront's only doorway to the backend for page data. Every call has a short timeout and
@@ -24,7 +23,7 @@ async function fromBackend<T>(path: string, fallback: T, revalidate = 60): Promi
   }
 }
 
-export type Storefront = { products: Product[]; stock: Record<string, number | null>; site: SiteConfig; quiz: QuizConfig };
+export type Storefront = { products: Product[]; stock: Record<string, number | null>; site: SiteConfig };
 
 export const getStorefront = async (): Promise<Storefront> => {
   const r = await fromBackend<Partial<Storefront>>("/api/public/storefront", {});
@@ -32,7 +31,6 @@ export const getStorefront = async (): Promise<Storefront> => {
     products: r.products ?? PRODUCTS.filter((p) => p.published !== false),
     stock: r.stock ?? {},
     site: r.site ?? DEFAULT_SITE,
-    quiz: r.quiz ?? DEFAULT_QUIZ,
   };
 };
 

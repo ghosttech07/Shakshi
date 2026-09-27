@@ -37,7 +37,6 @@ const GROUPS: { title: string; items: Item[] }[] = [
     items: [
       { href: "/pages", label: "Pages", icon: i("M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5") },
       { href: "/site", label: "Site & theme", icon: i("M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2.5-1.5H18a3 3 0 0 0 3-3 9 9 0 0 0-9-9zM7.5 11h.01M10 7h.01M14.5 7h.01") },
-      { href: "/quiz", label: "Sleep Quiz", icon: i("M12 17h.01M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18") },
       { href: "/library", label: "Sleep Library", icon: i("M5 4h5a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5zM19 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5z") },
       { href: "/media", label: "Media", icon: i("M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M15 9h.01") },
     ],

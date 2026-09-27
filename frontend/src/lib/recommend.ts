@@ -1,27 +1,23 @@
 import type { Product } from "@shakshi/shared/products";
-import { matchMattresses, type Answers } from "@shakshi/shared/quiz";
 
-export type Signals = { quiz?: { answers: Answers } | null; recent?: string[]; wishlist?: string[]; exclude?: string[] };
+export type Signals = { recent?: string[]; wishlist?: string[]; exclude?: string[] };
 export type Recommendation = { product: Product; reason: string; score: number };
 
 /**
- * Blends what a visitor has told us (quiz), kept (wishlist) and looked at (history) into a short,
+ * Blends what a visitor has kept (wishlist) and looked at (history) into a short,
  * explained list. Returns nothing when there are no signals, so generic rows can stay generic.
  */
 export function recommend(products: Product[], s: Signals, n = 3): Recommendation[] {
   const recent = s.recent ?? [];
   const wishlist = s.wishlist ?? [];
-  if (!s.quiz && !recent.length && !wishlist.length) return [];
+  if (!recent.length && !wishlist.length) return [];
 
-  const quizScores = new Map(s.quiz ? matchMattresses(s.quiz.answers, products).map((m) => [m.product.slug, m.score]) : []);
   const viewed = recent.map((slug) => products.find((p) => p.slug === slug)).filter((p): p is Product => !!p);
 
   const out = products
     .filter((p) => !s.exclude?.includes(p.slug))
     .map((p) => {
       const reasons: { text: string; weight: number }[] = [];
-      const q = quizScores.get(p.slug);
-      if (q !== undefined) reasons.push({ text: `Your ${q}% sleep match`, weight: q });
       if (wishlist.includes(p.slug)) reasons.push({ text: "Saved to your wishlist", weight: 40 });
       const idx = recent.indexOf(p.slug);
       if (idx >= 0) reasons.push({ text: "You looked at this recently", weight: 22 - idx * 3 });

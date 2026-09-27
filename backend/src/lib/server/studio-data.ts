@@ -1,6 +1,6 @@
 import { list, type Row } from "./db";
 import { currentStage, type OrderData } from "@shakshi/shared/orders";
-import type { BookingData, EventData } from "@shakshi/shared/records";
+import type { BookingData, EventData, LeadData, ReviewData } from "@shakshi/shared/records";
 
 /** Read helpers for studio pages (server only; every caller sits behind requireStudio). */
 
@@ -13,10 +13,11 @@ export const liveOrders = (rows: Row<OrderData>[]) => rows.filter((o) => !o.data
 export const stageOf = (o: Row<OrderData>) => currentStage(o);
 
 export async function overview() {
-  const [os, bookings, quiz, stock, events] = await Promise.all([
+  const [os, bookings, reviews, leads, stock, events] = await Promise.all([
     orders(),
     list<BookingData>("bookings", { limit: 1000 }),
-    list<{ match: string }>("quiz_results", { limit: 2000, since: new Date(Date.now() - 30 * 86400000).toISOString() }),
+    list<ReviewData>("reviews", { status: "pending", limit: 1000 }),
+    list<LeadData>("leads", { status: "new", limit: 1000 }),
     list<{ qty: number | null }>("stock", { limit: 500 }),
     list<EventData>("events", { limit: 20000, since: new Date(Date.now() - 30 * 86400000).toISOString() }),
   ]);
@@ -47,8 +48,6 @@ export async function overview() {
   const count = (name: string) => new Set(events.filter((e) => e.data.name === name).map((e) => e.data.sessionId)).size;
   const funnel = [
     { label: "Visited", n: count("page_view") },
-    { label: "Started the quiz", n: count("quiz_start") },
-    { label: "Finished the quiz", n: count("quiz_complete") },
     { label: "Added to bag", n: count("add_to_cart") },
     { label: "Began checkout", n: count("checkout_step") },
     { label: "Ordered", n: count("purchase") },
@@ -61,8 +60,8 @@ export async function overview() {
     monthRevenue: sum(since(monthStart)),
     pending: real.filter((o) => stageOf(o) !== "delivered").length,
     lowStock: stock.filter((s) => typeof s.data.qty === "number" && s.data.qty <= 3).map((s) => ({ key: s.id, qty: s.data.qty as number })),
-    quizCompletions: quiz.length,
-    configuratorUses: count("configurator_use"),
+    pendingReviews: reviews.length,
+    openInquiries: leads.length,
     upcomingBookings: bookings.filter((b) => b.status !== "cancelled" && new Date(b.data.start) >= now).length,
     days,
     funnel,

@@ -2,9 +2,6 @@
 
 export const EVENT_NAMES = [
   "page_view",
-  "quiz_start",
-  "quiz_complete",
-  "configurator_use",
   "add_to_cart",
   "checkout_step",
   "purchase",

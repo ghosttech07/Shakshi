@@ -292,7 +292,7 @@ export function Thread({ data = {}, edit }: { data?: ThreadData; edit?: boolean 
             </span>
           </h2>
           {t.ctaText && (
-            <Link href={t.ctaLink || "/quiz"} className="btn btn-gold mt-12" {...f("ctaText")}>
+            <Link href={t.ctaLink || "/shop"} className="btn btn-gold mt-12" {...f("ctaText")}>
               {t.ctaText}
             </Link>
           )}

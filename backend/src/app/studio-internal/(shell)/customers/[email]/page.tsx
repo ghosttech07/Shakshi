@@ -9,14 +9,11 @@ import { Badge, Empty, PageHead, inr, when } from "@/components/studio/ui";
 
 export const metadata = { title: "Customer" };
 
-type Quiz = { answers: Record<string, string>; match: string; score: number };
-
 export default async function CustomerPage({ params }: { params: Promise<{ email: string }> }) {
   const base = await requireStudio();
   const email = decodeURIComponent((await params).email).toLowerCase();
-  const [os, quiz, bookings, leads, reviews, catalog] = await Promise.all([
+  const [os, bookings, leads, reviews, catalog] = await Promise.all([
     orders(),
-    list<Quiz>("quiz_results", { email, limit: 100 }),
     list<BookingData>("bookings", { email, limit: 100 }),
     list<LeadData>("leads", { email, limit: 100 }),
     list<ReviewData>("reviews", { email, limit: 100 }),
@@ -58,29 +55,6 @@ export default async function CustomerPage({ params }: { params: Promise<{ email
             </ul>
           ) : (
             <p className="mt-2 text-stone">No orders yet.</p>
-          )}
-        </section>
-
-        <section className="card p-5 sm:p-6">
-          <h2 className="text-2xl">Sleep Quiz</h2>
-          {quiz.length ? (
-            <ul className="mt-3 space-y-3">
-              {quiz.map((r) => (
-                <li key={r.id}>
-                  <p>
-                    Matched <strong>{name(r.data.match)}</strong> ({r.data.score}%) <span className="text-xs text-stone">{when(r.created_at, false)}</span>
-                  </p>
-                  <p className="text-xs text-stone">
-                    {Object.entries(r.data.answers ?? {})
-                      .filter(([, v]) => v)
-                      .map(([k, v]) => `${k}: ${v}`)
-                      .join(" · ")}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-2 text-stone">No quiz results linked to this email.</p>
           )}
         </section>
 

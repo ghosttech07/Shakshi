@@ -164,7 +164,7 @@ export function ShopClient() {
           {results.length === 0 && (
             <div className="py-24 text-center">
               <p className="font-serif text-3xl">Nothing quite matches, yet.</p>
-              <p className="mt-3 text-stone">Loosen a filter or two, or let the Sleep Quiz choose for you.</p>
+              <p className="mt-3 text-stone">Loosen a filter or two, or book a free call and a specialist will guide you.</p>
               <button onClick={() => setF(initial)} className="btn btn-outline mt-8">
                 Reset filters
               </button>

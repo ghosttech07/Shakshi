@@ -10,8 +10,6 @@ export const DEFAULT_SITE: SiteConfig = {
   announcement: { enabled: false, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
   nav: [
     { label: "Mattresses", href: "/shop" },
-    { label: "Sleep Quiz", href: "/quiz" },
-    { label: "Build Your Bed", href: "/build-your-bed" },
     {
       label: "Discover",
       href: "",
@@ -30,8 +28,8 @@ export const DEFAULT_SITE: SiteConfig = {
   ],
   footer: {
     columns: [
-      { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, { label: "Build Your Bed", href: "/build-your-bed" }] },
-      { title: "Discover", links: [{ label: "Sleep Quiz", href: "/quiz" }, { label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "Real Bedrooms", href: "/real-bedrooms" }, { label: "Our Story", href: "/about" }] },
+      { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, ] },
+      { title: "Discover", links: [{ label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "Real Bedrooms", href: "/real-bedrooms" }, { label: "Our Story", href: "/about" }] },
       { title: "The House", links: [{ label: "Your Account", href: "/account" }, { label: "Sleep Society", href: "/sleep-society" }, { label: "Gift Cards", href: "/gift-cards" }, { label: "Hospitality & Trade", href: "/hospitality" }, { label: "Setup Guide", href: "/setup" }, { label: "FAQ", href: "/faq" }] },
       { title: "Policies", links: [{ label: "100-night trial", href: "/policies/trial" }, { label: "Warranty", href: "/policies/warranty" }, { label: "Returns", href: "/policies/returns" }, { label: "Privacy", href: "/policies/privacy" }, { label: "Terms", href: "/policies/terms" }] },
     ],
@@ -63,7 +61,7 @@ export const DEFAULT_SITE: SiteConfig = {
     unserviceable: DEFAULT_SETTINGS.unserviceable,
   },
   popups: {
-    exitIntent: { enabled: true, eyebrow: "Before you drift away", title: "Sixty seconds to your *perfect* night.", body: "Seven gentle questions, and we’ll match you to the mattress your body has been waiting for.", ctaText: "Take the Sleep Quiz", ctaLink: "/quiz", offer: "Or join the Sleep Society and receive a complimentary Silk Protector with your first mattress.", image: "https://images.unsplash.com/photo-1531353826977-0941b4779a1c" },
+    exitIntent: { enabled: true, eyebrow: "Before you drift away", title: "Talk to a *sleep specialist*.", body: "Fifteen unhurried minutes on video, always free. We’ll help you find the mattress your body has been waiting for.", ctaText: "Book a free video call", ctaLink: "/showroom?kind=video#book", offer: "Or join the Sleep Society and receive a complimentary Silk Protector with your first mattress.", image: "https://images.unsplash.com/photo-1531353826977-0941b4779a1c" },
     newsletterOffer: "A complimentary Silk Protector with your first mattress.",
   },
   showrooms: SHOWROOMS.map((s) => ({ ...s })),
@@ -79,7 +77,7 @@ const FAQS = [
   { q: "How does the 100-night trial work?", a: "<p>Sleep on your mattress for up to 100 nights. We ask for at least 21, as your body takes a little time to adjust. If it isn't right, we collect it from your home at no cost and refund you in full.</p>" },
   { q: "When will my mattress arrive?", a: "<p>Metro cities receive in 3–5 days, the rest of India in 6–9. Enter your pincode on any mattress page for an exact window. Delivery is always complimentary and white-glove.</p>" },
   { q: "Do you take my old mattress away?", a: "<p>Yes, for a small fee we collect your old mattress on the day of delivery and see that it is recycled or donated responsibly.</p>" },
-  { q: "Which firmness should I choose?", a: "<p>Side sleepers are usually happiest plush to medium; back sleepers medium to medium-firm; stomach sleepers firmer. Our <a href=\"/quiz\">Sleep Quiz</a> will match you in about a minute.</p>" },
+  { q: "Which firmness should I choose?", a: "<p>Side sleepers are usually happiest plush to medium; back sleepers medium to medium-firm; stomach sleepers firmer. Feel each one in our <a href=\"/sleep-studio\">Sleep Studio</a>, or book a free video call and a specialist will guide you.</p>" },
   { q: "Can I pay in instalments?", a: "<p>Yes: no-cost EMI over 3, 6 or 12 months on major credit cards, longer tenures with interest, and pay-later options at checkout.</p>" },
   { q: "How do I care for my mattress?", a: "<p>Rotate it head-to-foot every three months in the first year, then twice a year. Use a protector, and spot-clean with cool water and a mild soap.</p>" },
 ];
@@ -97,8 +95,6 @@ export const DEFAULT_PAGES: PageDoc[] = [
   page("showroom", "Showrooms & Contact", { title: "Showrooms & Contact", description: "Visit a Shakshi salon, book a home trial or a free video consultation, or speak with a sleep concierge." }, [header("Showrooms & contact", "Some things must be felt to be believed."), ["showrooms"], ["booking"], ["contact"]]),
   page("sleep-library", "Sleep Library", { title: "The Sleep Library · Essays on Resting Well", description: "Essays from sleep physicians, physiotherapists and our own atelier." }, [header("The Sleep Library", "Slow reading, for deeper nights.", "Essays from sleep physicians, physiotherapists and our own atelier. Read one tonight, an hour before bed."), ["library-index"]]),
   page("real-bedrooms", "Real Bedrooms", { title: "Real Bedrooms · Shop Our Sleepers' Rooms", description: "Photographs from Shakshi sleepers across India, each tagged with the mattress and bedding in the room." }, [header("Real bedrooms", "Where our mattresses live now.", "Rooms from sleepers across India. Tap a photograph to see, and shop, exactly what’s in it."), ["real-bedrooms", { eyebrow: "", title: "", linkText: "", limit: 0 }]]),
-  page("quiz", "Sleep Quiz", { title: "The Sleep Quiz · Mattress Matchmaker", description: "Seven gentle questions about how you sleep, and we'll match you to your mattress." }, [["quiz"]]),
-  page("build-your-bed", "Build Your Bed", { title: "Build Your Bed", description: "Compose your Shakshi: mattress, size, cover, pillows and frame, with a live 3D preview." }, [header("Build your bed", "Compose your perfect night."), ["configurator"]]),
   page("sleep-studio", "Sleep Studio", { title: "The Sleep Studio", description: "Feel each mattress yield, calculate bedtimes by sleep cycles, and order free fabric swatches." }, [["sleep-studio-hero"], ["sleep-calculator"], ["swatches"]]),
   page("gift-cards", "Gift Cards", { title: "Gift Cards · The Gift of Deep Sleep", description: "A Shakshi gift card, delivered in a digital envelope." }, [header("Gift cards", "The kindest gift is a good night."), ["gift-builder"]]),
   page("hospitality", "Hospitality & Trade", { title: "Hospitality & Trade · Bulk Mattress Orders", description: "Shakshi mattresses for hotels, serviced apartments, hostels and corporate buyers." }, [

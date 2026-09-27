@@ -59,7 +59,7 @@ export async function CmsPage({ slug }: { slug: string }) {
   if (!page) notFound();
   const articles = needsArticles(page) ? await getArticles() : [];
   const ld = await structuredData(page, articles);
-  const hasH1 = ["hero", "page-header", "thread-journey", "quiz", "sleep-studio-hero"].includes(page.sections.find((s) => !s.hidden)?.type ?? "");
+  const hasH1 = ["hero", "page-header", "thread-journey", "sleep-studio-hero"].includes(page.sections.find((s) => !s.hidden)?.type ?? "");
   return (
     <>
       {ld.map((x, i) => (

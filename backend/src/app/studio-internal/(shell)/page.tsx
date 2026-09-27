@@ -29,9 +29,9 @@ export default async function Overview() {
         <Stat label="Revenue this month" value={inr(o.monthRevenue)} />
         <Stat label="Pending deliveries" value={o.pending} note="Not yet delivered" href={`${base}/orders?stage=open`} />
         <Stat label="Low stock" value={o.lowStock.length} note="Sizes with 3 or fewer" tone={o.lowStock.length ? "warn" : undefined} href={`${base}/products`} />
-        <Stat label="Quiz completions" value={o.quizCompletions} note="Last 30 days" href={`${base}/customers`} />
+        <Stat label="Reviews to approve" value={o.pendingReviews} note="Waiting for you" tone={o.pendingReviews ? "warn" : undefined} href={`${base}/reviews`} />
         <Stat label="Upcoming bookings" value={o.upcomingBookings} note="Salon, home and video" href={`${base}/bookings`} />
-        <Stat label="Configurator sessions" value={o.configuratorUses} note="Last 30 days" />
+        <Stat label="Open inquiries" value={o.openInquiries} note="Not yet handled" href={`${base}/inquiries`} />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_1fr]">

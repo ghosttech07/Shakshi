@@ -62,7 +62,7 @@ const orgJsonLd = (site: SiteConfig) => ({
 });
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { products, stock, site, quiz } = await getStorefront();
+  const { products, stock, site } = await getStorefront();
   const { theme } = site;
   const css = themeCss(theme) + fontCss(theme.fonts);
   return (
@@ -75,7 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             parsing; React never re-creates it in the browser (which it would warn about). */}
         <div hidden dangerouslySetInnerHTML={{ __html: `<script>${bootScript(theme.toggles.nightMode)}</script>` }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(orgJsonLd(site)) }} />
-        <SiteProvider site={site} quiz={quiz}>
+        <SiteProvider site={site}>
           <MotionPrefs>
             <CatalogProvider products={products} stock={stock}>
               {theme.toggles.preloader && theme.motion !== "off" && <Preloader />}

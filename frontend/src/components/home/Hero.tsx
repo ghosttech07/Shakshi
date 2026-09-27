@@ -11,6 +11,7 @@ import { useLoad3D } from "@/lib/use3d";
 import { useNight } from "@/lib/theme";
 import { useHydrated } from "@/lib/useHydrated";
 import { useAccount } from "@/lib/account";
+import { useStore } from "@/lib/store";
 import { useCatalog } from "@/lib/catalog-context";
 import { SECTIONS } from "@shakshi/shared/cms/sections";
 import { lines, str, fieldFn } from "@/components/cms/text";
@@ -39,13 +40,13 @@ function Headline({ words, reduce, className }: { words: string[]; reduce: boole
   );
 }
 
-/** "Welcome back." Uses what the visitor told us: their name, or their quiz match. */
+/** "Welcome back." Uses what we know: their name, and the mattress they last looked at. */
 function Greeting() {
   const hydrated = useHydrated();
   const profile = useAccount((s) => s.profile);
-  const quiz = useAccount((s) => s.quiz);
+  const recent = useStore((s) => s.recent);
   const { get } = useCatalog();
-  const match = quiz ? get(quiz.match) : undefined;
+  const match = recent[0] ? get(recent[0]) : undefined;
   if (!hydrated || (!profile && !match)) return null;
   const first = profile?.name.split(" ")[0];
   return (
@@ -56,7 +57,7 @@ function Greeting() {
           Welcome back{first ? `, ${first}` : ""}.{" "}
           {match ? (
             <>
-              Your match, <strong className="font-semibold">{match.name.replace("The ", "the ")}</strong>, is waiting.
+              <strong className="font-semibold">{match.name}</strong> is waiting for you.
             </>
           ) : (
             "Your account is ready when you are."
@@ -147,7 +148,7 @@ export function Hero({ data = {}, edit }: { data?: Record<string, unknown>; edit
           </motion.p>
           <motion.div className="mt-9 flex flex-wrap items-center gap-6" initial={{ opacity: 0, y: reduce ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, delay: 1.2, ease: EASE }}>
             {str(h.ctaText) && (
-              <Link href={str(h.ctaLink, "/quiz")} className="btn btn-gold shadow-soft" {...f("ctaText")}>
+              <Link href={str(h.ctaLink, "/shop")} className="btn btn-gold shadow-soft" {...f("ctaText")}>
                 {str(h.ctaText)} <IconArrow size={16} />
               </Link>
             )}

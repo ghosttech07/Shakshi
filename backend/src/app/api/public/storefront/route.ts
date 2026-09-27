@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { getCatalog, getStock } from "@/lib/server/catalog";
-import { getDoc, getSite } from "@/lib/server/content";
-import { DEFAULT_QUIZ, type QuizConfig } from "@shakshi/shared/quiz";
+import { getSite } from "@/lib/server/content";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Everything the storefront needs on every page: live catalogue (published only), stock, and the published site config and quiz. */
+/** Everything the storefront needs on every page: live catalogue (published only), stock, and the published site config. */
 export async function GET() {
-  const [products, stock, site, quiz] = await Promise.all([getCatalog(), getStock(), getSite("published"), getDoc<QuizConfig>("quiz", DEFAULT_QUIZ)]);
-  return NextResponse.json({ products, stock, site, quiz: quiz.published ?? DEFAULT_QUIZ }, { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300" } });
+  const [products, stock, site] = await Promise.all([getCatalog(), getStock(), getSite("published")]);
+  return NextResponse.json({ products, stock, site }, { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300" } });
 }

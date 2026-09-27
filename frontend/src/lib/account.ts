@@ -2,7 +2,6 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Answers } from "@shakshi/shared/quiz";
 import type { Customer, OrderItem } from "@shakshi/shared/orders";
 import { POINTS } from "@shakshi/shared/orders";
 
@@ -27,7 +26,6 @@ export type SoundId = "rain" | "ocean" | "noise";
 type State = {
   profile: { name: string; email: string } | null;
   orders: LocalOrder[];
-  quiz: { answers: Answers; match: string; score: number; at: string } | null;
   journal: JournalEntry[];
   reviewsWritten: number;
   referralCode: string | null;
@@ -42,7 +40,6 @@ type State = {
   signIn: (name: string, email: string) => void;
   signOut: () => void;
   addOrder: (o: LocalOrder) => void;
-  setQuiz: (q: State["quiz"]) => void;
   logSleep: (e: JournalEntry) => void;
   removeSleep: (date: string) => void;
   noteReview: () => void;
@@ -64,7 +61,6 @@ export const useAccount = create<State>()(
     (set, get) => ({
       profile: null,
       orders: [],
-      quiz: null,
       journal: [],
       reviewsWritten: 0,
       referralCode: null,
@@ -79,7 +75,6 @@ export const useAccount = create<State>()(
       signIn: (name, email) => set({ profile: { name: name.trim(), email: email.trim().toLowerCase() } }),
       signOut: () => set({ profile: null }),
       addOrder: (o) => set({ orders: [o, ...get().orders.filter((x) => x.id !== o.id)] }),
-      setQuiz: (quiz) => set({ quiz }),
       logSleep: (e) => set({ journal: [...get().journal.filter((j) => j.date !== e.date), e].sort((a, b) => a.date.localeCompare(b.date)).slice(-120) }),
       removeSleep: (date) => set({ journal: get().journal.filter((j) => j.date !== date) }),
       noteReview: () => set({ reviewsWritten: get().reviewsWritten + 1 }),

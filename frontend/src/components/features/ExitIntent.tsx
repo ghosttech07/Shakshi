@@ -21,7 +21,7 @@ export function ExitIntent() {
 
   useEffect(() => {
     if (!isLive(p)) return;
-    if (pathname.startsWith("/checkout") || pathname.startsWith("/quiz")) return;
+    if (pathname.startsWith("/checkout")) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
     try {
       if (sessionStorage.getItem(KEY)) return;
@@ -55,7 +55,7 @@ export function ExitIntent() {
             <Emph text={p.title} emClassName="text-gold-soft" />
           </p>
           <p className="mt-5 text-sm leading-relaxed text-pearl/70">{p.body}</p>
-          <Link href={p.ctaLink || "/quiz"} onClick={close} className="btn btn-gold mt-8 self-start" data-autofocus>
+          <Link href={p.ctaLink || "/showroom?kind=video#book"} onClick={close} className="btn btn-gold mt-8 self-start" data-autofocus>
             {p.ctaText} <IconArrow size={16} />
           </Link>
           <div className="gold-rule my-8" />

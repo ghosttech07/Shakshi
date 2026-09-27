@@ -67,7 +67,7 @@ export const SECTIONS: Record<string, SectionDef> = {
       nightHeadline: "Ready for\ntonight?",
       nightBody: "The lights are low and the day is done. Find the mattress that will hold you through every hour of it, until a slow and restored morning.",
       ctaText: "Find Your Mattress",
-      ctaLink: "/quiz",
+      ctaLink: "/shop",
       secondaryText: "Explore the collection",
       secondaryLink: "/shop",
     },
@@ -88,7 +88,7 @@ export const SECTIONS: Record<string, SectionDef> = {
   },
   recommended: {
     label: "Recommended for you",
-    description: "Personal picks from the visitor's quiz, wishlist and browsing. Hidden until we know something about them.",
+    description: "Personal picks from the visitor's wishlist and browsing. Hidden until we know something about them.",
     group: "Products",
     fields: [t("title", "Title"), t("fallbackTitle", "Title when there's nothing personal yet (leave blank to hide)")],
     defaults: { title: "Recommended for you", fallbackTitle: "" },
@@ -113,7 +113,7 @@ export const SECTIONS: Record<string, SectionDef> = {
       heading: "What lies within.",
       finale: "Engineered to hold you.",
       ctaText: "Find your mattress",
-      ctaLink: "/quiz",
+      ctaLink: "/shop",
       layers: [
         { name: "Wool-quilted cover", benefit: "Breathable, temperature-balancing touch", spec: "3 cm New Zealand wool & organic cotton", texture: "" },
         { name: "Cooling gel layer", benefit: "Draws heat away, all night", spec: "3 cm phase-change gel foam", texture: "" },
@@ -247,15 +247,15 @@ export const SECTIONS: Record<string, SectionDef> = {
   },
   tools: {
     label: "Tool cards",
-    description: "Image cards linking to the quiz, configurator and other tools.",
+    description: "Image cards linking to the Sleep Studio, calculator and other tools.",
     group: "Engagement",
     fields: [...heading, list("items", "Cards", "title", [sel("icon", "Icon", ICONS), t("title", "Title"), ta("body", "Text"), img("image", "Image"), link("href", "Link")])],
     defaults: {
       eyebrow: "Personal guidance",
       title: "Let us *tailor* your rest.",
       items: [
-        { icon: "sparkle", title: "The Sleep Quiz", body: "Seven gentle questions. One mattress, matched to you.", image: "https://images.unsplash.com/photo-1520206183501-b80df61043c2", href: "/quiz" },
-        { icon: "bed", title: "Build Your Bed", body: "Compose mattress, cover, pillows and frame, and watch it come alive.", image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0", href: "/build-your-bed" },
+        { icon: "sparkle", title: "The Sleep Studio", body: "Press and hold to feel how deeply each mattress yields.", image: "https://images.unsplash.com/photo-1520206183501-b80df61043c2", href: "/sleep-studio" },
+        { icon: "bed", title: "Talk to a specialist", body: "Fifteen free minutes on video, from your own bedroom.", image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0", href: "/showroom?kind=video#book" },
         { icon: "clock", title: "Sleep Calculator", body: "Wake between cycles, never in the middle of a dream.", image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d", href: "/sleep-studio#calculator" },
       ],
     },
@@ -299,7 +299,7 @@ export const SECTIONS: Record<string, SectionDef> = {
       ],
       closing: "The thread continues *with you.*",
       ctaText: "Find Your Mattress",
-      ctaLink: "/quiz",
+      ctaLink: "/shop",
     },
   },
   faq: {
@@ -325,8 +325,6 @@ export const SECTIONS: Record<string, SectionDef> = {
   },
   // ---- tools: the interactive parts of built-in pages, with their surrounding words editable ----
   "shop-catalog": { label: "Shop catalogue", description: "Filterable mattress grid with compare and quick view.", group: "Tools", unique: true, fields: [], defaults: {} },
-  quiz: { label: "Sleep Quiz", description: "The seven-step mattress matchmaker (questions are edited in Quiz).", group: "Tools", unique: true, fields: [t("eyebrow", "Eyebrow")], defaults: { eyebrow: "The Sleep Quiz" } },
-  configurator: { label: "Bed configurator", description: "Build Your Bed, with live 3D preview.", group: "Tools", unique: true, fields: [], defaults: {} },
   "sleep-calculator": { label: "Sleep calculator", description: "Bedtimes by 90-minute cycles.", group: "Tools", fields: [...heading, ta("intro", "Intro"), img("image", "Image")], defaults: { eyebrow: "Sleep calculator", title: "Wake between *dreams.*", intro: "Sleep moves in gentle 90-minute cycles. Waking at the end of one, rather than in the middle, is the difference between groggy and restored.", image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d" } },
   swatches: { label: "Swatch request", description: "Free fabric swatch form.", group: "Tools", fields: [...heading, ta("intro", "Intro"), img("image", "Image")], defaults: { eyebrow: "Complimentary", title: "Touch the *fabric* first.", intro: "We'll post you up to three swatches of our covers, so you can feel the weave and see the colour in your own light. Always free.", image: "https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5" } },
   showrooms: { label: "Showroom locations", description: "Salon map and details (edit locations in Settings → Showrooms).", group: "Tools", fields: [], defaults: {} },

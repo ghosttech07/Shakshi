@@ -28,7 +28,7 @@ POLICIES:
 - Care: rotate head-to-foot every 3 months for the first year, then every 6. Spot-clean only. Use a protector.
 
 SHOWROOMS: ${SHOWROOMS.map((s) => `${s.name}, ${s.address} (${s.hours})`).join("; ")}. Book at /showroom.
-TOOLS ON SITE: Sleep Quiz (/quiz), Build Your Bed configurator (/build-your-bed), Firmness simulator and sleep-cycle calculator (/sleep-studio).
+TOOLS ON SITE: Firmness simulator and sleep-cycle calculator (/sleep-studio), free 15-minute video consultations (/showroom?kind=video#book).
 CONTACT: phone ${CONTACT.phone}, email ${CONTACT.email}, WhatsApp available.
 `.trim();
 
@@ -39,7 +39,7 @@ const RULES: Rule[] = [
   {
     test: /side\s*sleep|shoulder|hip/i,
     reply:
-      "For side sleepers I'd gently suggest **The Cirrus**: its plush, cradling layers let shoulders and hips sink just enough while the spring core keeps you aligned. If you prefer a little more lift, **The Shakshi Signature** is our balanced favourite. The [Sleep Quiz](/quiz) will confirm it in under a minute.",
+      "For side sleepers I'd gently suggest **The Cirrus**: its plush, cradling layers let shoulders and hips sink just enough while the spring core keeps you aligned. If you prefer a little more lift, **The Shakshi Signature** is our balanced favourite. You can feel the difference in our [Sleep Studio](/sleep-studio).",
   },
   {
     test: /back\s*(pain|ache)|lower back|spine/i,
@@ -98,5 +98,5 @@ const RULES: Rule[] = [
 export function guideReply(message: string) {
   const hit = RULES.find((r) => r.test.test(message));
   if (hit) return hit.reply;
-  return "I'd be delighted to help. Tell me a little about how you sleep: your usual position, whether you run warm, and if you share the bed. Or take our [Sleep Quiz](/quiz) for a personal match. You can also reach a human concierge on WhatsApp or at " + CONTACT.phone + ".";
+  return "I'd be delighted to help. Tell me a little about how you sleep: your usual position, whether you run warm, and if you share the bed. Or book a [free video call](/showroom?kind=video#book) for a personal match. You can also reach a human concierge on WhatsApp or at " + CONTACT.phone + ".";
 }

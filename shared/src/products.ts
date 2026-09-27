@@ -250,26 +250,13 @@ export const ADDONS = [
 
 export type AddonId = (typeof ADDONS)[number]["id"];
 
-// Configurator options
+// Cover fabrics (offered as free swatches)
 export const COVERS = [
   { id: "ivory", name: "Ivory", hex: "#efe8dc" },
   { id: "oat", name: "Oat", hex: "#d6c6ad" },
   { id: "taupe", name: "Taupe", hex: "#a89f94" },
   { id: "blush", name: "Blush", hex: "#e6c7bd" },
   { id: "midnight", name: "Midnight", hex: "#2a3246" },
-];
-
-export const FRAMES = [
-  { id: "none", name: "Mattress only", price: 0, wood: "#000", fabric: "#000", note: "Use your own bed" },
-  { id: "oslo", name: "Oslo Platform", price: 42000, wood: "#b58a5c", fabric: "#b58a5c", note: "Low solid-oak platform" },
-  { id: "aurelia", name: "Aurelia Wingback", price: 58000, wood: "#6b4f37", fabric: "#d9cfc0", note: "Upholstered bouclé headboard" },
-  { id: "kyoto", name: "Kyoto Floating", price: 74000, wood: "#4a3325", fabric: "#4a3325", note: "Walnut, suspended silhouette" },
-];
-
-export const PILLOW_OPTIONS = [
-  { id: 0, name: "None", price: 0 },
-  { id: 2, name: "Two Cloud Pillows", price: 8900 },
-  { id: 4, name: "Four Cloud Pillows", price: 16900 },
 ];
 
 export const FREE_GIFT_THRESHOLD = 100000;

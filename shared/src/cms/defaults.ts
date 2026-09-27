@@ -107,7 +107,6 @@ export const DEFAULT_PAGES: PageDoc[] = [
       { title: "1 point", body: "for every ₹100 you spend" },
       { title: "250 points", body: "for each review you write" },
       { title: "1,000 points", body: "when a friend orders with your link" },
-      { title: "50 points", body: "for each week you keep your sleep journal" },
     ] }],
     ["cta", { eyebrow: "Refer a friend", title: "Give ₹5,000. *Get ₹5,000.*", body: "Share your personal link. Your friend takes ₹5,000 off their first mattress, and when they order, you receive the same in Shakshi credit, plus 1,000 points.", ctaText: "Get your link", ctaLink: "/account#rewards", secondaryText: "Send a gift card instead", secondaryLink: "/gift-cards", image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0" }],
     ["newsletter", { title: "One quiet letter a month." }],
@@ -116,7 +115,7 @@ export const DEFAULT_PAGES: PageDoc[] = [
   policy("trial", "The 100-night trial", "<p>Sleep on your Shakshi for up to 100 nights. We ask that you give it at least 21, as your body takes time to adjust to new support.</p><h2>Returning</h2><p>If it isn't right, contact our concierge. We'll arrange a collection from your home at no cost, and refund you in full to your original payment method within 7 days of collection.</p><p>One trial per household. Custom sizes are made to order and can be exchanged but not refunded.</p>"),
   policy("warranty", "Warranty", "<p>Every Shakshi mattress carries a 10-year warranty against manufacturing defects, including body impressions deeper than 2.5 cm.</p><h2>What isn't covered</h2><p>Normal softening, stains, burns, damage from an unsuitable base, or use without a protector.</p><p>Register your warranty in your account, or keep your invoice safe.</p>"),
   policy("returns", "Returns & exchanges", "<p>Pillows, protectors and linen can be returned unused within 30 days. Mattresses are covered by our 100-night trial.</p><p>Gift cards are not refundable but never lose value during their three-year life.</p>"),
-  policy("privacy", "Privacy", "<p>We collect only what we need to deliver your order, answer your questions and, if you ask, write to you. We never sell your information.</p><p>Your account, wishlist and sleep journal are kept in your own browser. You can clear them at any time from your account settings.</p><p><em>Please have this page reviewed by your legal adviser before launch.</em></p>"),
+  policy("privacy", "Privacy", "<p>We collect only what we need to deliver your order, answer your questions and, if you ask, write to you. We never sell your information.</p><p>Your account and wishlist are kept in your own browser. You can clear them at any time from your account settings.</p><p><em>Please have this page reviewed by your legal adviser before launch.</em></p>"),
   policy("terms", "Terms of sale", "<p>These terms apply to orders placed with Shakshi. Prices include GST. Delivery dates are estimates and we'll always tell you promptly if anything changes.</p><p><em>Please have this page reviewed by your legal adviser before launch.</em></p>"),
 ];
 

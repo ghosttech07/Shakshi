@@ -8,12 +8,10 @@ import { useHydrated } from "@/lib/useHydrated";
 import { tierFor } from "@shakshi/shared/orders";
 import { RecommendedRow } from "@/components/commerce/RecommendedRow";
 import { Orders } from "./Orders";
-import { Journal } from "./Journal";
 import { Rewards, useReferralCount } from "./Rewards";
 
 const SECTIONS = [
   { id: "orders", label: "Orders" },
-  { id: "journal", label: "Sleep journal" },
   { id: "rewards", label: "Rewards" },
   { id: "settings", label: "Settings" },
 ];
@@ -37,7 +35,7 @@ function SignIn() {
     <form onSubmit={submit} className="border border-gold/40 bg-gold/[0.05] p-7 sm:p-9">
       <p className="eyebrow text-gold-ink">Welcome</p>
       <p className="display mt-3 text-3xl">Make this your account.</p>
-      <p className="mt-3 max-w-lg text-sm leading-relaxed text-stone">Your orders, sleep journal and rewards are kept privately on this device. Tell us your name to be greeted properly, and to receive your referral link.</p>
+      <p className="mt-3 max-w-lg text-sm leading-relaxed text-stone">Your orders and rewards are kept privately on this device. Tell us your name to be greeted properly, and to receive your referral link.</p>
       <div className="mt-6 grid gap-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <label>
           <span className="eyebrow text-stone">Name</span>
@@ -159,7 +157,6 @@ export function AccountClient() {
 
       <div className="mt-16 space-y-24">
         <Orders />
-        <Journal />
         <Rewards />
         <Settings />
       </div>

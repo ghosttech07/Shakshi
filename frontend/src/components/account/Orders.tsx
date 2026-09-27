@@ -7,7 +7,7 @@ import { useAccount, type LocalOrder } from "@/lib/account";
 import { CHECK_INS, STAGES, TRIAL_NIGHTS, currentStage, stageTimes, type StageId } from "@shakshi/shared/orders";
 import { EASE, cn, formatINR } from "@shakshi/shared/utils";
 import { Img } from "@/components/ui/Img";
-import { IconCheck, IconShield, IconArrow, IconMoon } from "@/components/ui/Icons";
+import { IconCheck, IconShield, IconMoon } from "@/components/ui/Icons";
 
 const dayFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" });
 const timeFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
@@ -157,11 +157,6 @@ function Trial({ order, deliveredAt }: { order: LocalOrder; deliveredAt: Date })
               <p className="eyebrow text-gold-ink">Night {k.night}</p>
               <p className="mt-2 font-serif text-xl">{k.title}</p>
               <p className="mt-1.5 text-xs leading-relaxed text-stone">{open ? k.body : `Opens on ${dayFmt.format(new Date(deliveredAt.getTime() + (k.night - 1) * 86400000))}`}</p>
-              {due?.night === k.night && (
-                <Link href="#journal" className="mt-3 inline-flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-ink hover:text-ink">
-                  Log last night <IconArrow size={12} />
-                </Link>
-              )}
             </li>
           );
         })}

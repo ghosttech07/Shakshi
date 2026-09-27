@@ -92,6 +92,6 @@ export const TIERS = [
   { id: "circle", name: "Shakshi Circle", min: 7500, perks: ["Private salon evenings", "Personal sleep specialist", "Everything in Reverie"] },
 ] as const;
 
-export const POINTS = { perHundredRupees: 1, review: 250, referral: 1000, journalWeek: 50 };
+export const POINTS = { perHundredRupees: 1, review: 250, referral: 1000 };
 
 export const tierFor = (points: number) => [...TIERS].reverse().find((t) => points >= t.min) ?? TIERS[0];

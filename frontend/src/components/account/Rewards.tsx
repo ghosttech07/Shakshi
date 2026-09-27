@@ -76,12 +76,11 @@ export function Rewards() {
               </li>
             ))}
           </ul>
-          <dl className="mt-7 grid grid-cols-2 gap-3 border-t border-pearl/10 pt-5 text-xs text-pearl/60 sm:grid-cols-4">
+          <dl className="mt-7 grid grid-cols-3 gap-3 border-t border-pearl/10 pt-5 text-xs text-pearl/60">
             {[
               ["Purchases", pts.purchases],
               ["Reviews", pts.reviews],
               ["Referrals", pts.referrals],
-              ["Journal", pts.journal],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt>{k}</dt>

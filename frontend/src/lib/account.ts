@@ -19,14 +19,12 @@ export type LocalOrder = {
   removal?: number;
 };
 
-export type JournalEntry = { date: string; quality: number; hours: number; note?: string };
 export type ThemePref = "auto" | "day" | "night";
 export type SoundId = "rain" | "ocean" | "noise";
 
 type State = {
   profile: { name: string; email: string } | null;
   orders: LocalOrder[];
-  journal: JournalEntry[];
   reviewsWritten: number;
   referralCode: string | null;
   referredBy: string | null;
@@ -40,8 +38,6 @@ type State = {
   signIn: (name: string, email: string) => void;
   signOut: () => void;
   addOrder: (o: LocalOrder) => void;
-  logSleep: (e: JournalEntry) => void;
-  removeSleep: (date: string) => void;
   noteReview: () => void;
   setReferralCode: (c: string) => void;
   setReferredBy: (c: string | null) => void;
@@ -61,7 +57,6 @@ export const useAccount = create<State>()(
     (set, get) => ({
       profile: null,
       orders: [],
-      journal: [],
       reviewsWritten: 0,
       referralCode: null,
       referredBy: null,
@@ -75,8 +70,6 @@ export const useAccount = create<State>()(
       signIn: (name, email) => set({ profile: { name: name.trim(), email: email.trim().toLowerCase() } }),
       signOut: () => set({ profile: null }),
       addOrder: (o) => set({ orders: [o, ...get().orders.filter((x) => x.id !== o.id)] }),
-      logSleep: (e) => set({ journal: [...get().journal.filter((j) => j.date !== e.date), e].sort((a, b) => a.date.localeCompare(b.date)).slice(-120) }),
-      removeSleep: (date) => set({ journal: get().journal.filter((j) => j.date !== date) }),
       noteReview: () => set({ reviewsWritten: get().reviewsWritten + 1 }),
       setReferralCode: (referralCode) => set({ referralCode }),
       setReferredBy: (referredBy) => set({ referredBy }),
@@ -92,15 +85,13 @@ export const useAccount = create<State>()(
 );
 
 /** Loyalty points from what this member has done (referral credits are added by the caller). */
-export function pointsFor(s: Pick<State, "orders" | "reviewsWritten" | "journal">, referrals = 0) {
+export function pointsFor(s: Pick<State, "orders" | "reviewsWritten">, referrals = 0) {
   const purchases = s.orders.filter((o) => !o.sample).reduce((sum, o) => sum + Math.floor(o.total / 100) * POINTS.perHundredRupees, 0);
-  const weeks = new Set(s.journal.map((j) => { const d = new Date(j.date); const onejan = new Date(d.getFullYear(), 0, 1); return `${d.getFullYear()}-${Math.ceil(((d.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() + 1) / 7)}`; })).size;
   return {
     purchases,
     reviews: s.reviewsWritten * POINTS.review,
     referrals: referrals * POINTS.referral,
-    journal: weeks * POINTS.journalWeek,
-    total: purchases + s.reviewsWritten * POINTS.review + referrals * POINTS.referral + weeks * POINTS.journalWeek,
+    total: purchases + s.reviewsWritten * POINTS.review + referrals * POINTS.referral,
   };
 }
 

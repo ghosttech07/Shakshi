@@ -1,32 +1,64 @@
-# Shakshi — luxury mattress storefront
+# Shakshi: luxury mattress storefront and studio
 
-Next.js 16 (App Router, Turbopack) · Tailwind CSS 4 · Framer Motion · GSAP ScrollTrigger · Lenis · React Three Fiber · Zustand
+Next.js 16 (App Router, Turbopack) · Tailwind CSS 4 · Framer Motion · GSAP ScrollTrigger · Lenis · React Three Fiber · Zustand · Tiptap · Supabase (optional)
+
+The site is split into two independent apps so either can fail without taking down the other:
+
+| Workspace | Port | What it is |
+| --- | --- | --- |
+| `frontend/` | 3000 | The storefront. Renders every page from published content, with built-in fallbacks if the backend is unreachable. |
+| `backend/` | 4000 | API, database access, uploads, and the password-protected **studio** (admin + CMS). |
+| `shared/` | — | Types, catalogue seed, content model (sections, defaults), quiz logic, shared helpers. |
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+npm run studio:setup   # once: creates the studio address, password, secrets and both .env.local files
+npm run dev            # starts backend (4000) and frontend (3000) together
 npm run build && npm start
 ```
 
-Optional: copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` to power the Sleep Concierge with Claude. Without it, the concierge answers from a built-in guide. Set `NEXT_PUBLIC_SITE_URL` for canonical URLs, the sitemap and structured data.
+`studio:setup` prints the studio address (`http://localhost:4000/studio-…`) and a generated password. See `.env.example` for every setting.
+
+## The studio
+
+Sign in with the password only. The studio lives at a private address set by `ADMIN_PATH` (never `/admin`), is `noindex`, and isn't listed in robots or the sitemap. The password is checked on the server against a bcrypt hash. A signed, httpOnly, `sameSite=strict` session lasts 8 hours. Five failed attempts lock an IP out for 15 minutes, and every attempt is logged.
+
+- **Overview**: today's orders, revenue this week and month, pending deliveries, low stock, quiz completions, bookings, a daily revenue chart and the visitor funnel.
+- **Commerce**: Orders (search, filter, status that updates the customer's timeline), Products (details, images, price and stock per size, visibility), Discount codes (percent or flat, expiry, usage limit, minimum order), Abandoned carts (email and WhatsApp templates).
+- **People**: Customers (orders and quiz results), Reviews (approve, hide, reply), Bookings (calendar, confirm or cancel), Inquiries (mark handled).
+- **Content**:
+  - **Pages**: every page is an ordered list of sections. Edit, add, duplicate, hide, delete and drag to reorder, with a live preview at desktop, tablet and mobile sizes. Click anything in the preview to edit it. Autosaves every 10 seconds; drafts go live only on Publish. Each publish keeps a version you can restore, whole or one section at a time. New custom pages get their own address.
+  - **Site & theme**: brand, announcement bar, navigation, footer, contact and social links, colours, fonts, feature toggles, animation intensity, SEO defaults, analytics IDs, redirects, delivery pincodes, GST and fees, popups, showrooms, real bedrooms.
+  - **Sleep Quiz**: questions, answers, photos and the matching logic.
+  - **Sleep Library**: rich-text essays, categories, scheduled publishing.
+  - **Media**: uploads (images become WebP), required alt text, and deletion is blocked while a file is still in use.
+- **Activity log**: every change and every sign-in attempt.
+
+Publishing asks the storefront to refresh (`REVALIDATE_SECRET`); pages are otherwise statically generated and refresh on a timer.
+
+## Data
+
+Without Supabase, everything is stored in `backend/.data/db.json` and uploads in `backend/.data/media/`, which is fine for local use. For production:
+
+1. Run `backend/supabase/migrations/0001_init.sql` and `0002_media_bucket.sql` in the Supabase SQL editor.
+2. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (the **secret** key) in `backend/.env.local`.
+
+Only the backend talks to Supabase. Row-level security is on with no public policies, so the publishable key can't read anything.
 
 ## Where things live
 
 | Area | Path |
 | --- | --- |
-| Catalogue, sizes, add-ons, reviews, showrooms | `src/lib/products.ts` |
-| Photography (Unsplash IDs) | `src/lib/images.ts` |
-| Cart, wishlist, recently viewed, compare (saved to localStorage) | `src/lib/store.ts` |
-| Quiz scoring | `src/lib/quiz.ts` |
-| Delivery estimator (pincode rules) | `src/lib/utils.ts` → `estimateDelivery` |
-| Concierge API route and knowledge | `src/app/api/concierge/route.ts`, `src/lib/concierge-knowledge.ts` |
-| 3D scenes (hero duvet, 360° viewer, configurator) | `src/components/three/` |
-| Design tokens (colours, easing, textures) | `src/app/globals.css` |
+| Section types and their fields | `shared/src/cms/sections.ts` |
+| Default page content and site settings | `shared/src/cms/defaults.ts` |
+| Section renderers (storefront) | `frontend/src/components/cms/` |
+| Studio screens | `backend/src/app/studio-internal/`, `backend/src/components/studio/` |
+| Studio access guard | `backend/src/proxy.ts`, `backend/src/lib/server/admin-session.ts` |
+| Catalogue seed, sizes, add-ons | `shared/src/products.ts` |
+| Quiz questions and scoring | `shared/src/quiz.ts` |
+| 3D scenes | `frontend/src/components/three/` |
+| Design tokens | `frontend/src/app/globals.css` |
 
-## Pages
+## Before launch
 
-`/` home · `/shop` · `/mattress/[slug]` · `/quiz` · `/build-your-bed` · `/sleep-studio` (firmness simulator, sleep calculator, swatches) · `/about` · `/showroom` (salons, booking, contact) · `/wishlist` · `/checkout`
-
-## Still simulated
-
-Forms (newsletter, swatches, booking, contact) and checkout validate and confirm in the browser but aren't connected to a backend or payment gateway. "View in your room" is a camera preview with a to-scale footprint; true AR placement would need a GLB/USDZ model per mattress (for example via `<model-viewer>`).
+Several claims are placeholders and must be confirmed or edited in the studio: certifications, press quotes, testimonials, hospitality figures, and the GSTIN on invoices. Payments are not yet connected to a gateway.

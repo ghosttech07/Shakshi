@@ -147,6 +147,7 @@ export function Quiz() {
   const config = useQuizConfig();
   const STEPS = config.steps.filter((x) => !x.hidden && x.options.length);
   const setQuiz = useAccount((s) => s.setQuiz);
+  const profile = useAccount((s) => s.profile);
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [answers, setAnswers] = useState<Answers>({});
@@ -169,7 +170,7 @@ export function Quiz() {
     try {
       sessionId = sessionStorage.getItem("shk-sid") ?? "";
     } catch {}
-    fetch("/api/quiz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: final, match: best.product.slug, score: best.score, sessionId }) }).catch(() => {});
+    fetch("/api/quiz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: final, match: best.product.slug, score: best.score, sessionId, email: profile?.email }) }).catch(() => {});
   };
 
   const choose = (v: string) => {

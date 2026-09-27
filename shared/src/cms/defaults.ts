@@ -8,24 +8,7 @@ import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
 export const DEFAULT_SITE: SiteConfig = {
   brand: { name: "Shakshi", tagline: "A Commitment for Complete Rest" },
   announcement: { enabled: false, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
-  nav: [
-    { label: "Mattresses", href: "/shop" },
-    {
-      label: "Discover",
-      href: "",
-      children: [
-        { label: "Sleep Studio", href: "/sleep-studio", note: "Feel the firmness, time your cycles" },
-        { label: "Sleep Library", href: "/sleep-library", note: "Essays on resting well" },
-        { label: "Real Bedrooms", href: "/real-bedrooms", note: "Our sleepers, at home" },
-        { label: "Our Story", href: "/about", note: "The thread, from 2012" },
-        { label: "Sleep Society", href: "/sleep-society", note: "Rewards, tiers and referrals" },
-        { label: "Gift Cards", href: "/gift-cards", note: "The gift of deep sleep" },
-        { label: "Hospitality & Trade", href: "/hospitality", note: "Hotels, homes and offices" },
-        { label: "Setup Guide", href: "/setup", note: "Unboxing, and the first 24 hours" },
-      ],
-    },
-    { label: "Showrooms", href: "/showroom" },
-  ],
+  nav: [{ label: "Mattresses", href: "/shop" }],
   footer: {
     columns: [
       { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, ] },

@@ -68,10 +68,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en-IN" className={fontVariables} data-theme="day" data-motion={theme.motion} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: bootScript(theme.toggles.nightMode) }} />
-        {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
+        {css ? <style dangerouslySetInnerHTML={{ __html: css }} /> : null}
       </head>
       <body className="min-h-screen overflow-x-clip">
+        {/* Picks day or night before anything paints. Sent as raw HTML so the browser runs it while
+            parsing; React never re-creates it in the browser (which it would warn about). */}
+        <div hidden dangerouslySetInnerHTML={{ __html: `<script>${bootScript(theme.toggles.nightMode)}</script>` }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(orgJsonLd(site)) }} />
         <SiteProvider site={site} quiz={quiz}>
           <MotionPrefs>

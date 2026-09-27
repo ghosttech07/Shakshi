@@ -67,16 +67,31 @@ export async function getStock(): Promise<StockMap> {
 
 export const sizesOf = () => SIZES.map((s) => s.id);
 
-/** Articles authored in code, overlaid and extended by rows in the `articles` table. */
-export async function getArticles(): Promise<Article[]> {
-  let extra: Article[] = [];
+export type ArticleRow = Partial<Article> & { published?: boolean; publishAt?: string; deleted?: boolean };
+export type StudioArticle = Article & { published: boolean; publishAt?: string; builtIn: boolean };
+
+/**
+ * Articles authored in code, overlaid and extended by rows in the `articles` table.
+ * The public list leaves out drafts, removed essays and anything scheduled for later.
+ */
+export async function getArticles(opts: { all?: boolean } = {}): Promise<StudioArticle[]> {
+  let rows: { id: string; data: ArticleRow }[] = [];
   try {
-    const rows = await list<Article & { published?: boolean }>("articles", { limit: 200 });
-    extra = rows.filter((r) => r.data.published !== false).map((r) => ({ ...r.data, slug: r.id }));
+    rows = await list<ArticleRow>("articles", { limit: 500 });
   } catch (e) {
     console.error("[articles]", e);
   }
-  const bySlug = new Map(ARTICLES.map((a) => [a.slug, a]));
-  for (const a of extra) bySlug.set(a.slug, { ...bySlug.get(a.slug), ...a });
-  return [...bySlug.values()].sort((a, b) => b.date.localeCompare(a.date));
+  const bySlug = new Map<string, StudioArticle>(ARTICLES.map((a) => [a.slug, { ...a, published: true, builtIn: true }]));
+  const removed = new Set<string>();
+  for (const r of rows) {
+    if (r.data.deleted) removed.add(r.id);
+    const prev = bySlug.get(r.id);
+    if (!prev && !r.data.title) continue;
+    bySlug.set(r.id, { ...(prev ?? { body: [], builtIn: false, published: false }), ...r.data, slug: r.id, published: r.data.published ?? prev?.published ?? false } as StudioArticle);
+  }
+  const now = new Date().toISOString();
+  return [...bySlug.values()]
+    .filter((a) => !removed.has(a.slug))
+    .filter((a) => opts.all || (a.published && (!a.publishAt || a.publishAt <= now)))
+    .sort((a, b) => b.date.localeCompare(a.date));
 }

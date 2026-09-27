@@ -116,7 +116,7 @@ export default async function ArticlePage({ params }: Props) {
 
       <div className="container-lux">
         <div className="mx-auto max-w-2xl py-16 lg:py-24">
-          <Body blocks={a.body} />
+          {a.html ? <div className="rich text-lg leading-relaxed text-ink/85" dangerouslySetInnerHTML={{ __html: a.html }} /> : <Body blocks={a.body} />}
           <div className="gold-rule mt-16" />
           <p className="mt-8 text-sm text-stone">
             Questions about your own sleep? Our specialists offer a complimentary 15-minute video consultation.{" "}

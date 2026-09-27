@@ -7,11 +7,13 @@ export type Block =
   | { type: "list"; items: string[] }
   | { type: "tip"; title: string; text: string };
 
+export const ARTICLE_CATEGORIES = ["Sleep hygiene", "Choosing well", "Body & rest", "Together", "The science"] as const;
+
 export type Article = {
   slug: string;
   title: string;
   dek: string;
-  category: "Sleep hygiene" | "Choosing well" | "Body & rest" | "Together" | "The science";
+  category: string;
   author: string;
   date: string;
   readMins: number;
@@ -19,7 +21,29 @@ export type Article = {
   imageAlt: string;
   related?: string[]; // product slugs
   body: Block[];
+  /** Written in the studio's rich-text editor (sanitised). Takes the place of `body` when present. */
+  html?: string;
 };
+
+const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** Converts the original structured body into HTML, so studio edits start from the same words. */
+export const blocksToHtml = (blocks: Block[]) =>
+  blocks
+    .map((b) => {
+      switch (b.type) {
+        case "p":
+          return `<p>${esc(b.text)}</p>`;
+        case "h2":
+          return `<h2>${esc(b.text)}</h2>`;
+        case "quote":
+          return `<blockquote><p>${esc(b.text)}</p>${b.cite ? `<p>— ${esc(b.cite)}</p>` : ""}</blockquote>`;
+        case "list":
+          return `<ul>${b.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`;
+        case "tip":
+          return `<blockquote><p><strong>${esc(b.title)}</strong></p><p>${esc(b.text)}</p></blockquote>`;
+      }
+    })
+    .join("");
 
 export const ARTICLES: Article[] = [
   {

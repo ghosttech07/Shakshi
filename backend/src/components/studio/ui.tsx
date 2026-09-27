@@ -20,7 +20,7 @@ export function Stat({ label, value, note, href, tone }: { label: string; value:
   const body = (
     <>
       <p className="eyebrow text-stone">{label}</p>
-      <p className={`mt-3 font-serif text-4xl leading-none ${tone === "warn" ? "text-warn" : "text-ink"}`}>{value}</p>
+      <p className={`mt-3 font-serif text-4xl leading-none [font-variant-numeric:lining-nums_tabular-nums] ${tone === "warn" ? "text-warn" : "text-ink"}`}>{value}</p>
       {note && <p className="mt-2 text-xs text-stone">{note}</p>}
     </>
   );

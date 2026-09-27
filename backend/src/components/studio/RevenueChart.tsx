@@ -17,7 +17,7 @@ export function RevenueChart({ days }: { days: Day[] }) {
   const W = 720;
   const H = 220;
   const pad = { l: 44, r: 8, t: 12, b: 26 };
-  const max = Math.max(1, ...days.map((d) => d.total));
+  const max = Math.max(10000, ...days.map((d) => d.total));
   const step = niceStep(max);
   const top = Math.ceil(max / step) * step;
   const ticks = Array.from({ length: Math.round(top / step) + 1 }, (_, i) => i * step);

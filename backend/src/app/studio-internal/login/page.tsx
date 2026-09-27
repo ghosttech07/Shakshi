@@ -11,7 +11,7 @@ export default function LoginPage() {
   if (!adminBase()) notFound();
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden bg-midnight px-6 text-pearl">
-      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(50%_40%_at_50%_20%,rgb(201_169_110/0.14),transparent)]" />
+      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(45%_35%_at_50%_38%,rgb(201_169_110/0.10),transparent)]" />
       <div className="relative w-full max-w-sm text-center">
         <Logo variant="lockup" className="mx-auto h-20 text-pearl [animation:breathe_6s_ease-in-out_infinite]" />
         <LoginForm />

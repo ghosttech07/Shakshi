@@ -69,3 +69,14 @@ export async function overview() {
     recent: real.slice(0, 6),
   };
 }
+
+/** What field editors need to offer: mattresses to pick, and the site's own addresses for link fields. */
+export async function editorContext() {
+  const { getCatalog } = await import("./catalog");
+  const { listPages } = await import("./content");
+  const [products, pages] = await Promise.all([getCatalog({ includeUnpublished: true }), listPages()]);
+  return {
+    products: products.map((p) => ({ slug: p.slug, name: p.name })),
+    links: [...pages.map((p) => `/${p.slug}`), ...products.map((p) => `/mattress/${p.slug}`), "/account", "/wishlist", "/checkout", "/showroom?kind=video#book"],
+  };
+}

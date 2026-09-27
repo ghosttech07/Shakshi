@@ -8,6 +8,15 @@ import { MediaPicker, type Media } from "./MediaLibrary";
 type Value = Record<string, unknown>;
 export type EditorContext = { products: { slug: string; name: string }[]; links: string[] };
 
+/** Keys may be dotted ("toggles.nightMode") to reach into nested settings. */
+const getAt = (v: Value, key: string): unknown => key.split(".").reduce<unknown>((o, k) => (o && typeof o === "object" ? (o as Value)[k] : undefined), v);
+const setAt = (v: Value, key: string, next: unknown): Value => {
+  const [head, ...rest] = key.split(".");
+  if (!rest.length) return { ...v, [head]: next };
+  const inner = v[head] && typeof v[head] === "object" ? (v[head] as Value) : {};
+  return { ...v, [head]: setAt(inner, rest.join("."), next) };
+};
+
 const blankFor = (fields: Field[]): Value => Object.fromEntries(fields.map((f) => [f.key, f.type === "list" || f.type === "products" ? [] : f.type === "toggle" ? false : f.type === "number" ? 0 : ""]));
 
 /**
@@ -15,11 +24,11 @@ const blankFor = (fields: Field[]): Value => Object.fromEntries(fields.map((f) =
  * `focus` is a dotted path ("items.2.title") clicked in the live preview: its input is revealed and focused.
  */
 export function FieldEditor({ fields, value, onChange, ctx, focus, path = "" }: { fields: Field[]; value: Value; onChange: (v: Value) => void; ctx: EditorContext; focus?: string; path?: string }) {
-  const set = (key: string, v: unknown) => onChange({ ...value, [key]: v });
+  const set = (key: string, v: unknown) => onChange(setAt(value, key, v));
   return (
     <div className="space-y-4">
       {fields.map((f) => (
-        <FieldInput key={f.key} field={f} value={value[f.key]} set={(v) => set(f.key, v)} setSibling={set} siblings={value} fields={fields} ctx={ctx} focus={focus} path={path ? `${path}.${f.key}` : f.key} />
+        <FieldInput key={f.key} field={f} value={getAt(value, f.key)} set={(v) => set(f.key, v)} setSibling={set} siblings={value} fields={fields} ctx={ctx} focus={focus} path={path ? `${path}.${f.key}` : f.key} />
       ))}
     </div>
   );
@@ -158,6 +167,11 @@ function FieldInput({
       );
       break;
     }
+    case "tags": {
+      const list = Array.isArray(value) ? (value as string[]) : [];
+      input = <TagsInput id={id} value={list} onChange={set} />;
+      break;
+    }
     case "products": {
       const chosen = Array.isArray(value) ? (value as string[]) : [];
       input = (
@@ -278,5 +292,20 @@ function ListEditor({ field, items, onChange, ctx, focus, path }: { field: Field
         + Add {field.label.toLowerCase().replace(/s$/, "").replace(/ \(.*\)$/, "")}
       </button>
     </div>
+  );
+}
+
+/** Comma-separated short values (pincode prefixes and the like), kept as typed until focus leaves. */
+function TagsInput({ id, value, onChange }: { id: string; value: string[]; onChange: (v: string[]) => void }) {
+  const [text, setText] = useState(value.join(", "));
+  useEffect(() => setText(value.join(", ")), [value]);
+  return (
+    <input
+      id={id}
+      className="field font-mono text-xs"
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => onChange(text.split(/[,\s]+/).map((x) => x.trim()).filter(Boolean))}
+    />
   );
 }

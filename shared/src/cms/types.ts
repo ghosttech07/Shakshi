@@ -18,6 +18,7 @@ export type FieldType =
   | "color"
   | "date"
   | "products" // list of product slugs
+  | "tags" // list of short strings, typed comma-separated
   | "list"; // repeatable group of sub-fields
 
 export type Field = {

@@ -2,6 +2,7 @@
 
 import { prefersCalm } from "@/lib/motion";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/Logo";
 
 /**
@@ -9,6 +10,11 @@ import { Logo } from "@/components/brand/Logo";
  * then the page dissolves into view. Shown once per session, and briefly.
  */
 export function Preloader() {
+  // The studio's live preview never shows the preloader.
+  return usePathname() === "/preview" ? null : <Breath />;
+}
+
+function Breath() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 import { useSite } from "@/lib/site-context";
 
 // Everything here waits until after the page is interactive, so none of it slows the first paint.
@@ -16,15 +17,16 @@ const SiteEffects = dynamic(() => import("./SiteEffects").then((m) => m.SiteEffe
 
 export function GlobalWidgets() {
   const { theme, popups } = useSite();
+  const preview = usePathname() === "/preview";
   const t = theme.toggles;
   return (
     <>
       <CartDrawer />
       <QuickView />
-      {t.concierge && <Concierge />}
-      {popups.exitIntent.enabled && <ExitIntent />}
-      {t.socialProof && <SocialProof />}
-      {t.cursor && theme.motion === "full" && <Cursor />}
+      {t.concierge && !preview && <Concierge />}
+      {popups.exitIntent.enabled && !preview && <ExitIntent />}
+      {t.socialProof && !preview && <SocialProof />}
+      {t.cursor && theme.motion === "full" && !preview && <Cursor />}
       <FlyToCart />
       <Suspense fallback={null}>
         <SiteEffects />

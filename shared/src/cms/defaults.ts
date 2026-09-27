@@ -7,7 +7,7 @@ import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
 /** Starting content for a fresh install: exactly what the site shipped with. */
 export const DEFAULT_SITE: SiteConfig = {
   brand: { name: "Shakshi", tagline: "A Commitment for Complete Rest" },
-  announcement: { enabled: true, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
+  announcement: { enabled: false, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
   nav: [
     { label: "Mattresses", href: "/shop" },
     { label: "Sleep Quiz", href: "/quiz" },

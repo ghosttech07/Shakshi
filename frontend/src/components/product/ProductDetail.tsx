@@ -16,8 +16,6 @@ import { Img } from "@/components/ui/Img";
 import { Reveal } from "@/components/ui/Reveal";
 import { SizePicker } from "@/components/commerce/SizePicker";
 import { RecommendedRow } from "@/components/commerce/RecommendedRow";
-import { Certifications } from "@/components/commerce/Certifications";
-import { BrandComparison } from "@/components/home/BrandComparison";
 import { EmiCalculator, lowestMonthly } from "./EmiCalculator";
 import { TrustBadges } from "@/components/commerce/CartDrawer";
 import { Gallery } from "./Gallery";
@@ -346,10 +344,6 @@ export function ProductDetail({ product, extraReviews = [] }: { product: Product
             <div className="mt-8">
               <TrustBadges />
             </div>
-            <div className="mt-8 border-t border-ink/10 pt-6">
-              <p className="eyebrow mb-4 text-stone">Certified materials</p>
-              <Certifications compact />
-            </div>
           </div>
         </div>
       </div>
@@ -378,8 +372,6 @@ export function ProductDetail({ product, extraReviews = [] }: { product: Product
       </section>
 
       <Tabs product={product} extraReviews={extraReviews} />
-
-      <BrandComparison />
 
       {recentProducts.length > 0 && (
         <section className="container-lux pb-16" aria-labelledby="recent-title">

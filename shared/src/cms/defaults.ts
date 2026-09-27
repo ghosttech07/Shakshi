@@ -89,7 +89,7 @@ const policy = (slug: string, title: string, body: string): PageDoc =>
 
 export const DEFAULT_PAGES: PageDoc[] = [
   page("", "Home", { title: "", description: "" }, [
-    ["hero"], ["product-grid"], ["recommended"], ["layers-anatomy"], ["feature-strip"], ["comparison"], ["certifications"], ["firmness"], ["text-image"],
+    ["hero"], ["product-grid"], ["recommended"], ["layers-anatomy"], ["firmness"],
     ["testimonials", { items: TESTIMONIALS.map((x) => ({ ...x })) }], ["press"], ["real-bedrooms"], ["tools"], ["library-teaser"], ["newsletter"],
   ]),
   page("about", "Our Story", { title: "Our Story · The Thread", description: "The Shakshi story, told as a single gold thread: from one bed stitched by hand in 2012 to the homes we make them for today." }, [["thread-journey"]]),
@@ -109,7 +109,6 @@ export const DEFAULT_PAGES: PageDoc[] = [
       { title: "One person to call", body: "A dedicated account manager, sample rooms before you commit, and staggered deliveries around your occupancy." },
       { title: "Installed quietly", body: "Our crews work to your housekeeping schedule, set up every room, and take the old mattresses away for recycling." },
     ] }],
-    ["certifications", { eyebrow: "" }],
     ["hospitality-form"],
   ]),
   page("setup", "Setup Guide", { title: "Setup Guide · Unboxing Your Mattress", description: "How to unbox and set up your Shakshi mattress, and how long it takes to fully expand." }, [

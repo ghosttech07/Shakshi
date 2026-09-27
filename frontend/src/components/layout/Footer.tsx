@@ -31,7 +31,7 @@ export function Footer({ site }: { site: SiteConfig }) {
               </li>
             </ul>
           </div>
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-10 lg:grid-cols-4">
             {site.footer.columns.map((c) => (
               <nav key={c.title} aria-label={c.title}>
                 <h3 className="eyebrow font-sans text-gold">{c.title}</h3>
@@ -46,18 +46,6 @@ export function Footer({ site }: { site: SiteConfig }) {
                 </ul>
               </nav>
             ))}
-            {site.showrooms.length > 0 && <div>
-              <h3 className="eyebrow font-sans text-gold">Salons</h3>
-              <ul className="mt-6 space-y-3 text-sm text-pearl/70">
-                {site.showrooms.map((s) => (
-                  <li key={s.id}>
-                    <Link href={`/showroom?city=${s.id}`} className="link-lux hover:text-pearl">
-                      {s.city}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>}
           </div>
           {site.social.length > 0 && (
             <ul className="flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.2em] text-pearl/60 lg:col-start-2">

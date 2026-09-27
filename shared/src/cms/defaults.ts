@@ -13,8 +13,8 @@ export const DEFAULT_SITE: SiteConfig = {
     columns: [
       { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, ] },
       { title: "Discover", links: [{ label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "Real Bedrooms", href: "/real-bedrooms" }, { label: "Our Story", href: "/about" }] },
-      { title: "The House", links: [{ label: "Your Account", href: "/account" }, { label: "Sleep Society", href: "/sleep-society" }, { label: "Gift Cards", href: "/gift-cards" }, { label: "Hospitality & Trade", href: "/hospitality" }, { label: "Setup Guide", href: "/setup" }, { label: "FAQ", href: "/faq" }] },
-      { title: "Policies", links: [{ label: "100-night trial", href: "/policies/trial" }, { label: "Warranty", href: "/policies/warranty" }, { label: "Returns", href: "/policies/returns" }, { label: "Privacy", href: "/policies/privacy" }, { label: "Terms", href: "/policies/terms" }] },
+      { title: "The House", links: [{ label: "Your Account", href: "/account" }, { label: "FAQ", href: "/faq" }] },
+      { title: "Policies", links: [{ label: "Warranty", href: "/policies/warranty" }, { label: "Returns", href: "/policies/returns" }, { label: "Privacy", href: "/policies/privacy" }, { label: "Terms", href: "/policies/terms" }] },
     ],
     note: "Crafted for the deepest kind of rest.",
   },

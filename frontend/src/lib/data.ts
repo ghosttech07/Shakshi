@@ -3,6 +3,7 @@ import { PRODUCTS, type Product, type Review } from "@shakshi/shared/products";
 import { ARTICLES, type Article } from "@shakshi/shared/articles";
 import { DEFAULT_PAGES, DEFAULT_SITE } from "@shakshi/shared/cms/defaults";
 import type { PageDoc, SiteConfig } from "@shakshi/shared/cms/types";
+import { DEFAULT_QUIZ, type QuizConfig } from "@shakshi/shared/quiz";
 
 /**
  * The storefront's only doorway to the backend for page data. Every call has a short timeout and
@@ -23,7 +24,7 @@ async function fromBackend<T>(path: string, fallback: T, revalidate = 60): Promi
   }
 }
 
-export type Storefront = { products: Product[]; stock: Record<string, number | null>; site: SiteConfig };
+export type Storefront = { products: Product[]; stock: Record<string, number | null>; site: SiteConfig; quiz: QuizConfig };
 
 export const getStorefront = async (): Promise<Storefront> => {
   const r = await fromBackend<Partial<Storefront>>("/api/public/storefront", {});
@@ -31,6 +32,7 @@ export const getStorefront = async (): Promise<Storefront> => {
     products: r.products ?? PRODUCTS.filter((p) => p.published !== false),
     stock: r.stock ?? {},
     site: r.site ?? DEFAULT_SITE,
+    quiz: r.quiz ?? DEFAULT_QUIZ,
   };
 };
 
@@ -49,3 +51,7 @@ export const getArticles = async () =>
 
 export const getApprovedReviews = async (slug: string) =>
   (await fromBackend<{ reviews: Review[] }>(`/api/reviews?product=${encodeURIComponent(slug)}`, { reviews: [] })).reviews;
+
+/** Published page addresses for the sitemap (built-in pages when the backend is away). */
+export const getRouting = () =>
+  fromBackend<{ pages: { slug: string; updatedAt?: string }[] }>("/api/public/routing", { pages: DEFAULT_PAGES.map((p) => ({ slug: p.slug })) }, 300);

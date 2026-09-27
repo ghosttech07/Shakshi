@@ -89,6 +89,10 @@ export async function POST(req: Request) {
       const g = await get<{ balance: number }>("gift_cards", promo.code);
       await update("gift_cards", promo.code, { data: { balance: (g?.data.balance ?? 0) - promo.amount } });
     }
+    if (promo.kind === "discount") {
+      const d = await get<{ uses: number }>("discount_codes", promo.code);
+      await update("discount_codes", promo.code, { data: { uses: (d?.data.uses ?? 0) + 1 } });
+    }
   }
 
   // Issue gift cards bought in this order.

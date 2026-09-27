@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useReducedMotion } from "@/lib/motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { matchMattresses, type Answers, type Match } from "@shakshi/shared/quiz";
+import { useQuizConfig } from "@/lib/site-context";
 import { useStore } from "@/lib/store";
 import { useAccount } from "@/lib/account";
 import { useCatalog } from "@/lib/catalog-context";
@@ -24,83 +25,13 @@ const Figure = ({ d }: { d: ReactNode }) => (
   </svg>
 );
 
-type Option = { value: string; label: string; note?: string; art?: ReactNode };
-type Step = { key: keyof Answers; question: string; hint: string; options: Option[] };
-
-const STEPS: Step[] = [
-  {
-    key: "position",
-    question: "How do you drift off?",
-    hint: "Your favourite position shapes where you need softness, and where you need support.",
-    options: [
-      { value: "side", label: "On my side", art: <Figure d={<><circle cx="22" cy="28" r="6" /><path d="M28 32c14-6 26-4 36 2s22 8 30 2M64 34c-2 6 0 9 6 10" /></>} /> },
-      { value: "back", label: "On my back", art: <Figure d={<><circle cx="20" cy="30" r="6" /><path d="M26 36h78M40 36c4-5 12-5 16 0" /></>} /> },
-      { value: "stomach", label: "On my front", art: <Figure d={<><circle cx="22" cy="32" r="6" /><path d="M28 40h76M60 40c4-4 10-4 14 0" /></>} /> },
-      { value: "combination", label: "A little of everything", art: <Figure d={<><circle cx="22" cy="30" r="6" /><path d="M28 36c20-8 40 6 60-2s16 2 16 2" strokeDasharray="4 4" /></>} /> },
-    ],
-  },
-  {
-    key: "body",
-    question: "How would you describe your frame?",
-    hint: "This helps us understand how deeply you'll sink into each layer.",
-    options: [
-      { value: "petite", label: "Petite", note: "Lighter, slighter build" },
-      { value: "average", label: "Average", note: "Somewhere in the middle" },
-      { value: "broad", label: "Broad", note: "Taller or heavier build" },
-    ],
-  },
-  {
-    key: "partner",
-    question: "Who shares your bed?",
-    hint: "Motion isolation matters when someone rises before you.",
-    options: [
-      { value: "solo", label: "Just me", note: "The whole bed, all to myself" },
-      { value: "partner", label: "A partner", note: "Two sleepers, two rhythms" },
-      { value: "family", label: "Partner, pets or little ones", note: "A lively, lovely bed" },
-    ],
-  },
-  {
-    key: "temperature",
-    question: "How do you sleep, temperature-wise?",
-    hint: "Some materials breathe more freely than others.",
-    options: [
-      { value: "hot", label: "I run warm", note: "Duvet off by 3am" },
-      { value: "neutral", label: "Just right", note: "Rarely think about it" },
-      { value: "cold", label: "I run cool", note: "Socks, always" },
-    ],
-  },
-  {
-    key: "pain",
-    question: "Do you ever wake with aches?",
-    hint: "Back, shoulder or hip discomfort tells us where to add support.",
-    options: [
-      { value: "none", label: "Rarely", note: "I wake up feeling fine" },
-      { value: "sometimes", label: "Sometimes", note: "A stiff morning now and then" },
-      { value: "often", label: "Often", note: "It's part of most mornings" },
-    ],
-  },
-  {
-    key: "feel",
-    question: "What feels like heaven to you?",
-    hint: "There's no wrong answer. Follow your instinct.",
-    options: [
-      { value: "plush", label: "Sinking into a cloud", note: "Plush and cocooning" },
-      { value: "medium", label: "A balanced embrace", note: "Held, yet lifted" },
-      { value: "firm", label: "Lying on firm ground", note: "Supportive and sculpted" },
-      { value: "unsure", label: "I'm not sure", note: "Guide me" },
-    ],
-  },
-  {
-    key: "budget",
-    question: "What would you like to invest?",
-    hint: "Prices for a Queen. Every mattress includes no-cost EMI and a 100-night trial.",
-    options: [
-      { value: "under80", label: "Up to ₹80,000" },
-      { value: "under130", label: "Up to ₹1,30,000" },
-      { value: "any", label: "The very best", note: "Whatever makes the difference" },
-    ],
-  },
-];
+// Drawings for the sleeping-position answers, used when the studio hasn't set a photo.
+const ART: Record<string, ReactNode> = {
+  side: <Figure d={<><circle cx="22" cy="28" r="6" /><path d="M28 32c14-6 26-4 36 2s22 8 30 2M64 34c-2 6 0 9 6 10" /></>} />,
+  back: <Figure d={<><circle cx="20" cy="30" r="6" /><path d="M26 36h78M40 36c4-5 12-5 16 0" /></>} />,
+  stomach: <Figure d={<><circle cx="22" cy="32" r="6" /><path d="M28 40h76M60 40c4-4 10-4 14 0" /></>} />,
+  combination: <Figure d={<><circle cx="22" cy="30" r="6" /><path d="M28 36c20-8 40 6 60-2s16 2 16 2" strokeDasharray="4 4" /></>} />,
+};
 
 function Result({ matches, answers, onRestart }: { matches: Match[]; answers: Answers; onRestart: () => void }) {
   const [best, ...rest] = matches;
@@ -213,6 +144,8 @@ function Result({ matches, answers, onRestart }: { matches: Match[]; answers: An
 
 export function Quiz() {
   const { products } = useCatalog();
+  const config = useQuizConfig();
+  const STEPS = config.steps.filter((x) => !x.hidden && x.options.length);
   const setQuiz = useAccount((s) => s.setQuiz);
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
@@ -228,7 +161,7 @@ export function Quiz() {
   const s = STEPS[step];
   const finish = (final: Answers) => {
     setDone(true);
-    const [best] = matchMattresses(final, products);
+    const [best] = matchMattresses(final, products, config);
     setQuiz({ answers: final, match: best.product.slug, score: best.score, at: new Date().toISOString() });
     track("quiz_complete", { match: best.product.slug, score: best.score, position: final.position ?? "" });
     // Kept for the team's follow-up and to learn what sleepers need.
@@ -257,7 +190,7 @@ export function Quiz() {
     setDone(false);
   };
 
-  if (done) return <Result matches={matchMattresses(answers, products)} answers={answers} onRestart={restart} />;
+  if (done) return <Result matches={matchMattresses(answers, products, config)} answers={answers} onRestart={restart} />;
 
   const variants = {
     enter: (d: number) => ({ opacity: 0, x: reduce ? 0 : d * 60 }),
@@ -309,7 +242,11 @@ export function Quiz() {
                     selected ? "border-gold bg-gold/12 shadow-glow" : "border-pearl/12 hover:-translate-y-1 hover:border-gold/60 hover:bg-pearl/[0.03]"
                   )}
                 >
-                  {o.art && <span className={cn("transition-colors duration-700", selected ? "text-gold" : "text-pearl/60 group-hover:text-gold-soft")}>{o.art}</span>}
+                  {o.image ? (
+                    <Img src={o.image} alt="" sizes="200px" dark wrapperClassName="aspect-[4/3] w-full" />
+                  ) : (
+                    s.key === "position" && ART[o.value] && <span className={cn("transition-colors duration-700", selected ? "text-gold" : "text-pearl/60 group-hover:text-gold-soft")}>{ART[o.value]}</span>
+                  )}
                   <span className="font-serif text-2xl">{o.label}</span>
                   {o.note && <span className="text-sm text-pearl/55">{o.note}</span>}
                   <span className={cn("mt-auto grid h-5 w-5 place-items-center rounded-full border transition-all duration-700", selected ? "border-gold bg-gold text-midnight" : "border-pearl/25")}>

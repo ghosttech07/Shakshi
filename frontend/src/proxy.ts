@@ -1,0 +1,48 @@
+import { NextResponse, type NextRequest } from "next/server";
+
+/**
+ * Redirects managed in the studio (Site → Redirects). The list is fetched from the backend
+ * at most once a minute and kept in memory; if the backend is unreachable, pages simply load.
+ */
+const API = process.env.API_URL ?? "http://localhost:4000";
+type Redirect = { from: string; to: string; permanent: boolean };
+let cache: { at: number; list: Redirect[] } = { at: 0, list: [] };
+let inflight: Promise<void> | null = null;
+
+async function refresh() {
+  try {
+    const r = await fetch(`${API}/api/public/routing`, { signal: AbortSignal.timeout(1500), cache: "no-store" });
+    cache = r.ok ? { at: Date.now(), list: ((await r.json()).redirects ?? []) as Redirect[] } : { ...cache, at: Date.now() };
+  } catch {
+    cache = { ...cache, at: Date.now() }; // try again in a minute
+  }
+}
+
+const norm = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p).toLowerCase();
+
+export async function proxy(req: NextRequest) {
+  if (Date.now() - cache.at > 60_000) {
+    inflight ??= refresh().finally(() => (inflight = null));
+    // Only the very first request waits; after that a stale list is served while it refreshes.
+    if (!cache.at) await inflight;
+  }
+  const path = norm(req.nextUrl.pathname);
+  const hit = cache.list.find((r) => norm(r.from) === path);
+  if (hit) {
+    const to = /^https?:\/\//.test(hit.to) ? hit.to : new URL(hit.to, req.nextUrl.origin).toString();
+    return NextResponse.redirect(to, hit.permanent ? 308 : 307);
+  }
+  if (path === "/preview") {
+    // The studio shows drafts here inside a frame; only the studio may frame it.
+    const res = NextResponse.next();
+    res.headers.set("Content-Security-Policy", `frame-ancestors 'self' ${process.env.STUDIO_ORIGIN ?? new URL(API).origin}`);
+    res.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return res;
+  }
+  return NextResponse.next();
+}
+
+export const config = {
+  // Pages only: never static assets, images, API calls or metadata files.
+  matcher: ["/((?!api/|_next/|brand/|hero/|anatomy/|icon|apple-icon|robots.txt|sitemap.xml|favicon).*)"],
+};

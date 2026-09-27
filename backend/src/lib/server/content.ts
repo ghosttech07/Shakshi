@@ -95,7 +95,23 @@ export async function listPages() {
 
 export async function publishedPage(slug: string): Promise<PageDoc | null> {
   const row = await getPageRow(pageKey(slug));
-  return row?.published ?? null;
+  if (row?.published && row.published.slug === slug) return row.published;
+  // A custom page whose address was changed after it was created is stored under its first key.
+  const rows = await list<PageRow>("pages", { limit: 500 });
+  return rows.find((r) => r.data.published?.slug === slug)?.data.published ?? null;
+}
+
+/** Every published page's address (for the sitemap), and the redirect list. */
+export async function routing() {
+  const pages = await listPages();
+  const live: { slug: string; updatedAt?: string }[] = [];
+  for (const p of pages) {
+    if (!p.published) continue;
+    const doc = (await getPageRow(p.key))?.published;
+    if (doc && !doc.seo.noindex) live.push({ slug: doc.slug, updatedAt: p.publishedAt });
+  }
+  const site = await getSite("published");
+  return { pages: live, redirects: site.redirects.filter((r) => r.from && r.to) };
 }
 
 export async function saveDraft(key: string, doc: PageDoc) {

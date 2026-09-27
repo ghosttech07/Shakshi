@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { ACCESSORIES, ADDONS, FRAMES, PILLOW_OPTIONS, SIZES, priceFor, type Product } from "@shakshi/shared/products";
 import { GIFT_RE, REFERRAL_RE, REFERRAL_REWARD, type OrderItem } from "@shakshi/shared/orders";
 import { get } from "./db";
+import type { DiscountData } from "@shakshi/shared/records";
 
 export const GIFT_MIN = 2000;
 export const GIFT_MAX = 500000;
@@ -44,7 +45,7 @@ export function serverPrice(item: OrderItem, catalog: Product[]): number | null 
   }
 }
 
-export type Promo = { ok: true; kind: "referral" | "giftcard"; code: string; amount: number; label: string } | { ok: false; message: string };
+export type Promo = { ok: true; kind: "referral" | "giftcard" | "discount"; code: string; amount: number; label: string } | { ok: false; message: string };
 
 /** Checks a referral or gift-card code against what is actually on record. */
 export async function checkPromo(raw: string, subtotal: number, hasMattress: boolean): Promise<Promo> {
@@ -59,6 +60,19 @@ export async function checkPromo(raw: string, subtotal: number, hasMattress: boo
     const g = await get<{ balance: number }>("gift_cards", c);
     if (!g || g.data.balance <= 0) return { ok: false, message: "That gift card has no balance remaining." };
     return { ok: true, kind: "giftcard", code: c, amount: Math.min(g.data.balance, subtotal), label: "Gift card" };
+  }
+  // Discount codes created in the studio.
+  if (/^[A-Z0-9-]{3,30}$/.test(c)) {
+    const d = await get<DiscountData>("discount_codes", c);
+    if (d) {
+      const x = d.data;
+      if (!x.active) return { ok: false, message: "That code is no longer active." };
+      if (x.expiresAt && new Date(x.expiresAt) < new Date()) return { ok: false, message: "That code has expired." };
+      if (x.usageLimit && x.uses >= x.usageLimit) return { ok: false, message: "That code has been fully redeemed." };
+      if (x.minSubtotal && subtotal < x.minSubtotal) return { ok: false, message: `That code applies to orders over ₹${x.minSubtotal.toLocaleString("en-IN")}.` };
+      const amount = Math.min(subtotal, x.type === "percent" ? Math.round((subtotal * Math.min(x.value, 100)) / 100) : x.value);
+      return { ok: true, kind: "discount", code: c, amount, label: x.type === "percent" ? `${x.value}% off (${c})` : c };
+    }
   }
   return { ok: false, message: "That code isn't one we recognise." };
 }

@@ -1,4 +1,5 @@
-import { revalidatePath } from "next/cache";
+import { notifyStorefront } from "@/lib/server/notify";
+import { audit } from "@/lib/server/content";
 import { isAdmin } from "@/lib/server/studio";
 import { remove, update, type Table } from "@/lib/server/db";
 import { bad, body, json, str } from "@/lib/server/http";
@@ -34,14 +35,16 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (table === "reviews" && typeof b.reply === "string") {
     const reply = str(b.reply, 1000);
     const row = await update("reviews", id, { data: { reply: reply || undefined, replyAt: reply ? new Date().toISOString() : undefined } });
-    revalidatePath("/mattress/[slug]", "page");
+    await notifyStorefront();
+    await audit("review.reply", id);
     return row ? json({ ok: true }) : bad("Not found", 404);
   }
   const status = str(b.status, 30);
   if (!allowed.includes(status)) return bad("Unknown status");
   const row = await update(table as Table, id, { status, data: table === "orders" ? { statusMode: "manual" } : undefined });
   if (!row) return bad("Not found", 404);
-  if (table === "reviews") revalidatePath("/mattress/[slug]", "page");
+  if (table === "reviews") await notifyStorefront();
+  await audit(`${table}.status`, id, status);
   return json({ ok: true });
 }
 
@@ -50,5 +53,7 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   const { table, id } = await params;
   if (!EDITABLE[table as Table] || table === "orders") return bad("Not deletable");
   await remove(table as Table, id);
+  await audit(`${table}.delete`, id);
+  if (table === "reviews") await notifyStorefront();
   return json({ ok: true });
 }

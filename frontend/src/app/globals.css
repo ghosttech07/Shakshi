@@ -474,6 +474,13 @@ html.lenis, html.lenis body { height: auto; }
 .rich img { width: 100%; height: auto; }
 .rich hr { border: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--color-gold), transparent); margin: 2.5em 0; }
 
+/* ---------- Studio live preview: outlines show what can be clicked to edit ---------- */
+.cms-preview [data-cms-section] { position: relative; }
+.cms-preview [data-cms-section]:hover { outline: 1px dashed rgb(201 169 110 / 0.7); outline-offset: -1px; }
+.cms-preview [data-cms-field] { cursor: pointer; }
+.cms-preview [data-cms-field]:hover { outline: 1px solid var(--color-gold); outline-offset: 4px; }
+.cms-preview .cms-flash { outline: 2px solid var(--color-gold) !important; outline-offset: 4px; transition: outline-color 1s; }
+
 /* The studio's "Off" animation setting behaves like the visitor's own reduced-motion preference. */
 html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {
   animation-duration: 0.01ms !important;

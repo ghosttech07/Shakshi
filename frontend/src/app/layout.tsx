@@ -62,7 +62,7 @@ const orgJsonLd = (site: SiteConfig) => ({
 });
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { products, stock, site } = await getStorefront();
+  const { products, stock, site, quiz } = await getStorefront();
   const { theme } = site;
   const css = themeCss(theme) + fontCss(theme.fonts);
   return (
@@ -73,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-screen overflow-x-clip">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(orgJsonLd(site)) }} />
-        <SiteProvider site={site}>
+        <SiteProvider site={site} quiz={quiz}>
           <MotionPrefs>
             <CatalogProvider products={products} stock={stock}>
               {theme.toggles.preloader && theme.motion !== "off" && <Preloader />}

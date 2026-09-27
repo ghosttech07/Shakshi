@@ -171,30 +171,6 @@ export const SITE_GROUPS: SiteGroup[] = [
       },
     ],
   },
-  {
-    id: "bedrooms",
-    title: "Real bedrooms",
-    description: "Customer photos with shoppable hotspots (x and y are percentages across the photo).",
-    path: "",
-    fields: [
-      {
-        key: "bedrooms",
-        label: "Bedrooms",
-        type: "list",
-        itemLabel: "name",
-        of: [
-          t("id", "Short id"),
-          img("image", "Photo"),
-          t("alt", "Alt text"),
-          t("name", "Sleeper's name"),
-          t("city", "City"),
-          ta("caption", "Caption"),
-          tog("tall", "Tall photo", "Portrait photo (spans two rows)"),
-          { key: "spots", label: "Hotspots", type: "list", itemLabel: "ref", of: [t("ref", "Product (mattress slug or accessory id)"), sel("kind", "Kind", [["mattress", "Mattress"], ["accessory", "Accessory"]]), num("x", "Across (%)"), num("y", "Down (%)")] },
-        ],
-      },
-    ],
-  },
 ];
 
 // Contact and social share one screen.

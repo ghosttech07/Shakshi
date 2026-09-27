@@ -41,7 +41,6 @@ const BLOCKS: Record<string, Block> = {
   stats: B.Stats,
   testimonials: ({ d, edit }) => <Testimonials eyebrow={str(d.eyebrow)} items={Array.isArray(d.items) ? d.items : undefined} edit={edit} />,
   press: B.Press,
-  "real-bedrooms": B.RealBedroomsBlock,
   tools: B.Tools,
   "library-teaser": B.LibraryTeaser,
   newsletter: B.Newsletter,

@@ -1,5 +1,4 @@
 import { CONTACT, SHOWROOMS, TESTIMONIALS, FREE_GIFT_THRESHOLD } from "../products";
-import { BEDROOMS } from "../bedrooms";
 import { DEFAULT_SETTINGS } from "../settings";
 import { SECTIONS } from "./sections";
 import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
@@ -12,7 +11,7 @@ export const DEFAULT_SITE: SiteConfig = {
   footer: {
     columns: [
       { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, ] },
-      { title: "Discover", links: [{ label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "Real Bedrooms", href: "/real-bedrooms" }, { label: "Our Story", href: "/about" }] },
+      { title: "Discover", links: [{ label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "Our Story", href: "/about" }] },
       { title: "The House", links: [{ label: "Your Account", href: "/account" }, { label: "FAQ", href: "/faq" }] },
       { title: "Policies", links: [{ label: "Warranty", href: "/policies/warranty" }, { label: "Returns", href: "/policies/returns" }, { label: "Privacy", href: "/policies/privacy" }, { label: "Terms", href: "/policies/terms" }] },
     ],
@@ -48,7 +47,6 @@ export const DEFAULT_SITE: SiteConfig = {
     newsletterOffer: "A complimentary Silk Protector with your first mattress.",
   },
   showrooms: SHOWROOMS.map((s) => ({ ...s })),
-  bedrooms: BEDROOMS.map((b) => ({ ...b, spots: b.spots.map((s) => ({ ...s })) })),
 };
 
 // ---------- pages ----------
@@ -77,7 +75,6 @@ export const DEFAULT_PAGES: PageDoc[] = [
   page("shop", "Shop", { title: "The Collection", description: "Handcrafted luxury mattresses, from cloud-soft to sculpted and firm. Filter by firmness, size, material and sleeping position." }, [header("The Collection", "Find the one you'll never want to leave.", "Every mattress is handcrafted to order, delivered by our white-glove team, and yours to try for 100 nights."), ["shop-catalog"]]),
   page("showroom", "Showrooms & Contact", { title: "Showrooms & Contact", description: "Visit a Shakshi salon, book a home trial or a free video consultation, or speak with a sleep concierge." }, [header("Showrooms & contact", "Some things must be felt to be believed."), ["showrooms"], ["booking"], ["contact"]]),
   page("sleep-library", "Sleep Library", { title: "The Sleep Library · Essays on Resting Well", description: "Essays from sleep physicians, physiotherapists and our own atelier." }, [header("The Sleep Library", "Slow reading, for deeper nights.", "Essays from sleep physicians, physiotherapists and our own atelier. Read one tonight, an hour before bed."), ["library-index"]]),
-  page("real-bedrooms", "Real Bedrooms", { title: "Real Bedrooms · Shop Our Sleepers' Rooms", description: "Photographs from Shakshi sleepers across India, each tagged with the mattress and bedding in the room." }, [header("Real bedrooms", "Where our mattresses live now.", "Rooms from sleepers across India. Tap a photograph to see, and shop, exactly what’s in it."), ["real-bedrooms", { eyebrow: "", title: "", linkText: "", limit: 0 }]]),
   page("sleep-studio", "Sleep Studio", { title: "The Sleep Studio", description: "Feel each mattress yield, calculate bedtimes by sleep cycles, and order free fabric swatches." }, [["sleep-studio-hero"], ["sleep-calculator"], ["swatches"]]),
   page("gift-cards", "Gift Cards", { title: "Gift Cards · The Gift of Deep Sleep", description: "A Shakshi gift card, delivered in a digital envelope." }, [header("Gift cards", "The kindest gift is a good night."), ["gift-builder"]]),
   page("hospitality", "Hospitality & Trade", { title: "Hospitality & Trade · Bulk Mattress Orders", description: "Shakshi mattresses for hotels, serviced apartments, hostels and corporate buyers." }, [

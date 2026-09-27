@@ -238,13 +238,6 @@ export const SECTIONS: Record<string, SectionDef> = {
       awards: [{ text: "Design of the Year 2026" }, { text: "GOTS & GOLS certified" }, { text: "CertiPUR® foams" }],
     },
   },
-  "real-bedrooms": {
-    label: "Real bedrooms",
-    description: "Shoppable customer photos (edit the photos in Settings → Real bedrooms).",
-    group: "Engagement",
-    fields: [...heading, t("linkText", "Link text"), link("linkHref", "Link"), num("limit", "How many (0 = all, with filters)", 0, 30)],
-    defaults: { eyebrow: "Real bedrooms", title: "Where our mattresses *live now.*", linkText: "See every room", linkHref: "/real-bedrooms", limit: 3 },
-  },
   tools: {
     label: "Tool cards",
     description: "Image cards linking to the Sleep Studio, calculator and other tools.",

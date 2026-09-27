@@ -15,5 +15,4 @@ export const SITE_TEMPLATE: SiteConfig = {
   commerce: { ...DEFAULT_SITE.commerce, metroPrefixes: [""], remotePrefixes: [""], unserviceable: [""] },
   popups: { exitIntent: { ...DEFAULT_SITE.popups.exitIntent, image: "", start: "", end: "" }, newsletterOffer: "" },
   showrooms: [{ id: "", city: "", name: "", address: "", hours: "", phone: "", image: "", lat: 0, lng: 0 }],
-  bedrooms: [{ id: "", image: "", alt: "", name: "", city: "", caption: "", tall: false, spots: [{ ref: "", kind: "mattress", x: 50, y: 50 }] }],
 };

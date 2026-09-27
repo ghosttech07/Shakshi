@@ -93,7 +93,6 @@ export type SiteConfig = {
     newsletterOffer: string;
   };
   showrooms: { id: string; city: string; name: string; address: string; hours: string; phone: string; image: string; lat: number; lng: number }[];
-  bedrooms: { id: string; image: string; alt: string; name: string; city: string; caption: string; tall?: boolean; spots: { ref: string; kind: "mattress" | "accessory"; x: number; y: number }[] }[];
 };
 
 /** Stored shape for any draftable document (pages, site config). */

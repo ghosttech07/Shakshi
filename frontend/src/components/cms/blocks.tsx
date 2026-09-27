@@ -15,7 +15,6 @@ import { UnboxingFilm, ExpansionTimer } from "@/components/features/SetupGuide";
 import { ShopClient } from "@/components/shop/ShopClient";
 import { GiftCardBuilder } from "@/components/gifts/GiftCardBuilder";
 import { ArticleCard, LibraryIndex } from "@/components/library/LibraryIndex";
-import { RealBedrooms } from "@/components/library/RealBedrooms";
 import { Emph, arr, lines, num, str, type FieldFn } from "./text";
 
 export type BlockCtx = { articles: Article[] };
@@ -320,21 +319,6 @@ export function Press({ d, f }: BlockProps) {
           ))}
         </ul>
       )}
-    </section>
-  );
-}
-
-export function RealBedroomsBlock({ d, f, first }: BlockProps) {
-  const limit = num(d.limit, 0);
-  return (
-    <section className={cn("container-lux", first ? "pb-28 pt-36 lg:pt-44" : limit ? "py-24 lg:py-32" : "pb-28")} aria-label="Customer bedrooms">
-      {(str(d.title) || str(d.linkText)) && (
-        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
-          <Heading d={d} f={f} h1={first} />
-          <LinkArrow href={str(d.linkHref, "/real-bedrooms")} text={str(d.linkText)} f={f} k="linkText" />
-        </div>
-      )}
-      <RealBedrooms limit={limit || undefined} />
     </section>
   );
 }

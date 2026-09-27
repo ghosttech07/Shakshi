@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
       // Retired pages: old links and bookmarks land on the collection.
       { source: "/quiz", destination: "/shop", permanent: true },
       { source: "/build-your-bed", destination: "/shop", permanent: true },
+      { source: "/real-bedrooms", destination: "/shop", permanent: true },
     ];
   },
   async rewrites() {

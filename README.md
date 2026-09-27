@@ -28,7 +28,7 @@ Sign in with the password only. The studio lives at `/admin` on the backend (cha
 - **People**: Customers (order history), Reviews (approve, hide, reply), Bookings (calendar, confirm or cancel), Inquiries (mark handled).
 - **Content**:
   - **Pages**: every page is an ordered list of sections. Edit, add, duplicate, hide, delete and drag to reorder, with a live preview at desktop, tablet and mobile sizes. Click anything in the preview to edit it. Autosaves every 10 seconds; drafts go live only on Publish. Each publish keeps a version you can restore, whole or one section at a time. New custom pages get their own address.
-  - **Site & theme**: brand, announcement bar, navigation, footer, contact and social links, colours, fonts, feature toggles, animation intensity, SEO defaults, analytics IDs, redirects, delivery pincodes, GST and fees, popups, showrooms, real bedrooms.
+  - **Site & theme**: brand, announcement bar, navigation, footer, contact and social links, colours, fonts, feature toggles, animation intensity, SEO defaults, analytics IDs, redirects, delivery pincodes, GST and fees, popups, showrooms.
   - **Sleep Library**: rich-text essays, categories, scheduled publishing.
   - **Media**: uploads (images become WebP), required alt text, and deletion is blocked while a file is still in use.
 - **Activity log**: every change and every sign-in attempt.

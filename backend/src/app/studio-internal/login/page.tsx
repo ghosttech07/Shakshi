@@ -5,6 +5,7 @@ import { LoginForm } from "@/components/studio/LoginForm";
 import { Logo } from "@/components/studio/Logo";
 
 export const metadata: Metadata = { title: "Sign in" };
+export const dynamic = "force-dynamic";
 
 /** The only studio page reachable without a session: logo, one password field, Enter. */
 export default function LoginPage() {

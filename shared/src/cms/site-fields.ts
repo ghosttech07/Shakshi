@@ -41,7 +41,20 @@ export const SITE_GROUPS: SiteGroup[] = [
     title: "Navigation",
     description: "The main menu. An item with sub-links becomes a dropdown (like Discover).",
     path: "",
-    fields: [{ key: "nav", label: "Menu items", type: "list", itemLabel: "label", of: [t("label", "Label"), link("href", "Link (leave empty for a dropdown)"), { key: "children", label: "Dropdown links", type: "list", itemLabel: "label", of: [t("label", "Label"), link("href", "Link"), t("note", "Short note")] }] }],
+    fields: [
+      {
+        key: "nav",
+        label: "Menu items",
+        type: "list",
+        itemLabel: "label",
+        of: [
+          t("label", "Label"),
+          link("href", "Link"),
+          sel("menu", "On hover, show", [["", "Nothing (or the dropdown links below)"], ["categories", "The product categories"]]),
+          { key: "children", label: "Dropdown links", type: "list", itemLabel: "label", of: [t("label", "Label"), link("href", "Link"), t("note", "Short note")] },
+        ],
+      },
+    ],
   },
   {
     id: "footer",
@@ -142,6 +155,13 @@ export const SITE_GROUPS: SiteGroup[] = [
       date("exitIntent.end", "Show until (optional)"),
       t("newsletterOffer", "Newsletter welcome offer"),
     ],
+  },
+  {
+    id: "categories",
+    title: "Product categories",
+    description: "How products are grouped in the Products menu. Each category has its own page at /shop/<address>. Choose each mattress's category under Products.",
+    path: "",
+    fields: [{ key: "categories", label: "Categories", type: "list", itemLabel: "name", of: [t("name", "Name"), t("slug", "Address (e.g. plush)"), ta("description", "One line about it"), img("image", "Photo")] }],
   },
   {
     id: "showrooms",

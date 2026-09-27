@@ -34,6 +34,7 @@ const TEMPLATE = {
   sink: 0,
   recovery: 0,
   published: true,
+  category: "",
 };
 const clamp = (n: number, a: number, b: number) => Math.min(b, Math.max(a, n));
 
@@ -56,6 +57,7 @@ export async function PUT(req: Request, ctx: Ctx) {
   const data: Partial<Product> = {
     ...p,
     badge: p.badge || undefined,
+    category: p.category.toLowerCase().replace(/[^a-z0-9-]/g, "") || undefined,
     firmness: clamp(p.firmness, 1, 10),
     cooling: clamp(p.cooling, 1, 5),
     motionIsolation: clamp(p.motionIsolation, 1, 5),

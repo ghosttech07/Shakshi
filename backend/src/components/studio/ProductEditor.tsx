@@ -45,7 +45,7 @@ const FEEL: Field[] = [
   { key: "layers", label: "Layers (top to bottom)", type: "list", itemLabel: "name", of: [t("name", "Layer"), t("material", "Material"), t("benefit", "Benefit"), n("depth", "Depth (cm)")] },
 ];
 
-export function ProductEditor({ product, stock, ctx, base, frontend, builtIn }: { product: Product; stock: Record<string, number | null>; ctx: EditorContext; base: string; frontend: string; builtIn: boolean }) {
+export function ProductEditor({ product, stock, ctx, base, frontend, builtIn, categories }: { product: Product; stock: Record<string, number | null>; ctx: EditorContext; base: string; frontend: string; builtIn: boolean; categories: { slug: string; name: string }[] }) {
   const router = useRouter();
   const toForm = (p: Product) => ({ ...p, images: p.images.map((url) => ({ url })), highlights: p.highlights.map((text) => ({ text })) });
   const [form, setForm] = useState<Record<string, unknown>>(toForm(product));
@@ -150,6 +150,19 @@ export function ProductEditor({ product, stock, ctx, base, frontend, builtIn }: 
                 ))}
               </tbody>
             </table>
+          </section>
+
+          <section className="card p-5 sm:p-6">
+            <h2 className="text-2xl">Category</h2>
+            <p className="mb-3 text-xs text-stone">Where it appears in the Products menu. Manage categories in Site &amp; theme.</p>
+            <select aria-label="Category" className="field" value={String(form.category ?? "")} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
+              <option value="">No category (shown under All products only)</option>
+              {categories.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </section>
 
           <section className="card p-5 sm:p-6">

@@ -42,11 +42,14 @@ export type Product = {
   prices?: Partial<Record<SizeId, number>>;
   /** Hidden from the shop when false. */
   published?: boolean;
+  /** Slug of the product category it is listed under (Site & theme, Product categories). */
+  category?: string;
 };
 
 export const PRODUCTS: Product[] = [
   {
     slug: "cirrus",
+    category: "plush",
     name: "The Cirrus",
     tier: "Plush",
     tagline: "Weightless, like sleeping on a held breath.",
@@ -79,6 +82,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "signature",
+    category: "balanced",
     name: "The Shakshi Signature",
     tier: "Balanced",
     tagline: "The perfect middle of the night.",
@@ -111,6 +115,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "lumen",
+    category: "balanced",
     name: "The Lumen",
     tier: "Cool",
     tagline: "A cool sheet on a summer night, always.",
@@ -142,6 +147,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "atelier",
+    category: "firm",
     name: "The Atelier",
     tier: "Natural",
     tagline: "Pure materials, patiently made.",
@@ -174,6 +180,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "sovereign",
+    category: "firm",
     name: "The Sovereign",
     tier: "Luxe Firm",
     tagline: "Our most indulgent creation.",

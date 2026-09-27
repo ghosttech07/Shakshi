@@ -53,7 +53,16 @@ export type PageDoc = {
   system?: boolean;
 };
 
-export type NavItem = { label: string; href: string; children?: { label: string; href: string; note?: string }[] };
+export type NavItem = {
+  label: string;
+  href: string;
+  /** "categories" opens a panel of the product categories on hover. */
+  menu?: "" | "categories";
+  children?: { label: string; href: string; note?: string }[];
+};
+
+/** A product category (e.g. "Plush & Cocooning"). Its page lives at /shop/<slug>. */
+export type ProductCategory = { slug: string; name: string; description: string; image: string };
 export type LinkItem = { label: string; href: string };
 
 export type SiteConfig = {
@@ -85,6 +94,7 @@ export type SiteConfig = {
     exitIntent: { enabled: boolean; eyebrow: string; title: string; body: string; ctaText: string; ctaLink: string; offer: string; image?: string; start?: string; end?: string };
     newsletterOffer: string;
   };
+  categories: ProductCategory[];
   showrooms: { id: string; city: string; name: string; address: string; hours: string; phone: string; image: string; lat: number; lng: number }[];
   bedrooms: { id: string; image: string; alt: string; name: string; city: string; caption: string; tall?: boolean; spots: { ref: string; kind: "mattress" | "accessory"; x: number; y: number }[] }[];
 };

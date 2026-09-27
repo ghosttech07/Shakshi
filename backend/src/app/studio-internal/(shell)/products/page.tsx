@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireStudio } from "@/lib/server/studio";
 import { getCatalog, getStock, stockKey } from "@/lib/server/catalog";
+import { getSite } from "@/lib/server/content";
 import { SIZES, priceFor } from "@shakshi/shared/products";
 import { Badge, PageHead, TableWrap, inr } from "@/components/studio/ui";
 import { NewProductForm } from "@/components/studio/NewProductForm";
@@ -9,7 +10,7 @@ export const metadata = { title: "Products" };
 
 export default async function ProductsPage() {
   const base = await requireStudio();
-  const [products, stock] = await Promise.all([getCatalog({ includeUnpublished: true }), getStock()]);
+  const [products, stock, site] = await Promise.all([getCatalog({ includeUnpublished: true }), getStock(), getSite("draft")]);
   return (
     <>
       <PageHead eyebrow="Commerce" title="Products" intro="Mattresses in the collection: details, images, price and stock for each size, and whether they're shown." actions={<NewProductForm base={base} />} />
@@ -18,6 +19,7 @@ export default async function ProductsPage() {
           <thead>
             <tr>
               <th>Mattress</th>
+              <th>Category</th>
               <th>Firmness</th>
               <th>Prices</th>
               {SIZES.map((s) => (
@@ -38,6 +40,7 @@ export default async function ProductsPage() {
                     <span className="font-semibold text-gold-ink hover:underline">{p.name}</span>
                   </Link>
                 </td>
+                <td className="text-stone">{site.categories.find((c) => c.slug === p.category)?.name ?? "—"}</td>
                 <td>
                   {p.firmness}/10 <span className="text-xs text-stone">{p.firmnessLabel}</span>
                 </td>

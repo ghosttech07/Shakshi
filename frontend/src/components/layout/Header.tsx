@@ -32,10 +32,11 @@ const hasMenu = (n: NavItem) => n.menu === "products" || !!n.children?.length;
 function useProductGroups(shopHref: string) {
   const { products, accessories } = useCatalog();
   return [
-    { label: "Mattresses", href: shopHref, items: products.map((p) => ({ key: p.slug, label: p.name, note: p.firmnessLabel, href: `/mattress/${p.slug}` })) },
+    { label: "Mattresses", href: shopHref, all: "View all mattresses", items: products.map((p) => ({ key: p.slug, label: p.name, note: p.firmnessLabel, href: `/mattress/${p.slug}` })) },
     ...ACCESSORY_RANGES.map((r) => ({
       label: r.label,
       href: `/shop/${r.slug}`,
+      all: r.kind === "cover" ? "View all covers" : `View all ${r.label.toLowerCase()}`,
       items: accessories.filter((a) => a.kind === r.kind).map((a) => ({ key: a.id, label: a.name, note: a.note, href: `/shop/${r.slug}#${a.id}` })),
     })),
   ];
@@ -61,6 +62,9 @@ function ProductsPanel({ item, close }: { item: NavItem; close: () => void }) {
               </li>
             ))}
           </ul>
+          <Link href={g.href} onClick={close} className="btn btn-outline mt-7 !px-5 !py-3">
+            {g.all} <IconArrow size={14} />
+          </Link>
         </div>
       ))}
     </div>
@@ -85,6 +89,9 @@ function MobileProductGroups({ shopHref }: { shopHref: string }) {
               </li>
             ))}
           </ul>
+          <Link href={g.href} className="mt-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+            {g.all} <IconArrow size={12} />
+          </Link>
         </div>
       ))}
     </div>

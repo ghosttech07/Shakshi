@@ -221,7 +221,7 @@ export function Header() {
       <header className="border-b border-ink/10 bg-ivory">
         <div className="container-lux flex h-20 items-center justify-between">
           <Link href="/" aria-label="Shakshi home">
-            <Logo className="h-8" />
+            <Logo className="h-10" />
           </Link>
           <p className="eyebrow text-stone">Secure checkout</p>
           <button data-cart-icon className="sr-only" tabIndex={-1} aria-hidden />
@@ -287,7 +287,7 @@ export function Header() {
           </button>
 
           <Link href="/" aria-label="Shakshi home" className="lg:mr-10">
-            <Logo tone={onDark || menu ? "light" : "brand"} className={cn("block transition-[height] duration-1000 ease-silk", scrolled ? "h-7" : "h-8 lg:h-9")} />
+            <Logo tone={onDark || menu ? "light" : "brand"} className={cn("block transition-[height] duration-1000 ease-silk", scrolled ? "h-9" : "h-10 lg:h-12")} />
           </Link>
 
           <nav aria-label="Primary" className="hidden flex-1 lg:block">

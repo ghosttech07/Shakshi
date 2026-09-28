@@ -7,7 +7,10 @@ import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
 export const DEFAULT_SITE: SiteConfig = {
   brand: { name: "Shakshi", tagline: "A Commitment for Complete Rest" },
   announcement: { enabled: false, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
-  nav: [{ label: "Products", href: "/shop", menu: "products" }],
+  nav: [
+    { label: "Products", href: "/shop", menu: "products" },
+    { label: "About", href: "/about" },
+  ],
   footer: {
     columns: [
       { title: "Mattresses", links: [{ label: "The Cirrus", href: "/mattress/cirrus" }, { label: "The Shakshi Signature", href: "/mattress/signature" }, { label: "The Lumen", href: "/mattress/lumen" }, { label: "The Atelier", href: "/mattress/atelier" }, { label: "The Sovereign", href: "/mattress/sovereign" }, ] },

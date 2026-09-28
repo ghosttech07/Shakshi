@@ -21,7 +21,24 @@ async function refresh() {
 
 const norm = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p).toLowerCase();
 
+/** Browser calls to /api/* go to the backend, carrying the visitor's real IP (for its per-visitor limits). */
+function toBackend(req: NextRequest) {
+  const headers = new Headers(req.headers);
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || req.headers.get("x-real-ip");
+  const secret = process.env.REVALIDATE_SECRET;
+  headers.delete("x-shakshi-client-ip");
+  headers.delete("x-shakshi-proxy");
+  if (ip && secret) {
+    headers.set("x-shakshi-client-ip", ip);
+    headers.set("x-shakshi-proxy", secret);
+  }
+  return NextResponse.rewrite(new URL(req.nextUrl.pathname + req.nextUrl.search, API), { request: { headers } });
+}
+
 export async function proxy(req: NextRequest) {
+  // The storefront's own API route stays here; every other /api/* call belongs to the backend.
+  if (req.nextUrl.pathname.startsWith("/api/")) return req.nextUrl.pathname === "/api/revalidate" ? NextResponse.next() : toBackend(req);
+
   if (Date.now() - cache.at > 60_000) {
     inflight ??= refresh().finally(() => (inflight = null));
     // Only the very first request waits; after that a stale list is served while it refreshes.
@@ -44,6 +61,6 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  // Pages only: never static assets, images, API calls or metadata files.
-  matcher: ["/((?!api/|_next/|brand/|hero/|anatomy/|icon|apple-icon|robots.txt|sitemap.xml|favicon).*)"],
+  // Pages and API calls; never static assets, images or metadata files.
+  matcher: ["/((?!_next/|brand/|hero/|anatomy/|icon|apple-icon|robots.txt|sitemap.xml|favicon).*)"],
 };

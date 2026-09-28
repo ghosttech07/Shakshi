@@ -66,12 +66,12 @@ export async function applySnapshot(s: AccountSnapshot) {
 
 /** Loads the account if this browser is signed in. Returns whether it is. */
 export async function refreshAccount() {
-  const r = await call<AccountSnapshot>("/api/account/me", "GET");
-  if (r.ok) {
+  const r = await call<AccountSnapshot & { signedIn: boolean }>("/api/account/me", "GET");
+  if (r.ok && r.data.signedIn) {
     await applySnapshot(r.data);
     return true;
   }
-  if (r.status === 401) {
+  if (r.ok || r.status === 401) {
     signedIn = false;
     // A name typed on this device before accounts were verified isn't an account: ask for the code.
     if (useAccount.getState().profile) useAccount.setState({ profile: null });

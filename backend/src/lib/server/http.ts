@@ -20,10 +20,21 @@ export const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) 
 export const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 export const isPhone = (v: string) => /^[+\d][\d\s-]{7,16}$/.test(v);
 
+/**
+ * The visitor's IP address. Shop visitors reach the backend through the storefront, which passes their
+ * real address along with the shared REVALIDATE_SECRET as proof; without that proof it's ignored.
+ */
+export function clientIp(req: Request) {
+  const secret = process.env.REVALIDATE_SECRET;
+  const passed = req.headers.get("x-shakshi-client-ip");
+  if (secret && passed && req.headers.get("x-shakshi-proxy") === secret) return passed.slice(0, 64);
+  return req.headers.get("x-forwarded-for")?.split(",")[0].trim() || req.headers.get("x-real-ip") || "local";
+}
+
 // A small in-memory limiter for public forms. Per server instance; enough to blunt casual abuse.
 const hits = new Map<string, { n: number; reset: number }>();
 export function limited(req: Request, bucket: string, max = 20, windowMs = 60_000) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || req.headers.get("x-real-ip") || "local";
+  const ip = clientIp(req);
   const k = `${bucket}:${ip}`;
   const now = Date.now();
   const h = hits.get(k);

@@ -6,11 +6,14 @@ import { emptyProfile, type AccountProfile } from "@shakshi/shared/account";
 
 export const runtime = "nodejs";
 
-/** The signed-in customer's account: profile plus every order placed with their email. */
+/**
+ * The signed-in customer's account: profile plus every order placed with their email. Visitors who
+ * aren't signed in get a plain "signedIn: false" (every page asks, so it isn't treated as an error).
+ */
 export async function GET(req: NextRequest) {
   const email = await sessionEmail(req);
-  if (!email) return bad("Not signed in", 401);
-  return json(await snapshot(email));
+  if (!email) return json({ signedIn: false });
+  return json({ signedIn: true, ...(await snapshot(email)) });
 }
 
 /** Updates the parts of the account the customer controls. Unknown fields are ignored. */

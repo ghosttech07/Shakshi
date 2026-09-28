@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { NEEDS_DATABASE, insert, list } from "@/lib/server/db";
 import { ADMIN_COOKIE, adminBase, cookieOptions, passwordHash, signSession } from "@/lib/server/admin-session";
-import { body, str } from "@/lib/server/http";
+import { body, clientIp, str } from "@/lib/server/http";
 
 export const runtime = "nodejs";
 
@@ -11,8 +11,6 @@ const LOCK_MINUTES = 15;
 const GENERIC = { error: "Incorrect password" };
 
 type Attempt = { ip: string; success: boolean; userAgent: string };
-
-const clientIp = (req: Request) => req.headers.get("x-forwarded-for")?.split(",")[0].trim() || req.headers.get("x-real-ip") || "local";
 
 /**
  * Studio sign-in. The password is compared on the server against a bcrypt hash; the browser

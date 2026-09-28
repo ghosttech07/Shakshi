@@ -14,6 +14,7 @@ import { POINTS } from "@shakshi/shared/orders";
 import { EASE, cn, emiFrom, estimateDelivery, formatINR, addDeliveryDays } from "@shakshi/shared/utils";
 import { Img } from "@/components/ui/Img";
 import { TrustBadges, GiftProgress } from "./CartDrawer";
+import { SignInPanel } from "@/components/account/SignInPanel";
 import { IconCheck, IconArrowLeft, IconLock, IconMoon, IconGift, IconArrow } from "@/components/ui/Icons";
 
 const STEPS = ["Details", "Delivery", "Payment", "Review"] as const;
@@ -79,7 +80,7 @@ export function Checkout() {
     if (!hydrated || prefilled.current || !profile) return;
     prefilled.current = true;
     const [first, ...rest] = profile.name.split(" ");
-    setD((x) => ({ ...x, email: x.email || profile.email, first: x.first || first, last: x.last || rest.join(" ") }));
+    setD((x) => ({ ...x, email: profile.email, phone: x.phone || profile.phone || "", first: x.first || first, last: x.last || rest.join(" ") }));
   }, [hydrated, profile]);
 
   const applyPromo = async (raw: string) => {
@@ -111,6 +112,7 @@ export function Checkout() {
 
   const validate = () => {
     const e: Record<string, string> = {};
+    if (step === 0 && !profile) return false;
     if (step === 0) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) e.email = "A valid email, please.";
       if (!/^[6-9]\d{9}$/.test(d.phone.replace(/\D/g, "").slice(-10))) e.phone = "A 10-digit mobile number, please.";
@@ -156,6 +158,10 @@ export function Checkout() {
         promoCode: promo?.code,
         cartId,
       });
+      if (!r.ok && /sign in/i.test(r.error)) {
+        useAccount.setState({ profile: null });
+        setStep(0);
+      }
       if (!r.ok) throw new Error(r.offline ? "We can't place orders online just this moment. Your bag is saved: please try again shortly, or WhatsApp our concierge and we'll complete it for you." : r.error);
       const j = r.data;
       addOrder({ id: j.id, token: j.token, createdAt: j.createdAt, deliveryDate: j.deliveryDate, total: j.total, items: cart, giftCodes: j.giftCodes, customer: d, discount, removal: removalFee });
@@ -260,9 +266,23 @@ export function Checkout() {
               {["Where shall we bring it?", "Choose your delivery day", "How would you like to pay?", "One last look"][step]}
             </h1>
 
-            {step === 0 && (
+            {step === 0 && hydrated && !profile && (
+              <SignInPanel
+                className="mt-10"
+                title="Sign in to place your order"
+                intro="Enter your email and we'll send you a sign-in code. Your order confirmation, invoice and every delivery update will go to this address."
+              />
+            )}
+
+            {step === 0 && profile && (
               <div className="mt-10 grid gap-6 sm:grid-cols-2">
-                <Field label="Email" type="email" autoComplete="email" value={d.email} onChange={(v) => setD({ ...d, email: v })} error={errors.email} />
+                <div>
+                  <p className="eyebrow text-stone">Email</p>
+                  <p className="field flex items-center gap-2 !border-transparent !px-0 text-ink">
+                    <IconCheck size={14} className="text-gold-ink" aria-hidden /> {profile.email}
+                  </p>
+                  <p className="mt-1.5 text-xs text-stone">Verified. Your invoice and updates go here.</p>
+                </div>
                 <Field label="Mobile" type="tel" autoComplete="tel" value={d.phone} onChange={(v) => setD({ ...d, phone: v })} error={errors.phone} />
                 <Field label="First name" autoComplete="given-name" value={d.first} onChange={(v) => setD({ ...d, first: v })} error={errors.first} />
                 <Field label="Last name" autoComplete="family-name" value={d.last} onChange={(v) => setD({ ...d, last: v })} error={errors.last} />
@@ -397,7 +417,7 @@ export function Checkout() {
                   <IconArrowLeft size={14} /> Continue shopping
                 </Link>
               )}
-              {step < 3 ? (
+              {step === 0 && !profile ? null : step < 3 ? (
                 <button className="btn btn-dark" onClick={next}>
                   Continue to {STEPS[step + 1].toLowerCase()}
                 </button>

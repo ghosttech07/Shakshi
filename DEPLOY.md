@@ -35,6 +35,24 @@ npm run db:push
 
 It's safe to run again; rows are matched by id.
 
+### Customer sign-in codes (Supabase → Authentication)
+
+Customers sign in with a code emailed by Supabase. Supabase's standard email contains a link, so
+change it to show the code:
+
+1. **Authentication → Emails → Templates → Magic Link**: set the subject to `Your Shakshi sign-in code`
+   and the body to:
+   ```html
+   <h2>Your sign-in code</h2>
+   <p>Enter this code on the Shakshi website to sign in:</p>
+   <p style="font-size:28px;letter-spacing:6px"><b>{{ .Token }}</b></p>
+   <p>It expires in one hour. If you didn't ask for it, you can ignore this email.</p>
+   ```
+2. Do the same for **Confirm signup** (new customers receive that one first).
+3. **Authentication → Emails → SMTP Settings**: turn on custom SMTP. Supabase's built-in sender
+   only manages a few emails an hour. With Resend: host `smtp.resend.com`, port `465`,
+   username `resend`, password = your Resend API key, sender = an address on your verified domain.
+
 ## 2. Backend project (`shakshi-api`)
 
 Vercel → **Add New… → Project** → import the GitHub repo → **Root Directory: `backend`** → add these
@@ -49,6 +67,9 @@ Vercel → **Add New… → Project** → import the GitHub repo → **Root Dire
 | `ADMIN_PATH` | `admin` |
 | `REVALIDATE_SECRET` | Any long random text; **the same value** goes in the frontend project |
 | `FRONTEND_URL` | The shop's address, e.g. `https://shakshi.vercel.app` (fill in after step 3, then redeploy) |
+| `RESEND_API_KEY` | From [resend.com](https://resend.com) → API Keys. Sends order confirmations and delivery updates |
+| `EMAIL_FROM` | e.g. `Shakshi <orders@yourdomain.com>`, once your domain is verified in Resend |
+| `CRON_SECRET` | Any long random text; lets Vercel run the daily order-update emails |
 | `ANTHROPIC_API_KEY` | Optional: turns on the AI Sleep Concierge |
 
 **The admin password hash**: copy the `ADMIN_PASSWORD_HASH=` value from `backend/.env.local`.

@@ -5,7 +5,7 @@ import { checkPromo, newGiftCode, newOrderNumber, newToken, serverPrice } from "
 import { bad, body, isEmail, isPhone, json, limited, num, str } from "@/lib/server/http";
 import type { Customer, OrderData, OrderItem } from "@shakshi/shared/orders";
 import type { NextRequest } from "next/server";
-import { loadProfile, saveProfile, sessionEmail, signInUnavailable } from "@/lib/server/customer";
+import { loadProfile, sessionEmail, signInUnavailable } from "@/lib/server/customer";
 import { sendOrderEmail } from "@/lib/server/order-email";
 
 export const runtime = "nodejs";
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
   // Keep the account's name and phone filled in for next time
   const profile = await loadProfile(verified);
   if (profile && (!profile.name || !profile.phone)) {
-    await saveProfile({ ...profile, name: profile.name || `${customer.first} ${customer.last}`, phone: profile.phone || customer.phone }).catch(() => null);
+    await update("customers", verified, { data: { name: profile.name || `${customer.first} ${customer.last}`, phone: profile.phone || customer.phone } }).catch(() => null);
   }
   await sendOrderEmail(row.id, row.created_at, data, "placed");
 

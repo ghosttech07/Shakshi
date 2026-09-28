@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { AccountSync } from "@/components/account/AccountSync";
 import { GlobalWidgets } from "@/components/ambient/GlobalWidgets";
 import { Preloader } from "@/components/ambient/Preloader";
 import { Toaster } from "@/components/ui/Toaster";
@@ -80,6 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <CatalogProvider products={products} accessories={accessories} stock={stock}>
               {theme.toggles.preloader && theme.motion !== "off" && <Preloader />}
               <SmoothScroll />
+              <AccountSync />
               <Header />
               <ViewTransition default="page">
                 <main id="main">{children}</main>

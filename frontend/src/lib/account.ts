@@ -23,7 +23,8 @@ export type ThemePref = "auto" | "day" | "night";
 export type SoundId = "rain" | "ocean" | "noise";
 
 type State = {
-  profile: { name: string; email: string } | null;
+  /** The signed-in customer (verified by an emailed code; see account-client.ts). */
+  profile: { name: string; email: string; phone?: string } | null;
   orders: LocalOrder[];
   reviewsWritten: number;
   referralCode: string | null;
@@ -35,8 +36,7 @@ type State = {
   sound: SoundId | null;
   volume: number;
 
-  signIn: (name: string, email: string) => void;
-  signOut: () => void;
+  setName: (name: string) => void;
   addOrder: (o: LocalOrder) => void;
   noteReview: () => void;
   setReferralCode: (c: string) => void;
@@ -51,7 +51,10 @@ type State = {
 
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `c-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
-/** Everything personal is kept on this device. Orders also live on the server, reachable with their private token. */
+/**
+ * The account as this browser holds it. When signed in, it mirrors the customer's account on the
+ * server (loaded on every device); preferences like theme and sound stay per device.
+ */
 export const useAccount = create<State>()(
   persist(
     (set, get) => ({
@@ -67,8 +70,10 @@ export const useAccount = create<State>()(
       sound: null,
       volume: 0.5,
 
-      signIn: (name, email) => set({ profile: { name: name.trim(), email: email.trim().toLowerCase() } }),
-      signOut: () => set({ profile: null }),
+      setName: (name) => {
+        const p = get().profile;
+        if (p) set({ profile: { ...p, name: name.trim() } });
+      },
       addOrder: (o) => set({ orders: [o, ...get().orders.filter((x) => x.id !== o.id)] }),
       noteReview: () => set({ reviewsWritten: get().reviewsWritten + 1 }),
       setReferralCode: (referralCode) => set({ referralCode }),

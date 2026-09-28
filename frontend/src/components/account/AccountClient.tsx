@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useAccount, pointsFor, type ThemePref } from "@/lib/account";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/useHydrated";
@@ -9,6 +9,8 @@ import { tierFor } from "@shakshi/shared/orders";
 import { RecommendedRow } from "@/components/commerce/RecommendedRow";
 import { Orders } from "./Orders";
 import { Rewards, useReferralCount } from "./Rewards";
+import { SignInPanel } from "./SignInPanel";
+import { signOut } from "@/lib/account-client";
 
 const SECTIONS = [
   { id: "orders", label: "Orders" },
@@ -21,47 +23,14 @@ function greeting() {
   return h < 5 ? "Still awake" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
-function SignIn() {
-  const signIn = useAccount((s) => s.signIn);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError("Please share your name and a valid email.");
-    signIn(name, email);
-  };
-  return (
-    <form onSubmit={submit} className="border border-gold/40 bg-gold/[0.05] p-7 sm:p-9">
-      <p className="eyebrow text-gold-ink">Welcome</p>
-      <p className="display mt-3 text-3xl">Make this your account.</p>
-      <p className="mt-3 max-w-lg text-sm leading-relaxed text-stone">Your orders and rewards are kept privately on this device. Tell us your name to be greeted properly, and to receive your referral link.</p>
-      <div className="mt-6 grid gap-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-        <label>
-          <span className="eyebrow text-stone">Name</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" className="field" />
-        </label>
-        <label>
-          <span className="eyebrow text-stone">Email</span>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="field" />
-        </label>
-        <button type="submit" className="btn btn-dark">
-          Continue
-        </button>
-      </div>
-      {error && <p className="mt-3 text-xs text-[#9a5a4a]" role="alert">{error}</p>}
-    </form>
-  );
-}
-
 function Settings() {
   const theme = useAccount((s) => s.theme);
   const setTheme = useAccount((s) => s.setTheme);
-  const signOut = useAccount((s) => s.signOut);
   const profile = useAccount((s) => s.profile);
   const [confirm, setConfirm] = useState(false);
 
-  const forget = () => {
+  const forget = async () => {
+    await signOut();
     try {
       localStorage.removeItem("shakshi-account");
       localStorage.removeItem("shakshi-store");
@@ -93,15 +62,17 @@ function Settings() {
         </fieldset>
         <div className="border border-ink/10 p-6">
           <p className="eyebrow text-stone">Your data</p>
-          <p className="mt-3 text-sm text-stone">Everything here lives in this browser. Orders are also kept by our team, reachable only with your order&rsquo;s private link.</p>
+          <p className="mt-3 text-sm text-stone">
+            {profile ? <>Signed in as <b className="text-ink">{profile.email}</b>. Your orders, wishlist and rewards are saved to your account, so they&rsquo;re here on any device you sign in from.</> : "Sign in to keep your orders, wishlist and rewards on every device."}
+          </p>
           <div className="mt-5 flex flex-wrap gap-3">
             {profile && (
-              <button onClick={signOut} className="btn btn-outline !py-3">
+              <button onClick={() => void signOut()} className="btn btn-outline !py-3">
                 Sign out
               </button>
             )}
             {confirm ? (
-              <button onClick={forget} className="btn btn-dark !py-3">
+              <button onClick={() => void forget()} className="btn btn-dark !py-3">
                 Yes, forget this device
               </button>
             ) : (
@@ -149,9 +120,9 @@ export function AccountClient() {
         </nav>
       </header>
 
-      {!account.profile && (
+      {!account.profile?.name && (
         <div className="mt-12">
-          <SignIn />
+          <SignInPanel />
         </div>
       )}
 

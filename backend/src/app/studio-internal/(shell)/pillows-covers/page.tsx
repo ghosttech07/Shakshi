@@ -12,9 +12,9 @@ export default async function PillowsCoversPage() {
   return (
     <>
       <PageHead
-        eyebrow="Commerce"
+        eyebrow="Catalogue"
         title="Pillows & covers"
-        intro="Everything besides mattresses: the pillows and mattress covers listed in the Products menu, and bedding offered in the bag. Drag to reorder; the order here is the order on the site."
+        intro="The pillows and mattress covers on the website. Click an item to edit it, or add a new one at the bottom. Remember to press Save."
       />
       <AccessoriesEditor initial={items as unknown as Record<string, unknown>[]} ctx={ctx} frontend={process.env.FRONTEND_URL ?? "http://localhost:3000"} />
     </>

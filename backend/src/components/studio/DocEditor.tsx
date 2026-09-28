@@ -125,7 +125,7 @@ export function DocEditor({
           </ul>
         </nav>
         <section className="card p-5 sm:p-6" aria-labelledby="group-title">
-          <h2 id="group-title" className="text-3xl">
+          <h2 id="group-title" className="text-xl">
             {g.title}
           </h2>
           <p className="mb-6 text-sm text-stone">{g.description}</p>

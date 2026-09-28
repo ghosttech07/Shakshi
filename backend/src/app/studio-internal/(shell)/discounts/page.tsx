@@ -15,7 +15,7 @@ export default async function DiscountsPage() {
 
   return (
     <>
-      <PageHead eyebrow="Commerce" title="Discount codes" intro="Customers enter these at checkout. Referral (SHK-…) and gift card (GIFT-…) codes are handled automatically." />
+      <PageHead eyebrow="Sales" title="Discount codes" intro="Create a code, and customers can type it at checkout to get money off." />
       <DiscountForm />
       <div className="mt-8">
         {rows.length ? (

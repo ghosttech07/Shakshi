@@ -12,7 +12,7 @@ export default async function LibraryPage() {
   const now = new Date().toISOString();
   return (
     <>
-      <PageHead eyebrow="Content" title="Sleep Library" intro="Essays on resting well. Write, schedule and publish." actions={<NewArticleForm base={base} />} />
+      <PageHead eyebrow="Website" title="Sleep Library" intro="The articles on your Sleep Library page. Write a new one, or click one to edit it." actions={<NewArticleForm base={base} />} />
       <TableWrap>
         <table className="table min-w-[720px]">
           <thead>

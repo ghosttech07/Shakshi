@@ -162,7 +162,7 @@ export function PageEditor({ pageKey, initial, frontend, base, ctx }: { pageKey:
           ← Pages
         </a>
         <div className="min-w-0">
-          <h1 className="truncate font-serif text-2xl leading-none">{doc.title}</h1>
+          <h1 className="truncate text-2xl leading-none">{doc.title}</h1>
           <p className="truncate text-xs text-stone">/{doc.slug}</p>
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -208,7 +208,7 @@ export function PageEditor({ pageKey, initial, frontend, base, ctx }: { pageKey:
               <button className="mb-3 text-sm text-stone hover:text-ink" onClick={() => setSelected(null)}>
                 ← All sections
               </button>
-              <h2 className="text-2xl">{SECTIONS[section.type]?.label ?? section.type}</h2>
+              <h2 className="text-lg">{SECTIONS[section.type]?.label ?? section.type}</h2>
               <p className="mb-5 text-xs text-stone">{SECTIONS[section.type]?.description}</p>
               {SECTIONS[section.type]?.fields.length ? (
                 <FieldEditor fields={SECTIONS[section.type].fields} value={section.data} onChange={(d) => updateSection(section.id, d)} ctx={ctx} focus={focus} />
@@ -319,7 +319,7 @@ function SectionLibrary({ existing, onPick, onClose }: { existing: Section[]; on
       <button className="absolute inset-0 bg-midnight/60" aria-label="Close" onClick={onClose} />
       <div className="card relative max-h-[88vh] w-full max-w-4xl overflow-y-auto bg-paper p-5 sm:p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-3xl">Add a section</h2>
+          <h2 className="text-xl">Add a section</h2>
           <button className="btn btn-line btn-sm" onClick={onClose}>
             Close
           </button>

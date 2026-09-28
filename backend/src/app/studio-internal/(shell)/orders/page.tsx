@@ -24,7 +24,7 @@ export default async function OrdersPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageHead eyebrow="Commerce" title="Orders" intro={`${rows.length} of ${all.length} orders`} />
+      <PageHead eyebrow="Sales" title="Orders" intro={`${rows.length} of ${all.length} orders`} />
       <Filters>
         <div className="min-w-56 flex-1">
           <label htmlFor="q" className="label">

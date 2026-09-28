@@ -104,13 +104,13 @@ export function ProductEditor({ product, stock, ctx, base, frontend, builtIn }: 
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
         <section className="card p-5 sm:p-6">
-          <h2 className="mb-4 text-2xl">Details</h2>
+          <h2 className="mb-4 text-lg">Details</h2>
           <FieldEditor fields={DETAILS} value={form} onChange={setForm} ctx={ctx} />
         </section>
 
         <div className="space-y-6">
           <section className="card p-5 sm:p-6">
-            <h2 className="text-2xl">Price & stock by size</h2>
+            <h2 className="text-lg">Price & stock by size</h2>
             <p className="mb-4 text-xs text-stone">Leave a price blank to derive it from the Queen price. Leave stock blank for made to order (no limit).</p>
             <label className="label" htmlFor="basePrice">
               Queen price (₹)
@@ -153,7 +153,7 @@ export function ProductEditor({ product, stock, ctx, base, frontend, builtIn }: 
           </section>
 
           <section className="card p-5 sm:p-6">
-            <h2 className="mb-3 text-2xl">Materials & sleepers</h2>
+            <h2 className="mb-3 text-lg">Materials & sleepers</h2>
             <fieldset>
               <legend className="label">Materials</legend>
               <div className="grid grid-cols-2 gap-1.5">
@@ -177,7 +177,7 @@ export function ProductEditor({ product, stock, ctx, base, frontend, builtIn }: 
           </section>
 
           <section className="card p-5 sm:p-6">
-            <h2 className="mb-4 text-2xl">Feel</h2>
+            <h2 className="mb-4 text-lg">Feel</h2>
             <FieldEditor fields={FEEL} value={form} onChange={setForm} ctx={ctx} />
           </section>
 

@@ -4,7 +4,7 @@ import type { CartSnapshot } from "@shakshi/shared/records";
 import { Badge, Empty, PageHead, ago, inr } from "@/components/studio/ui";
 import { StatusSelect } from "@/components/studio/actions";
 
-export const metadata = { title: "Abandoned carts" };
+export const metadata = { title: "Unfinished checkouts" };
 
 const STATUS = [
   { value: "open", label: "Not contacted" },
@@ -29,7 +29,7 @@ export default async function CartsPage() {
 
   return (
     <>
-      <PageHead eyebrow="Commerce" title="Abandoned carts" intro="Checkouts that were started but not finished. Messages are drafted for you; nothing is sent automatically." />
+      <PageHead eyebrow="Sales" title="Unfinished checkouts" intro="People who started checking out but didn't finish. Tap Email or WhatsApp to send a friendly ready-written message; nothing is sent automatically." />
       {rows.length ? (
         <ul className="space-y-4">
           {rows.map((r) => {

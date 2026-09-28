@@ -5,7 +5,7 @@ import type { LeadData } from "@shakshi/shared/records";
 import { Badge, Empty, PageHead, ago } from "@/components/studio/ui";
 import { ActionButton } from "@/components/studio/actions";
 
-export const metadata = { title: "Inquiries" };
+export const metadata = { title: "Messages" };
 
 const KINDS: Record<LeadData["kind"], string> = { contact: "Contact form", hospitality: "Hospitality & trade", swatches: "Swatch request", newsletter: "Newsletter" };
 const label = (k: string) => k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
@@ -20,7 +20,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHead eyebrow="People" title="Inquiries" intro={`${open} waiting for a reply.`} />
+      <PageHead eyebrow="Customers" title="Messages" intro={open ? `${open} waiting for a reply.` : "All caught up."} />
       <nav aria-label="Filter inquiries" className="mb-5 flex flex-wrap gap-2">
         {["", ...Object.keys(KINDS)].map((k) => (
           <Link key={k || "all"} href={href(k, show)} aria-current={kind === k ? "page" : undefined} className={`btn btn-sm ${kind === k ? "btn-dark" : "btn-line"}`}>

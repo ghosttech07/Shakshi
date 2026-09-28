@@ -2,7 +2,7 @@ import { requireStudio } from "@/lib/server/studio";
 import { list } from "@/lib/server/db";
 import { Badge, Empty, PageHead, TableWrap, when } from "@/components/studio/ui";
 
-export const metadata = { title: "Activity log" };
+export const metadata = { title: "Activity & sign-ins" };
 
 /** Every change made in the studio, and every sign-in attempt. */
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
@@ -15,7 +15,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <PageHead eyebrow="Records" title="Activity log" />
+      <PageHead eyebrow="Settings" title="Activity & sign-ins" intro="Every change made in the admin, and every attempt to sign in." />
       <nav aria-label="Log" className="mb-5 flex gap-2">
         <a href="?tab=changes" aria-current={tab === "changes" ? "page" : undefined} className={`btn btn-sm ${tab === "changes" ? "btn-dark" : "btn-line"}`}>
           Changes

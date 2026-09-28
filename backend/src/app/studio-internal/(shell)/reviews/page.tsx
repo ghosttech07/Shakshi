@@ -24,7 +24,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageHead eyebrow="People" title="Reviews" intro="New reviews wait here until you approve them. Approved reviews and your replies appear on the mattress page." />
+      <PageHead eyebrow="Customers" title="Reviews" intro="New reviews wait here until you approve them. Approved reviews appear on the home page and the mattress page." />
       <nav aria-label="Filter reviews" className="mb-5 flex flex-wrap gap-2">
         {[...STATUS, { value: "all", label: "All" }].map((s) => (
           <Link key={s.value} href={`${base}/reviews?status=${s.value}`} aria-current={status === s.value ? "page" : undefined} className={`btn btn-sm ${status === s.value ? "btn-dark" : "btn-line"}`}>
@@ -45,7 +45,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Prom
                     {"★".repeat(r.data.rating)}
                     <span className="text-ink/20">{"★".repeat(5 - r.data.rating)}</span>
                   </p>
-                  <p className="mt-1 font-serif text-xl">{r.data.title}</p>
+                  <p className="mt-1 text-base font-semibold">{r.data.title}</p>
                   <p className="mt-1 whitespace-pre-line text-ink/80">{r.data.body}</p>
                   {r.data.reply && <p className="mt-3 border-l-2 border-gold pl-3 text-sm text-stone">Your reply: {r.data.reply}</p>}
                 </div>

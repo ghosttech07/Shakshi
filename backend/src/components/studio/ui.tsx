@@ -8,7 +8,7 @@ export function PageHead({ eyebrow, title, intro, actions }: { eyebrow?: string;
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-2 text-gold-ink">{eyebrow}</p>}
-        <h1 className="text-4xl leading-tight sm:text-5xl">{title}</h1>
+        <h1 className="text-2xl font-semibold leading-tight sm:text-[1.75rem]">{title}</h1>
         {intro && <p className="mt-2 max-w-2xl text-stone">{intro}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -20,7 +20,7 @@ export function Stat({ label, value, note, href, tone }: { label: string; value:
   const body = (
     <>
       <p className="eyebrow text-stone">{label}</p>
-      <p className={`mt-3 font-serif text-4xl leading-none [font-variant-numeric:lining-nums_tabular-nums] ${tone === "warn" ? "text-warn" : "text-ink"}`}>{value}</p>
+      <p className={`mt-3 text-3xl font-semibold leading-none tabular-nums ${tone === "warn" ? "text-warn" : "text-ink"}`}>{value}</p>
       {note && <p className="mt-2 text-xs text-stone">{note}</p>}
     </>
   );
@@ -56,7 +56,7 @@ export function Badge({ tone = "neutral", children }: { tone?: Tone; children: R
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="card px-6 py-14 text-center">
-      <p className="font-serif text-2xl">{title}</p>
+      <p className="text-2xl">{title}</p>
       {children && <div className="mx-auto mt-2 max-w-md text-stone">{children}</div>}
     </div>
   );

@@ -80,11 +80,11 @@ export function ArticleEditor({ article, ctx, base, frontend }: { article: Recor
         </section>
         <div className="space-y-6">
           <section className="card p-5 sm:p-6">
-            <h2 className="mb-4 text-2xl">Details</h2>
+            <h2 className="mb-4 text-lg">Details</h2>
             <FieldEditor fields={FIELDS.filter((f) => !["title", "dek", "html"].includes(f.key))} value={a} onChange={setA} ctx={ctx} />
           </section>
           <section className="card p-5 sm:p-6">
-            <h2 className="text-2xl">Schedule</h2>
+            <h2 className="text-lg">Schedule</h2>
             <p className="mb-3 text-xs text-stone">Choose a date to publish automatically that morning. Leave empty to publish straight away.</p>
             <label className="label" htmlFor="publishAt">
               Publish on

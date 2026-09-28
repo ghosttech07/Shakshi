@@ -5,14 +5,14 @@ import { SIZES, priceFor } from "@shakshi/shared/products";
 import { Badge, PageHead, TableWrap, inr } from "@/components/studio/ui";
 import { NewProductForm } from "@/components/studio/NewProductForm";
 
-export const metadata = { title: "Products" };
+export const metadata = { title: "Mattresses" };
 
 export default async function ProductsPage() {
   const base = await requireStudio();
   const [products, stock] = await Promise.all([getCatalog({ includeUnpublished: true }), getStock()]);
   return (
     <>
-      <PageHead eyebrow="Commerce" title="Products" intro="Mattresses in the collection: details, images, price and stock for each size, and whether they're shown." actions={<NewProductForm base={base} />} />
+      <PageHead eyebrow="Catalogue" title="Mattresses" intro="Click a mattress to change its photos, prices, stock or description." actions={<NewProductForm base={base} />} />
       <TableWrap>
         <table className="table min-w-[900px]">
           <thead>

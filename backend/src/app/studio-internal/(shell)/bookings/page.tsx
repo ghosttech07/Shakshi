@@ -44,14 +44,14 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <PageHead eyebrow="People" title="Bookings" intro="Salon visits, home trials and video consultations. Confirm or cancel each request; the customer is contacted by your team." />
+      <PageHead eyebrow="Customers" title="Bookings" intro="Salon visits, home trials and video consultations. Confirm or cancel each request; the customer is contacted by your team." />
 
       <section className="card p-4 sm:p-6" aria-labelledby="cal-title">
         <div className="mb-4 flex items-center justify-between">
           <Link href={`${base}/bookings?month=${shift(-1)}`} className="btn btn-line btn-sm" aria-label="Previous month">
             ←
           </Link>
-          <h2 id="cal-title" className="text-2xl">
+          <h2 id="cal-title" className="text-lg">
             {first.toLocaleDateString("en-IN", { month: "long", year: "numeric", timeZone: "UTC" })}
           </h2>
           <Link href={`${base}/bookings?month=${shift(1)}`} className="btn btn-line btn-sm" aria-label="Next month">

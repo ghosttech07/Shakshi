@@ -20,7 +20,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <>
       <p className="mb-3 text-sm">
         <Link href={`${base}/products`} className="text-stone hover:text-ink">
-          ← Products
+          ← Mattresses
         </Link>
       </p>
       <PageHead eyebrow={`/mattress/${p.slug}`} title={p.name} />

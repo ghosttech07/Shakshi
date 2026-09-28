@@ -26,7 +26,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHead eyebrow="People" title="Customers" intro="Everyone who has ordered, with their history." />
+      <PageHead eyebrow="Customers" title="Customers" intro="Everyone who has ordered. Click a name to see their orders and messages." />
       <Filters>
         <div className="min-w-56 flex-1">
           <label htmlFor="q" className="label">

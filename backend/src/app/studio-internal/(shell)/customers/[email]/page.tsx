@@ -35,7 +35,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ email
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="card p-5 sm:p-6">
-          <h2 className="text-2xl">Orders</h2>
+          <h2 className="text-lg">Orders</h2>
           {mine.length ? (
             <ul className="mt-3 divide-y divide-ink/[0.06]">
               {mine.map((o) => (
@@ -59,7 +59,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ email
         </section>
 
         <section className="card p-5 sm:p-6">
-          <h2 className="text-2xl">Bookings</h2>
+          <h2 className="text-lg">Bookings</h2>
           {bookings.length ? (
             <ul className="mt-3 space-y-2">
               {bookings.map((b) => (
@@ -75,7 +75,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ email
         </section>
 
         <section className="card p-5 sm:p-6">
-          <h2 className="text-2xl">Messages & reviews</h2>
+          <h2 className="text-lg">Messages & reviews</h2>
           {leads.length + reviews.length ? (
             <ul className="mt-3 space-y-2 text-sm">
               {leads.map((l) => (

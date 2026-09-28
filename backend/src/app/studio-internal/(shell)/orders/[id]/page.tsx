@@ -35,7 +35,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="space-y-6">
           <section className="card p-5 sm:p-6">
-            <h2 className="text-2xl">Items</h2>
+            <h2 className="text-lg">Items</h2>
             <ul className="mt-3 divide-y divide-ink/[0.06]">
               {d.items.map((i) => (
                 <li key={i.key} className="flex flex-wrap justify-between gap-3 py-3">
@@ -63,7 +63,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           </section>
 
           <section className="card p-5 sm:p-6">
-            <h2 className="text-2xl">Delivery timeline</h2>
+            <h2 className="text-lg">Delivery timeline</h2>
             <p className="text-xs text-stone">What the customer sees on their order page.</p>
             <ol className="mt-4 space-y-4">
               {STAGES.map((s, i) => (
@@ -89,7 +89,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </p>
           </section>
           <section className="card p-5 sm:p-6">
-            <h2 className="text-2xl">Customer</h2>
+            <h2 className="text-lg">Customer</h2>
             <p className="mt-2 font-semibold">
               {c.first} {c.last}
             </p>

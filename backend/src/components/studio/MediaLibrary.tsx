@@ -223,7 +223,7 @@ export function MediaPicker({ kind, onPick, onClose }: { kind?: Kind; onPick: (m
       <button className="absolute inset-0 bg-midnight/60" aria-label="Close" onClick={onClose} />
       <div className="card relative max-h-[90vh] w-full max-w-5xl overflow-y-auto bg-paper p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl">Choose {kind === "image" ? "an image" : kind === "video" ? "a video" : "a file"}</h2>
+          <h2 className="text-lg">Choose {kind === "image" ? "an image" : kind === "video" ? "a video" : "a file"}</h2>
           <button type="button" className="btn btn-line btn-sm" onClick={onClose}>
             Close
           </button>

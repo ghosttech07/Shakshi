@@ -1,6 +1,6 @@
 import { list, type Row } from "./db";
 import { currentStage, type OrderData } from "@shakshi/shared/orders";
-import type { BookingData, EventData, LeadData, ReviewData } from "@shakshi/shared/records";
+import type { BookingData, CartSnapshot, EventData, LeadData, ReviewData } from "@shakshi/shared/records";
 
 /** Read helpers for studio pages (server only; every caller sits behind requireStudio). */
 
@@ -13,13 +13,14 @@ export const liveOrders = (rows: Row<OrderData>[]) => rows.filter((o) => !o.data
 export const stageOf = (o: Row<OrderData>) => currentStage(o);
 
 export async function overview() {
-  const [os, bookings, reviews, leads, stock, events] = await Promise.all([
+  const [os, bookings, reviews, leads, stock, events, carts] = await Promise.all([
     orders(),
     list<BookingData>("bookings", { limit: 1000 }),
     list<ReviewData>("reviews", { status: "pending", limit: 1000 }),
     list<LeadData>("leads", { status: "new", limit: 1000 }),
     list<{ qty: number | null }>("stock", { limit: 500 }),
     list<EventData>("events", { limit: 20000, since: new Date(Date.now() - 30 * 86400000).toISOString() }),
+    list<CartSnapshot>("abandoned_carts", { status: "open", limit: 500 }),
   ]);
   const now = new Date();
   const today = dayKey(now);
@@ -63,6 +64,8 @@ export async function overview() {
     pendingReviews: reviews.length,
     openInquiries: leads.length,
     upcomingBookings: bookings.filter((b) => b.status !== "cancelled" && new Date(b.data.start) >= now).length,
+    bookingsToConfirm: bookings.filter((b) => (b.status ?? "requested") === "requested" && new Date(b.data.start) >= now).length,
+    openCarts: carts.filter((c) => c.data.items?.length).length,
     days,
     funnel,
     recent: real.slice(0, 6),

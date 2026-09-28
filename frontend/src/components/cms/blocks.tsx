@@ -14,17 +14,11 @@ import { HospitalityForm } from "@/components/features/HospitalityForm";
 import { UnboxingFilm, ExpansionTimer } from "@/components/features/SetupGuide";
 import { ShopClient } from "@/components/shop/ShopClient";
 import { GiftCardBuilder } from "@/components/gifts/GiftCardBuilder";
-import { ArticleCard, LibraryIndex } from "@/components/library/LibraryIndex";
+import { LibraryIndex } from "@/components/library/LibraryIndex";
 import { Emph, arr, lines, num, str, type FieldFn } from "./text";
 
 export type BlockCtx = { articles: Article[] };
 export type BlockProps = { d: Record<string, unknown>; f: FieldFn; edit?: boolean; ctx: BlockCtx; first?: boolean };
-
-const ICONS = { hand: IconHand, moon: IconMoon, shield: IconShield, truck: IconTruck, leaf: IconLeaf, sparkle: IconSparkle, bed: IconBed, clock: IconClock, gift: IconGift };
-const Icon = ({ name, ...p }: { name: string; size?: number; className?: string }) => {
-  const C = ICONS[name as keyof typeof ICONS] ?? IconSparkle;
-  return <C {...p} />;
-};
 
 const LinkArrow = ({ href, text, f, k }: { href: string; text: string; f: FieldFn; k: string }) =>
   text ? (
@@ -129,38 +123,6 @@ export function PageHeader({ d, f }: BlockProps) {
 }
 
 // ---------------------------------------------------------------- trust & story
-export function FeatureStrip({ d, f }: BlockProps) {
-  const items = arr<{ icon: string; title: string; body: string }>(d.items);
-  return (
-    <section className="border-y border-ink/10 bg-ivory-2/60 linen" aria-label={str(d.eyebrow, "Features")}>
-      <div className="container-lux py-20 lg:py-24">
-        {str(d.eyebrow) && (
-          <Reveal>
-            <h2 className="eyebrow text-center text-gold-ink" {...f("eyebrow")}>
-              {str(d.eyebrow)}
-            </h2>
-          </Reveal>
-        )}
-        <ul className={cn("mt-12 grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3", items.length >= 5 ? "lg:grid-cols-5" : items.length === 4 ? "lg:grid-cols-4" : "")}>
-          {items.map((it, i) => (
-            <Reveal key={i} as="li" delay={i * 0.1} className="flex flex-col items-center text-center">
-              <span className="grid h-16 w-16 place-items-center rounded-full border border-gold/40 text-gold-ink">
-                <Icon name={it.icon} size={28} />
-              </span>
-              <h3 className="mt-5 text-2xl" {...f(`items.${i}.title`)}>
-                {it.title}
-              </h3>
-              <p className="mt-2 max-w-[15rem] text-sm leading-relaxed text-stone" {...f(`items.${i}.body`)}>
-                {it.body}
-              </p>
-            </Reveal>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
 export function Firmness({ d, f }: BlockProps) {
   const dark = str(d.tone) === "dark";
   return (
@@ -177,58 +139,6 @@ export function Firmness({ d, f }: BlockProps) {
         <Reveal delay={0.1}>
           <FirmnessSimulator dark={dark} />
         </Reveal>
-      </div>
-    </section>
-  );
-}
-
-export function TextImage({ d, f, first }: BlockProps) {
-  const dark = str(d.tone) === "dark";
-  const right = str(d.imageSide) === "right";
-  return (
-    <section className={cn(dark && "bg-midnight text-pearl linen-dark")}>
-      <div className="container-lux grid items-center gap-12 py-24 lg:grid-cols-[1.15fr_1fr] lg:gap-24 lg:py-36">
-        <div className={cn("relative", right && "lg:order-2")} {...f("image")}>
-          {str(d.image) && (
-            <Parallax amount={50} className="relative aspect-[4/5] overflow-hidden sm:aspect-[5/6]">
-              <Img src={str(d.image)} alt={str(d.imageAlt)} dark={dark} sizes="(min-width: 1024px) 55vw, 100vw" wrapperClassName="absolute inset-0" />
-            </Parallax>
-          )}
-          {str(d.detail) && (
-            <Reveal delay={0.3} className={cn("absolute -bottom-10 w-2/5", right ? "left-4 sm:-left-8 lg:-left-16" : "right-4 sm:-right-8 lg:-right-16")}>
-              <Img src={str(d.detail)} alt="" dark={dark} sizes="30vw" wrapperClassName="aspect-square shadow-lift" />
-            </Reveal>
-          )}
-        </div>
-        <div className="pt-8 lg:pt-0">
-          {str(d.eyebrow) && (
-            <Reveal>
-              <p className={cn("eyebrow", dark ? "text-gold" : "text-gold-ink")} {...f("eyebrow")}>
-                {str(d.eyebrow)}
-              </p>
-            </Reveal>
-          )}
-          {(() => {
-            const H = first ? "h1" : "h2";
-            return (
-              <H className="display mt-5 text-5xl lg:text-6xl" {...f("title")}>
-                <RevealText text={str(d.title)} />
-              </H>
-            );
-          })()}
-          <Reveal delay={0.2}>
-            {lines(d.body).map((p, i) => (
-              <p key={i} className={cn("mt-7 max-w-md leading-relaxed", dark ? "text-pearl/70" : "text-stone")} {...f("body")}>
-                {p}
-              </p>
-            ))}
-            {str(d.ctaText) && (
-              <Link href={str(d.ctaLink, "/")} className={cn("btn mt-10", dark ? "btn-gold" : "btn-outline")} {...f("ctaText")}>
-                {str(d.ctaText)} <IconArrow size={16} />
-              </Link>
-            )}
-          </Reveal>
-        </div>
       </div>
     </section>
   );
@@ -258,27 +168,6 @@ export function FeatureGrid({ d, f }: BlockProps) {
           ))}
         </ul>
       </div>
-    </section>
-  );
-}
-
-export function Stats({ d, f }: BlockProps) {
-  const dark = str(d.tone, "dark") === "dark";
-  const items = arr<{ value: string; label: string }>(d.items);
-  return (
-    <section className={cn(dark ? "bg-midnight text-pearl linen-dark" : "border-y border-ink/10")}>
-      <dl className={cn("container-lux grid gap-10 py-20 lg:py-24", items.length >= 4 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-3")}>
-        {items.map((s, i) => (
-          <Reveal key={i} delay={i * 0.1} className="border-l border-gold/40 pl-5">
-            <dt className="font-serif text-5xl font-light lg:text-6xl" {...f(`items.${i}.value`)}>
-              {s.value}
-            </dt>
-            <dd className={cn("mt-2 text-sm", dark ? "text-pearl/60" : "text-stone")} {...f(`items.${i}.label`)}>
-              {s.label}
-            </dd>
-          </Reveal>
-        ))}
-      </dl>
     </section>
   );
 }
@@ -319,51 +208,6 @@ export function Press({ d, f }: BlockProps) {
           ))}
         </ul>
       )}
-    </section>
-  );
-}
-
-export function Tools({ d, f }: BlockProps) {
-  const items = arr<{ icon: string; title: string; body: string; image: string; href: string }>(d.items);
-  return (
-    <section className="container-lux py-24 lg:py-32">
-      <Heading d={d} f={f} align="center" />
-      <ul className={cn("mt-14 grid gap-6", items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3")}>
-        {items.map((t, i) => (
-          <Reveal as="li" key={i} delay={i * 0.12}>
-            <Link href={t.href || "/"} className="group relative block aspect-[4/5] overflow-hidden text-pearl md:aspect-[3/4]" {...f(`items.${i}.title`)}>
-              {t.image && <Img src={t.image} alt="" sizes="(min-width: 768px) 33vw, 100vw" dark wrapperClassName="absolute inset-0" className="transition-transform duration-[1600ms] ease-silk group-hover:scale-105" />}
-              <div className="absolute inset-0 bg-gradient-to-t from-midnight/85 via-midnight/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7">
-                <Icon name={t.icon} size={28} className="text-gold" />
-                <h3 className="mt-4 text-3xl">{t.title}</h3>
-                <p className="mt-2 max-w-xs text-sm text-pearl/75">{t.body}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-gold">
-                  Begin <IconArrow size={14} className="transition-transform duration-700 ease-silk group-hover:translate-x-1.5" />
-                </span>
-              </div>
-            </Link>
-          </Reveal>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-export function LibraryTeaser({ d, f, ctx }: BlockProps) {
-  const articles = ctx.articles.slice(0, num(d.count, 3));
-  if (!articles.length) return null;
-  return (
-    <section className="container-lux pb-24 lg:pb-32">
-      <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
-        <Heading d={d} f={f} />
-        <LinkArrow href="/sleep-library" text={str(d.linkText)} f={f} k="linkText" />
-      </div>
-      <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-        {articles.map((a, i) => (
-          <ArticleCard key={a.slug} a={a} index={i} />
-        ))}
-      </div>
     </section>
   );
 }

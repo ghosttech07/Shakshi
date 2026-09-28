@@ -4,7 +4,7 @@ import type { SiteConfig } from "@shakshi/shared/cms/types";
 /** DEFAULT_SITE with one sample element in every list, so `shape()` knows each list's item shape. */
 export const SITE_TEMPLATE: SiteConfig = {
   ...DEFAULT_SITE,
-  brand: { name: "", tagline: "", logo: "", logoLight: "" },
+  brand: { name: "", tagline: "" },
   announcement: { enabled: true, text: "", link: "", start: "", end: "" },
   nav: [{ label: "", href: "", menu: "", children: [{ label: "", href: "", note: "" }] }],
   footer: { columns: [{ title: "", links: [{ label: "", href: "" }] }], note: "" },

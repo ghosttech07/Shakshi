@@ -48,7 +48,7 @@ const orgJsonLd = (site: SiteConfig) => ({
   "@type": "Organization",
   name: site.brand.name,
   url: SITE_URL,
-  logo: site.brand.logo || `${SITE_URL}/brand/shakshi-lockup-red.png`,
+  logo: `${SITE_URL}/brand/shakshi-lockup-red.png`,
   slogan: site.brand.tagline,
   sameAs: site.social.map((x) => x.url),
   contactPoint: [{ "@type": "ContactPoint", telephone: site.contact.phone, contactType: "customer service", areaServed: "IN" }],

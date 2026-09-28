@@ -3,9 +3,7 @@ import type { Section } from "@shakshi/shared/cms/types";
 import { Hero } from "@/components/home/Hero";
 import { Anatomy } from "@/components/home/Anatomy";
 import { Testimonials } from "@/components/home/Testimonials";
-import { BrandComparison } from "@/components/home/BrandComparison";
 import { RecommendedRow } from "@/components/commerce/RecommendedRow";
-import { Certifications } from "@/components/commerce/Certifications";
 import { Thread } from "@/components/about/Thread";
 import * as B from "./blocks";
 import { ProductGrid, ShowroomsBlock, BookingBlock, ContactBlock } from "./client-blocks";
@@ -21,28 +19,10 @@ const BLOCKS: Record<string, Block> = {
   "product-grid": ({ d, edit }) => <ProductGrid d={d} edit={edit} />,
   recommended: ({ d, edit }) => <RecommendedRow title={str(d.title) || undefined} fallbackTitle={str(d.fallbackTitle) || undefined} className="pt-0 lg:pt-0" edit={edit} />,
   "layers-anatomy": ({ d, edit }) => <Anatomy data={d} edit={edit} />,
-  "feature-strip": B.FeatureStrip,
-  comparison: ({ d, edit }) => <BrandComparison data={d} edit={edit} />,
-  certifications: ({ d, f }) => (
-    <section className="border-y border-ink/10 py-12" aria-label="Certifications">
-      <div className="container-lux flex flex-col items-center gap-6 text-center">
-        {str(d.eyebrow) && (
-          <p className="eyebrow text-stone" {...f("eyebrow")}>
-            {str(d.eyebrow)}
-          </p>
-        )}
-        <Certifications className="justify-center" items={Array.isArray(d.items) ? d.items : undefined} />
-      </div>
-    </section>
-  ),
   firmness: B.Firmness,
-  "text-image": B.TextImage,
   "feature-grid": B.FeatureGrid,
-  stats: B.Stats,
   testimonials: ({ d, edit }) => <Testimonials eyebrow={str(d.eyebrow) || undefined} count={typeof d.count === "number" ? d.count : undefined} minRating={Number(d.minRating) || undefined} edit={edit} />,
   press: B.Press,
-  tools: B.Tools,
-  "library-teaser": B.LibraryTeaser,
   newsletter: B.Newsletter,
   "thread-journey": ({ d, edit }) => <Thread data={d} edit={edit} />,
   faq: B.Faq,

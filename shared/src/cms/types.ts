@@ -64,7 +64,7 @@ export type NavItem = {
 export type LinkItem = { label: string; href: string };
 
 export type SiteConfig = {
-  brand: { name: string; tagline: string; logo?: string; logoLight?: string };
+  brand: { name: string; tagline: string };
   announcement: { enabled: boolean; text: string; link?: string; start?: string; end?: string };
   nav: NavItem[];
   footer: { columns: { title: string; links: LinkItem[] }[]; note: string };
@@ -80,8 +80,6 @@ export type SiteConfig = {
   analytics: { gaId?: string; metaPixelId?: string };
   redirects: { from: string; to: string; permanent: boolean }[];
   commerce: {
-    currency: string;
-    gstRate: number;
     freeGiftThreshold: number;
     removalFee: number;
     metroPrefixes: string[];

@@ -25,9 +25,9 @@ export const SITE_GROUPS: SiteGroup[] = [
   {
     id: "brand",
     title: "Brand",
-    description: "Name, tagline and logo files. Leave the logo empty to use the built-in Shakshi mark.",
+    description: "Your brand name and the tagline shown under it.",
     path: "brand",
-    fields: [t("name", "Brand name"), t("tagline", "Tagline"), img("logo", "Logo (for light backgrounds)"), img("logoLight", "Logo (for dark backgrounds)")],
+    fields: [t("name", "Brand name"), t("tagline", "Tagline")],
   },
   {
     id: "announcement",
@@ -124,17 +124,15 @@ export const SITE_GROUPS: SiteGroup[] = [
   },
   {
     id: "commerce",
-    title: "Delivery, tax & pricing",
-    description: "Delivery areas by pincode, GST, the free-gift threshold and the removal fee.",
+    title: "Delivery & pricing",
+    description: "Delivery areas by pincode, the free-gift threshold and the old-mattress removal fee.",
     path: "commerce",
     fields: [
       tags("metroPrefixes", "Metro pincode prefixes (3–5 day white-glove)", "First two digits, comma-separated: 11, 40, 56…"),
       tags("remotePrefixes", "Extended network prefixes (9–14 days)", "First two digits, comma-separated"),
       tags("unserviceable", "Pincodes we can't deliver to yet", "Prefixes of any length, comma-separated"),
-      num("gstRate", "GST rate (%)"),
       num("freeGiftThreshold", "Free Cloud Pillows above (₹)"),
       num("removalFee", "Old-mattress removal fee (₹)"),
-      t("currency", "Currency code"),
     ],
   },
   {

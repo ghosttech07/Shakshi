@@ -24,18 +24,6 @@ const EM = "Wrap words in *asterisks* for an italic accent.";
 const heading = [t("eyebrow", "Eyebrow"), t("title", "Title", EM)];
 const cta = [t("ctaText", "Button text"), link("ctaLink", "Button link")];
 
-export const ICONS: [string, string][] = [
-  ["hand", "Hand (handcrafted)"],
-  ["moon", "Moon"],
-  ["shield", "Shield (warranty)"],
-  ["truck", "Truck (delivery)"],
-  ["leaf", "Leaf (eco)"],
-  ["sparkle", "Sparkle"],
-  ["bed", "Bed"],
-  ["clock", "Clock"],
-  ["gift", "Gift"],
-];
-
 export const SECTIONS: Record<string, SectionDef> = {
   hero: {
     label: "Hero",
@@ -128,59 +116,6 @@ export const SECTIONS: Record<string, SectionDef> = {
       model: "",
     },
   },
-  "feature-strip": {
-    label: "Feature strip",
-    description: "A row of promises with fine-line icons.",
-    group: "Trust",
-    fields: [t("eyebrow", "Eyebrow"), list("items", "Features", "title", [sel("icon", "Icon", ICONS), t("title", "Title"), ta("body", "Text")])],
-    defaults: {
-      eyebrow: "Why Shakshi",
-      items: [
-        { icon: "hand", title: "Handcrafted", body: "Hand-tufted and finished by our artisans, never rushed." },
-        { icon: "shield", title: "10-year warranty", body: "Built to hold its shape for a decade of nights." },
-        { icon: "truck", title: "White-glove delivery", body: "Complimentary, set up in your room, packaging taken away." },
-        { icon: "leaf", title: "Eco-certified", body: "Organic cotton, natural latex and responsibly sourced wool." },
-      ],
-    },
-  },
-  comparison: {
-    label: "Comparison table",
-    description: "Shakshi side by side with two alternatives. Use 'yes' or 'no' for ticks and dashes.",
-    group: "Trust",
-    fields: [...heading, t("brandLabel", "Our column"), t("colA", "Second column"), t("colB", "Third column"), list("rows", "Rows", "label", [t("label", "Row"), t("ours", "Shakshi"), t("a", "Second column"), t("b", "Third column")])],
-    defaults: {
-      eyebrow: "The difference",
-      title: "Not all mattresses are *made alike.*",
-      brandLabel: "Shakshi",
-      colA: "Typical store mattress",
-      colB: "Typical online mattress",
-      rows: [
-        { label: "Handcrafted to order", ours: "yes", a: "no", b: "no" },
-        { label: "Feel it before buying", ours: "Salons, home trials & video calls", a: "yes", b: "no" },
-        { label: "Delivery", ours: "White-glove, set up in your room", a: "Kerbside, often charged", b: "Rolled in a box" },
-        { label: "Natural materials", ours: "Wool, organic cotton, natural latex", a: "Varies", b: "Mostly synthetic foams" },
-        { label: "Warranty", ours: "10 years", a: "1–5 years", b: "Varies" },
-        { label: "Old mattress taken away", ours: "yes", a: "Sometimes", b: "no" },
-        { label: "Clear, fixed pricing", ours: "yes", a: "Negotiated", b: "yes" },
-      ],
-    },
-  },
-  certifications: {
-    label: "Certifications",
-    description: "Badges that open a short explanation of each certificate.",
-    group: "Trust",
-    fields: [t("eyebrow", "Eyebrow"), list("items", "Certificates", "name", [t("mark", "Seal letters"), t("name", "Name"), t("scope", "What it covers"), ta("body", "Explanation")])],
-    defaults: {
-      eyebrow: "Certified, thread by thread",
-      items: [
-        { mark: "CP", name: "CertiPUR-US®", scope: "Foams", body: "Our foams are made without ozone depleters, PBDE flame retardants, mercury, lead or formaldehyde, and are tested for low emissions (VOCs) for indoor air quality." },
-        { mark: "OT", name: "OEKO-TEX® Standard 100", scope: "Covers & textiles", body: "Every thread, button and zip that touches you is tested for harmful substances, to the strictest class for products in direct contact with skin." },
-        { mark: "GO", name: "GOTS", scope: "Organic cotton", body: "The Global Organic Textile Standard certifies our cotton from field to finished cover: organic fibre, and responsible processing all the way through." },
-        { mark: "GL", name: "GOLS", scope: "Natural latex", body: "The Global Organic Latex Standard confirms our latex is made from certified organic rubber, with strict limits on fillers and chemicals." },
-        { mark: "ISO", name: "ISO 9001", scope: "Our atelier", body: "Our workshop's quality management is independently audited, so every mattress is built, checked and finished the same careful way." },
-      ],
-    },
-  },
   firmness: {
     label: "Firmness simulator",
     description: "Press-and-hold mattress that shows how deeply each model yields.",
@@ -188,26 +123,12 @@ export const SECTIONS: Record<string, SectionDef> = {
     fields: [...heading, ta("intro", "Intro"), t("linkText", "Link text"), link("linkHref", "Link"), sel("tone", "Style", [["light", "Light"], ["dark", "Dark"]])],
     defaults: { eyebrow: "Feel it from here", title: "Press gently. *Sink slowly.*", intro: "Every Shakshi yields differently. Press and hold the mattress to feel how deeply each one welcomes you, and how it rises to meet you again.", linkText: "Visit the Sleep Studio", linkHref: "/sleep-studio", tone: "light" },
   },
-  "text-image": {
-    label: "Text and image",
-    description: "Editorial block: large image with a smaller detail image, and text beside it.",
-    group: "Story",
-    fields: [...heading, ta("body", "Text"), img("image", "Main image"), t("imageAlt", "Main image alt text"), img("detail", "Detail image"), ...cta, sel("imageSide", "Image side", [["left", "Left"], ["right", "Right"]]), sel("tone", "Style", [["light", "Light"], ["dark", "Dark"]])],
-    defaults: { eyebrow: "The Atelier", title: "Twelve hours of patience, in every mattress.", body: "In our workshop outside Bengaluru, each Shakshi is tufted by hand, its wool layered in the old way, its edges stitched until they are perfect. We make fewer mattresses, so that each one can be extraordinary.", image: "https://images.unsplash.com/photo-1606722590583-6951b5ea92ad", imageAlt: "An artisan's hands at work in the Shakshi atelier", detail: "https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5", ctaText: "Discover our craft", ctaLink: "/about", imageSide: "left", tone: "light" },
-  },
   "feature-grid": {
     label: "Feature grid",
     description: "Numbered points in two or three columns.",
     group: "Text",
     fields: [...heading, sel("columns", "Columns", [["2", "Two"], ["3", "Three"]]), list("items", "Points", "title", [t("title", "Title"), ta("body", "Text")]), sel("tone", "Style", [["light", "Light"], ["linen", "Linen"], ["dark", "Dark"]])],
     defaults: { eyebrow: "", title: "", columns: "3", items: [{ title: "A point", body: "Something worth knowing." }], tone: "light" },
-  },
-  stats: {
-    label: "Numbers",
-    description: "A band of large figures with short captions.",
-    group: "Story",
-    fields: [list("items", "Figures", "label", [t("value", "Figure"), t("label", "Caption")]), sel("tone", "Style", [["dark", "Dark"], ["light", "Light"]])],
-    defaults: { items: [{ value: "92%", label: "Natural or recycled materials" }, { value: "12 hrs", label: "Of handwork in every mattress" }, { value: "40,000+", label: "Native trees planted" }], tone: "dark" },
   },
   testimonials: {
     label: "Customer reviews (live)",
@@ -232,28 +153,6 @@ export const SECTIONS: Record<string, SectionDef> = {
       ],
       awards: [{ text: "Design of the Year 2026" }, { text: "GOTS & GOLS certified" }, { text: "CertiPUR® foams" }],
     },
-  },
-  tools: {
-    label: "Tool cards",
-    description: "Image cards linking to the Sleep Studio, calculator and other tools.",
-    group: "Engagement",
-    fields: [...heading, list("items", "Cards", "title", [sel("icon", "Icon", ICONS), t("title", "Title"), ta("body", "Text"), img("image", "Image"), link("href", "Link")])],
-    defaults: {
-      eyebrow: "Personal guidance",
-      title: "Let us *tailor* your rest.",
-      items: [
-        { icon: "sparkle", title: "The Sleep Studio", body: "Press and hold to feel how deeply each mattress yields.", image: "https://images.unsplash.com/photo-1520206183501-b80df61043c2", href: "/sleep-studio" },
-        { icon: "bed", title: "Talk to a specialist", body: "Fifteen free minutes on video, from your own bedroom.", image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0", href: "/showroom?kind=video#book" },
-        { icon: "clock", title: "Sleep Calculator", body: "Wake between cycles, never in the middle of a dream.", image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d", href: "/sleep-studio#calculator" },
-      ],
-    },
-  },
-  "library-teaser": {
-    label: "Sleep Library essays",
-    description: "The latest essays from the Sleep Library.",
-    group: "Engagement",
-    fields: [...heading, t("linkText", "Link text"), num("count", "How many", 1, 9)],
-    defaults: { eyebrow: "The Sleep Library", title: "Read one tonight, *an hour before bed.*", linkText: "All essays", count: 3 },
   },
   newsletter: {
     label: "Newsletter signup",

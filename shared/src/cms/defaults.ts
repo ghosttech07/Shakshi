@@ -46,8 +46,6 @@ export const DEFAULT_SITE: SiteConfig = {
   analytics: {},
   redirects: [],
   commerce: {
-    currency: "INR",
-    gstRate: 18,
     freeGiftThreshold: FREE_GIFT_THRESHOLD,
     removalFee: 1500,
     metroPrefixes: DEFAULT_SETTINGS.metroPrefixes,

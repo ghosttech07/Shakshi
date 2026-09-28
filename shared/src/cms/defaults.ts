@@ -16,7 +16,6 @@ export const DEFAULT_SITE: SiteConfig = {
         { label: "Our Story", href: "/about", note: "The thread, from 2012" },
         { label: "Sleep Studio", href: "/sleep-studio", note: "Feel the firmness, time your cycles" },
         { label: "Sleep Library", href: "/sleep-library", note: "Essays on resting well" },
-        { label: "Showrooms & Contact", href: "/showroom", note: "Visit a salon, book a call, or write to us" },
         { label: "FAQ", href: "/faq", note: "Delivery, payment, warranty and care" },
       ],
     },

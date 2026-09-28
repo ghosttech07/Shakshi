@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { backendUrl, studioOrigin } from "@/lib/backend-url";
 
 /**
  * Redirects managed in the studio (Site → Redirects). The list is fetched from the backend
  * at most once a minute and kept in memory; if the backend is unreachable, pages simply load.
  */
-const API = process.env.API_URL ?? "http://localhost:4000";
+const API = backendUrl();
 type Redirect = { from: string; to: string; permanent: boolean };
 let cache: { at: number; list: Redirect[] } = { at: 0, list: [] };
 let inflight: Promise<void> | null = null;
@@ -35,7 +36,7 @@ export async function proxy(req: NextRequest) {
   if (path === "/preview") {
     // The studio shows drafts here inside a frame; only the studio may frame it.
     const res = NextResponse.next();
-    res.headers.set("Content-Security-Policy", `frame-ancestors 'self' ${process.env.STUDIO_ORIGIN ?? new URL(API).origin}`);
+    res.headers.set("Content-Security-Policy", `frame-ancestors 'self' ${studioOrigin()}`);
     res.headers.set("X-Robots-Tag", "noindex, nofollow");
     return res;
   }

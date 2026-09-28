@@ -20,7 +20,8 @@ export function LoginForm() {
         location.assign(j.next);
         return;
       }
-      setError("Incorrect password");
+      // 503 is a setup problem on the server (no database), never a hint about the password
+      setError(r.status === 503 && j.error ? j.error : "Incorrect password");
     } catch {
       setError("Incorrect password");
     }

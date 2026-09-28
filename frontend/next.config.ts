@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
+import { backendUrl } from "./src/lib/backend-url";
 
 // The backend (API, database, studio). The storefront keeps working if it's unreachable.
-const API_URL = process.env.API_URL ?? "http://localhost:4000";
+const API_URL = backendUrl();
 
 const nextConfig: NextConfig = {
   devIndicators: false,
@@ -14,7 +15,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     // The studio runs on the backend; /admin on the shop takes you there.
-    const studio = process.env.STUDIO_URL ?? `${API_URL}/admin`;
+    const studio = process.env.STUDIO_URL?.trim().replace(/\/+$/, "") || `${API_URL}/admin`;
     return [
       { source: "/admin", destination: studio, permanent: false },
       { source: "/admin/:path*", destination: `${studio}/:path*`, permanent: false },

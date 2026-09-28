@@ -47,6 +47,14 @@ export const backend: "supabase" | "local" = url && key ? "supabase" : "local";
 let client: SupabaseClient | null = null;
 const sb = () => (client ??= createClient(url!, key!, { auth: { persistSession: false } }));
 
+/**
+ * Hosted servers (Vercel and the like) can't keep files between requests, so the local JSON file
+ * only works on your own computer. There, saving explains what's missing instead of failing oddly.
+ */
+const hosted = !!(process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME);
+export const NEEDS_DATABASE = "This server has no database yet. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to its environment variables, then redeploy.";
+if (hosted && backend === "local") console.error(`[db] ${NEEDS_DATABASE}`);
+
 // ---------- local JSON adapter ----------
 const FILE = path.join(process.cwd(), ".data", "db.json");
 type LocalDb = Partial<Record<Table, Row[]>>;
@@ -62,6 +70,7 @@ async function readLocal(): Promise<LocalDb> {
 
 /** Serialises reads and writes so concurrent requests never clobber the file. */
 function withLocal<T>(fn: (db: LocalDb) => T, write = false): Promise<T> {
+  if (write && hosted) return Promise.reject(new Error(NEEDS_DATABASE));
   const run = queue.then(async () => {
     const db = await readLocal();
     const out = fn(db);

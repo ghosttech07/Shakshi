@@ -3,12 +3,13 @@ import { ACCESSORIES, PRODUCTS, type Accessory, type Product, type Review } from
 import { ARTICLES, type Article } from "@shakshi/shared/articles";
 import { DEFAULT_PAGES, DEFAULT_SITE } from "@shakshi/shared/cms/defaults";
 import type { PageDoc, SiteConfig } from "@shakshi/shared/cms/types";
+import { backendUrl } from "./backend-url";
 
 /**
  * The storefront's only doorway to the backend for page data. Every call has a short timeout and
  * a built-in fallback, so the shop keeps rendering (with the house content) if the backend is down.
  */
-const API = process.env.API_URL ?? "http://localhost:4000";
+const API = backendUrl();
 export const BACKEND_TAG = "backend";
 
 async function fromBackend<T>(path: string, fallback: T, revalidate = 60): Promise<T> {

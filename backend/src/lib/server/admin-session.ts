@@ -17,11 +17,20 @@ export const INTERNAL_PREFIX = "/studio-internal";
 // Addresses the backend already uses for other things.
 const RESERVED = ["api", "_next", "studio-internal", "brand", "hero", "icon", "login"];
 
-/** "/<ADMIN_PATH>", or null when the studio isn't configured (then it simply doesn't exist). */
+/**
+ * The bcrypt hash from the environment. In .env files each "$" is written as "\$" (Next expands
+ * "$" there); dashboards like Vercel's take the hash as-is. Either form works: a bcrypt hash never
+ * contains a backslash or quotes, so those are simply removed.
+ */
+export function passwordHash(): string {
+  return (process.env.ADMIN_PASSWORD_HASH ?? "").trim().replace(/\\\$/g, "$").replace(/^["']|["']$/g, "");
+}
+
+/** "/<ADMIN_PATH>" (default "/admin"), or null when the studio isn't configured (then it simply doesn't exist). */
 export function adminBase(): string | null {
-  const p = process.env.ADMIN_PATH?.trim();
-  if (!p || !/^[a-z0-9][a-z0-9-]{2,63}$/i.test(p) || RESERVED.includes(p.toLowerCase())) return null;
-  if (!process.env.ADMIN_PASSWORD_HASH || !secretBytes()) return null;
+  const p = process.env.ADMIN_PATH?.trim() || "admin";
+  if (!/^[a-z0-9][a-z0-9-]{2,63}$/i.test(p) || RESERVED.includes(p.toLowerCase())) return null;
+  if (!/^\$2[aby]\$\d{2}\$.{53}$/.test(passwordHash()) || !secretBytes()) return null;
   return `/${p}`;
 }
 

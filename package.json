@@ -9,7 +9,8 @@
     "build": "npm run build -w backend && npm run build -w frontend",
     "start": "concurrently -n backend,frontend -c yellow,cyan \"npm run start -w backend\" \"npm run start -w frontend\"",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w backend && npm run typecheck -w frontend",
-    "studio:setup": "node backend/scripts/studio-setup.mjs"
+    "studio:setup": "node backend/scripts/studio-setup.mjs",
+    "db:push": "node backend/scripts/push-to-supabase.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

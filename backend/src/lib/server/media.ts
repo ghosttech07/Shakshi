@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { randomBytes } from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import { backend, insert, list } from "./db";
+import { NEEDS_DATABASE, backend, insert, list } from "./db";
 
 /**
  * The media library. Images are compressed and converted to WebP (max 2400px); video, GLB models
@@ -30,6 +30,7 @@ async function store(key: string, buf: Buffer, contentType: string): Promise<str
     if (error) throw new Error(error.message);
     return sb.storage.from("media").getPublicUrl(key).data.publicUrl;
   }
+  if (process.env.VERCEL) throw new Error(NEEDS_DATABASE);
   await fs.mkdir(LOCAL_DIR, { recursive: true });
   await fs.writeFile(path.join(LOCAL_DIR, key), buf);
   return `/api/media/${key}`;

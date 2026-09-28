@@ -4,6 +4,9 @@ import { getAccessories, getCatalog, getStock, stockKey } from "@/lib/server/cat
 import { checkPromo, newGiftCode, newOrderNumber, newToken, serverPrice } from "@/lib/server/commerce";
 import { bad, body, isEmail, isPhone, json, limited, num, str } from "@/lib/server/http";
 import type { Customer, OrderData, OrderItem } from "@shakshi/shared/orders";
+import type { NextRequest } from "next/server";
+import { loadProfile, saveProfile, sessionEmail, signInUnavailable } from "@/lib/server/customer";
+import { sendOrderEmail } from "@/lib/server/order-email";
 
 export const runtime = "nodejs";
 
@@ -19,8 +22,12 @@ type Payload = {
   cartId?: string;
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   if (limited(req, "orders", 10)) return bad("Too many attempts. Please wait a moment.", 429);
+  // Orders come only from customers who have proved their email with a sign-in code.
+  if (signInUnavailable()) return bad("Ordering isn't available yet: the shop's database isn't connected.", 503);
+  const verified = await sessionEmail(req);
+  if (!verified) return bad("Please sign in with your email to place your order.", 401);
   const b = await body<Payload>(req, 64_000);
   if (!b || !Array.isArray(b.items) || !b.items.length || b.items.length > 30) return bad("Your bag looks empty.");
 
@@ -28,7 +35,7 @@ export async function POST(req: Request) {
   const customer: Customer = {
     first: str(c.first, 60),
     last: str(c.last, 60),
-    email: str(c.email, 120).toLowerCase(),
+    email: verified,
     phone: str(c.phone, 20),
     address: str(c.address, 240),
     city: str(c.city, 60),
@@ -119,6 +126,8 @@ export async function POST(req: Request) {
     discountLabel,
     promoCode,
     removal,
+    delivery: 0, // white-glove delivery is free
+    emailed: ["placed"],
     total: Math.max(0, subtotal + removal - discount),
     customer,
     deliveryDate: delivery.toISOString(),
@@ -130,6 +139,13 @@ export async function POST(req: Request) {
     madeToOrder,
   };
   const row = await insert("orders", data, { id: data.number, status: "placed", email: customer.email });
+
+  // Keep the account's name and phone filled in for next time
+  const profile = await loadProfile(verified);
+  if (profile && (!profile.name || !profile.phone)) {
+    await saveProfile({ ...profile, name: profile.name || `${customer.first} ${customer.last}`, phone: profile.phone || customer.phone }).catch(() => null);
+  }
+  await sendOrderEmail(row.id, row.created_at, data, "placed");
 
   const cartId = str(b.cartId, 60);
   if (cartId) await update("abandoned_carts", cartId, { status: "recovered", data: { orderId: row.id } }).catch(() => null);

@@ -24,6 +24,10 @@ export type OrderData = {
   discountLabel?: string;
   promoCode?: string;
   removal: number;
+  /** Delivery charge in rupees (0 = free white-glove delivery). */
+  delivery?: number;
+  /** Stages the customer has already been emailed about. */
+  emailed?: string[];
   total: number;
   customer: Customer;
   deliveryDate: string; // ISO date

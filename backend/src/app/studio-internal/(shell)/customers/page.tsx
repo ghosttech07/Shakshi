@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireStudio } from "@/lib/server/studio";
 import { liveOrders, orders } from "@/lib/server/studio-data";
+import { list } from "@/lib/server/db";
+import type { AccountProfile } from "@shakshi/shared/account";
 import { Empty, Filters, PageHead, TableWrap, inr, when } from "@/components/studio/ui";
 
 export const metadata = { title: "Customers" };
@@ -8,14 +10,22 @@ export const metadata = { title: "Customers" };
 export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const base = await requireStudio();
   const { q = "" } = await searchParams;
-  const os = await orders();
+  const [os, accounts] = await Promise.all([orders(), list<AccountProfile>("customers", { limit: 5000 })]);
 
-  type C = { email: string; name: string; phone: string; city: string; orders: number; spent: number; last: string };
+  type C = { email: string; name: string; phone: string; city: string; orders: number; spent: number; last: string; account: boolean };
   const people = new Map<string, C>();
+  // Everyone with an account, including those who haven't ordered yet
+  for (const a of accounts) {
+    const e = a.id.toLowerCase();
+    people.set(e, { email: e, name: a.data.name ?? "", phone: a.data.phone ?? "", city: "", orders: 0, spent: 0, last: a.data.lastSignInAt ?? a.created_at, account: true });
+  }
   for (const o of liveOrders(os)) {
     const e = o.data.customer?.email?.toLowerCase();
     if (!e) continue;
-    const c = people.get(e) ?? { email: e, name: `${o.data.customer.first} ${o.data.customer.last}`, phone: o.data.customer.phone, city: o.data.customer.city, orders: 0, spent: 0, last: o.created_at };
+    const c = people.get(e) ?? { email: e, name: "", phone: "", city: "", orders: 0, spent: 0, last: o.created_at, account: false };
+    c.name ||= `${o.data.customer.first} ${o.data.customer.last}`;
+    c.phone ||= o.data.customer.phone;
+    c.city ||= o.data.customer.city;
     c.orders += 1;
     c.spent += o.data.total;
     if (o.created_at > c.last) c.last = o.created_at;
@@ -26,7 +36,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHead eyebrow="Customers" title="Customers" intro="Everyone who has ordered. Click a name to see their orders and messages." />
+      <PageHead eyebrow="Customers" title="Customers" intro="Everyone with an account or an order. Click a name to see their orders and messages." />
       <Filters>
         <div className="min-w-56 flex-1">
           <label htmlFor="q" className="label">
@@ -43,6 +53,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
               <tr>
                 <th>Customer</th>
                 <th>City</th>
+                <th>Account</th>
                 <th>Orders</th>
                 <th>Spent</th>
                 <th>Last seen</th>
@@ -58,6 +69,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                     {c.name && <span className="block text-xs text-stone">{c.email}</span>}
                   </td>
                   <td className="text-stone">{c.city || "—"}</td>
+                  <td className="text-stone">{c.account ? "Signed up" : "Guest"}</td>
                   <td>{c.orders}</td>
                   <td className="tabular-nums">{inr(c.spent)}</td>
                   <td className="whitespace-nowrap text-stone">{when(c.last, false)}</td>

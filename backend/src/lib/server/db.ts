@@ -28,7 +28,8 @@ export type Table =
   | "page_versions"
   | "content"
   | "media"
-  | "audit_log";
+  | "audit_log"
+  | "customers";
 
 export type Row<T = Record<string, unknown>> = {
   id: string;

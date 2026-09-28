@@ -1,9 +1,10 @@
 import { notifyStorefront } from "@/lib/server/notify";
 import { audit } from "@/lib/server/content";
 import { isAdmin } from "@/lib/server/studio";
-import { remove, update, type Table } from "@/lib/server/db";
+import { get, remove, update, type Table } from "@/lib/server/db";
+import { emailIfNewStage } from "@/lib/server/order-email";
 import { bad, body, json, str } from "@/lib/server/http";
-import { STAGES } from "@shakshi/shared/orders";
+import { STAGES, type OrderData } from "@shakshi/shared/orders";
 
 export const runtime = "nodejs";
 
@@ -28,7 +29,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
   // Orders: choosing a stage pins it (manual); "auto" hands tracking back to the calendar.
   if (table === "orders" && b.statusMode === "auto") {
     const row = await update("orders", id, { data: { statusMode: "auto" } });
-    return row ? json({ ok: true }) : bad("Not found", 404);
+    if (!row) return bad("Not found", 404);
+    const fresh = await get<OrderData>("orders", id);
+    if (fresh) await emailIfNewStage(fresh);
+    return json({ ok: true });
   }
   // Reviews: the atelier can answer publicly; the reply appears under the review once approved.
   if (table === "reviews" && typeof b.reply === "string") {
@@ -44,6 +48,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (!row) return bad("Not found", 404);
   if (table === "reviews") await notifyStorefront();
   await audit(`${table}.status`, id, status);
+  // Tell the customer about their order's new stage (once per stage)
+  if (table === "orders") {
+    const fresh = await get<OrderData>("orders", id);
+    if (fresh) await emailIfNewStage(fresh);
+  }
   return json({ ok: true });
 }
 

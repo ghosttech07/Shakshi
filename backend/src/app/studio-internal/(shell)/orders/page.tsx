@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { after } from "next/server";
+import { catchUpOrderEmails } from "@/lib/server/order-email";
 import { requireStudio } from "@/lib/server/studio";
 import { orders, stageOf } from "@/lib/server/studio-data";
 import { STAGES } from "@shakshi/shared/orders";
@@ -10,6 +12,8 @@ type Props = { searchParams: Promise<{ q?: string; stage?: string; show?: string
 
 export default async function OrdersPage({ searchParams }: Props) {
   const base = await requireStudio();
+  // Orders on the automatic calendar change stage by date: email customers about any new stage (after the page is sent)
+  after(() => catchUpOrderEmails().catch(() => null));
   const { q = "", stage = "", show = "" } = await searchParams;
   const all = await orders();
   const needle = q.trim().toLowerCase();

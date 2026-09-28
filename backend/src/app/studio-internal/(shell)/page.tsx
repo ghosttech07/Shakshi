@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { after } from "next/server";
+import { catchUpOrderEmails } from "@/lib/server/order-email";
 import { requireStudio } from "@/lib/server/studio";
 import { overview, stageOf } from "@/lib/server/studio-data";
 import { getCatalog } from "@/lib/server/catalog";
@@ -11,6 +13,8 @@ export const metadata = { title: "Dashboard" };
 
 export default async function Dashboard() {
   const base = await requireStudio();
+  // Orders on the automatic calendar change stage by date: email customers about any new stage (after the page is sent)
+  after(() => catchUpOrderEmails().catch(() => null));
   const [o, catalog] = await Promise.all([overview(), getCatalog({ includeUnpublished: true })]);
   const nameOf = (key: string) => {
     const [slug, size] = key.split(":");

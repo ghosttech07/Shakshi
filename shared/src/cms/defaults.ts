@@ -9,7 +9,17 @@ export const DEFAULT_SITE: SiteConfig = {
   announcement: { enabled: false, text: DEFAULT_SETTINGS.announcement.text, link: DEFAULT_SETTINGS.announcement.link },
   nav: [
     { label: "Products", href: "/shop", menu: "products" },
-    { label: "About", href: "/about" },
+    {
+      label: "About",
+      href: "/about",
+      children: [
+        { label: "Our Story", href: "/about", note: "The thread, from 2012" },
+        { label: "Sleep Studio", href: "/sleep-studio", note: "Feel the firmness, time your cycles" },
+        { label: "Sleep Library", href: "/sleep-library", note: "Essays on resting well" },
+        { label: "Showrooms & Contact", href: "/showroom", note: "Visit a salon, book a call, or write to us" },
+        { label: "FAQ", href: "/faq", note: "Delivery, payment, warranty and care" },
+      ],
+    },
   ],
   footer: {
     columns: [

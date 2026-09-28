@@ -153,13 +153,14 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [discover, setDiscover] = useState(false);
+  const [discover, setDiscover] = useState<string | null>(null);
   const [darkHero, setDarkHero] = useState(false);
   const discoverBtn = useRef<HTMLButtonElement>(null);
   const site = useSite();
   const { announcement } = site;
-  const links = site.nav.filter((n) => n.href && !n.children?.length);
-  const dropdown = site.nav.find(hasMenu);
+  const links = site.nav.filter((n) => n.href);
+  const menus = site.nav.filter(hasMenu);
+  const openItem = site.nav.find((n) => n.label === discover && hasMenu(n));
   const [live, setLive] = useState(false);
   useEffect(() => setLive(isLive(announcement)), [announcement]);
   const [barClosed, setBarClosed] = useState(false);
@@ -179,7 +180,7 @@ export function Header() {
 
   useEffect(() => {
     setMenu(false);
-    setDiscover(false);
+    setDiscover(null);
   }, [pathname]);
   // Pages that open on a dark hero mark it with data-dark-hero, so the header can turn light.
   useEffect(() => {
@@ -198,7 +199,7 @@ export function Header() {
     if (!discover) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setDiscover(false);
+        setDiscover(null);
         discoverBtn.current?.focus();
       }
     };
@@ -232,7 +233,7 @@ export function Header() {
 
   const onDark = darkHero && !scrolled && !menu && !discover;
   const count = hydrated ? cartCount(cart) : 0;
-  const discoverActive = dropdown?.menu === "products" ? pathname.startsWith(dropdown.href || "/shop") : !!dropdown?.children?.some((l) => pathname.startsWith(l.href));
+  const isActive = (n: NavItem) => (n.href && pathname.startsWith(n.href)) || !!n.children?.some((l) => l.href && pathname.startsWith(l.href.split("#")[0].split("?")[0]));
 
   return (
     <>
@@ -294,28 +295,28 @@ export function Header() {
             <ul className="flex items-center gap-7 xl:gap-9">
               {site.nav.map((n) =>
                 hasMenu(n) ? (
-                  <li key={n.label} onMouseEnter={() => setDiscover(true)} className="inline-flex items-center gap-1.5">
+                  <li key={n.label} onMouseEnter={() => setDiscover(n.label)} className="inline-flex items-center gap-1.5">
                     {n.href ? (
-                      <Link href={n.href} onClick={() => setDiscover(false)} className={cn("link-lux text-[0.8rem] tracking-[0.06em]", discoverActive && "bg-[length:100%_1px]")} aria-current={pathname === n.href ? "page" : undefined}>
+                      <Link href={n.href} onClick={() => setDiscover(null)} className={cn("link-lux text-[0.8rem] tracking-[0.06em]", isActive(n) && "bg-[length:100%_1px]")} aria-current={pathname === n.href ? "page" : undefined}>
                         {n.label}
                       </Link>
                     ) : null}
                     <button
                       ref={discoverBtn}
-                      onClick={() => setDiscover(!discover)}
-                      aria-expanded={discover}
+                      onClick={() => setDiscover(discover === n.label ? null : n.label)}
+                      aria-expanded={discover === n.label}
                       aria-controls="discover-panel"
                       aria-label={n.href ? `Show the ${n.label.toLowerCase()} menu` : undefined}
-                      className={cn("inline-flex items-center gap-1.5 text-[0.8rem] tracking-[0.06em]", !n.href && "link-lux", !n.href && discoverActive && "bg-[length:100%_1px]")}
+                      className={cn("inline-flex items-center gap-1.5 text-[0.8rem] tracking-[0.06em]", !n.href && "link-lux", !n.href && isActive(n) && "bg-[length:100%_1px]")}
                     >
                       {!n.href && n.label}
-                      <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden className={cn("transition-transform duration-500", discover && "rotate-180")}>
+                      <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden className={cn("transition-transform duration-500", discover === n.label && "rotate-180")}>
                         <path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" />
                       </svg>
                     </button>
                   </li>
                 ) : (
-                  <li key={n.href + n.label}>
+                  <li key={n.href + n.label} onMouseEnter={() => setDiscover(null)}>
                     <Link href={n.href} className="link-lux text-[0.8rem] tracking-[0.06em]" aria-current={pathname.startsWith(n.href) ? "page" : undefined}>
                       {n.label}
                     </Link>
@@ -358,7 +359,7 @@ export function Header() {
           </div>
         </div>
         <div className="hidden lg:block">
-          <DiscoverMenu item={dropdown} open={discover} setOpen={setDiscover} />
+          <DiscoverMenu item={openItem} open={!!openItem} setOpen={(o) => !o && setDiscover(null)} />
         </div>
       </motion.header>
 
@@ -386,21 +387,24 @@ export function Header() {
                 ))}
               </ul>
               <motion.div className="grid grid-cols-2 gap-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 1 }}>
-                {dropdown?.menu === "products" && <MobileProductGroups shopHref={dropdown.href || "/shop"} />}
-                {dropdown?.menu !== "products" && dropdown?.children && columns(dropdown.children).map((col, i) => (
-                  <div key={i}>
-                    <p className="eyebrow text-gold">{i === 0 ? dropdown.label : " "}</p>
-                    <ul className="mt-3 space-y-2">
-                      {col.map((l) => (
-                        <li key={l.href}>
-                          <Link href={l.href} className="font-serif text-xl">
-                            {l.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                {menus.map((m) =>
+                  m.menu === "products" ? (
+                    <MobileProductGroups key={m.label} shopHref={m.href || "/shop"} />
+                  ) : (
+                    <div key={m.label} className="col-span-2">
+                      <p className="eyebrow text-gold">{m.label}</p>
+                      <ul className="mt-3 space-y-2">
+                        {(m.children ?? []).map((l) => (
+                          <li key={l.href}>
+                            <Link href={l.href} className="font-serif text-xl">
+                              {l.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                )}
               </motion.div>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }} className="space-y-5">
                 <div className="flex items-center gap-2">

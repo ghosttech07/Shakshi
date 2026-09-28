@@ -20,7 +20,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHead eyebrow="Customers" title="Messages" intro={open ? `${open} waiting for a reply.` : "All caught up."} />
+      <PageHead eyebrow="Customers" title="Messages" intro={`Messages from the contact form, newsletter sign-ups and swatch requests.${open ? ` ${open} waiting for a reply.` : ""}`} />
       <nav aria-label="Filter inquiries" className="mb-5 flex flex-wrap gap-2">
         {["", ...Object.keys(KINDS)].map((k) => (
           <Link key={k || "all"} href={href(k, show)} aria-current={kind === k ? "page" : undefined} className={`btn btn-sm ${kind === k ? "btn-dark" : "btn-line"}`}>

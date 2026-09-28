@@ -153,7 +153,7 @@ export const SITE_GROUPS: SiteGroup[] = [
 ];
 
 // Contact and social share one screen.
-SITE_GROUPS[SITE_GROUPS.findIndex((g) => g.id === "contact")] = {
+Object.assign(SITE_GROUPS[SITE_GROUPS.findIndex((g) => g.id === "contact")], {
   id: "contact",
   title: "Contact & social",
   description: "Used in the footer, contact page, invoices and the concierge.",
@@ -165,4 +165,8 @@ SITE_GROUPS[SITE_GROUPS.findIndex((g) => g.id === "contact")] = {
     ta("contact.address", "Registered address"),
     { key: "social", label: "Social links", type: "list", itemLabel: "network", of: [t("network", "Network (e.g. Instagram)"), link("url", "Profile address")] },
   ],
-};
+});
+
+// Everyday topics first, technical ones last.
+const ORDER = ["contact", "nav", "footer", "announcement", "brand", "commerce", "showrooms", "colors", "type", "features", "seo", "analytics", "redirects"];
+SITE_GROUPS.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));

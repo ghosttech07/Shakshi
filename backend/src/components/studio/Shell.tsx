@@ -63,13 +63,13 @@ export function Shell({ base, storefront, children }: { base: string; storefront
 
   const nav = (
     <nav aria-label="Studio" className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-5 pb-6 pt-6">
+      <div className="flex items-center justify-between px-5 pb-4 pt-5">
         <Link href={base} className="text-pearl" aria-label="Studio overview">
           <Logo className="h-6" />
         </Link>
         <span className="text-xs font-semibold text-gold/80">Admin</span>
       </div>
-      <div className="flex-1 space-y-6 overflow-y-auto px-3 pb-6">
+      <div className="flex-1 space-y-4 overflow-y-auto px-3 pb-4">
         {GROUPS.map((g) => (
           <div key={g.title || "main"}>
             {g.title && <p className="px-3 pb-1.5 text-xs font-semibold text-pearl/40">{g.title}</p>}
@@ -81,7 +81,7 @@ export function Shell({ base, storefront, children }: { base: string; storefront
                     <Link
                       href={`${base}${it.href}`}
                       aria-current={on ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-md px-3 py-2 text-[0.9rem] transition-colors duration-300 ${on ? "bg-gold/15 text-gold" : "text-pearl/70 hover:bg-pearl/5 hover:text-pearl"}`}
+                      className={`flex items-center gap-3 rounded-md px-3 py-[0.4rem] text-[0.9rem] transition-colors duration-300 ${on ? "bg-gold/15 text-gold" : "text-pearl/70 hover:bg-pearl/5 hover:text-pearl"}`}
                     >
                       <span className={on ? "text-gold" : "text-pearl/45"}>{it.icon}</span>
                       {it.label}
@@ -94,11 +94,11 @@ export function Shell({ base, storefront, children }: { base: string; storefront
           </div>
         ))}
       </div>
-      <div className="space-y-2 border-t border-pearl/10 p-4">
-        <a href={storefront} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-md px-3 py-2 text-[0.85rem] text-pearl/70 hover:text-pearl">
+      <div className="space-y-1 border-t border-pearl/10 p-3">
+        <a href={storefront} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-md px-3 py-1.5 text-[0.85rem] text-pearl/70 hover:text-pearl">
           View the website ↗
         </a>
-        <Link href={`${base}/audit`} className="flex items-center gap-2 rounded-md px-3 py-2 text-[0.85rem] text-pearl/50 hover:text-pearl">
+        <Link href={`${base}/audit`} className="flex items-center gap-2 rounded-md px-3 py-1.5 text-[0.85rem] text-pearl/50 hover:text-pearl">
           Activity & sign-ins
         </Link>
         <form action="/api/admin/logout" method="post">

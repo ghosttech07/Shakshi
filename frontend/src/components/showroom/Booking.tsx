@@ -37,7 +37,9 @@ export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: str
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
-  const [kind, setKind] = useState<Kind>(initialKind);
+  // No salons listed: salon visits aren't offered, and the form opens on a home trial
+  const hasSalons = SHOWROOMS.length > 0;
+  const [kind, setKind] = useState<Kind>(initialKind === "salon" && !hasSalons ? "home" : initialKind);
   const [meetingUrl, setMeetingUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
@@ -50,7 +52,7 @@ export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: str
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const s = SHOWROOMS.find((x) => x.id === salon)!;
+  const s = SHOWROOMS.find((x) => x.id === salon) ?? SHOWROOMS[0];
   const maxDate = new Date(today.getTime() + 60 * 86400000);
 
   const days = useMemo(() => {
@@ -83,8 +85,8 @@ export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: str
   };
 
   const start = date && slot ? new Date(date.getFullYear(), date.getMonth(), date.getDate(), +slot.split(":")[0], +slot.split(":")[1]) : null;
-  const title = kind === "salon" ? `Shakshi salon visit · ${s.city}` : kind === "home" ? "Shakshi home trial" : "Shakshi sleep consultation (video)";
-  const location = kind === "salon" ? s.address : kind === "home" ? form.address : meetingUrl ?? "Video call";
+  const title = kind === "salon" ? `Shakshi salon visit${s ? ` · ${s.city}` : ""}` : kind === "home" ? "Shakshi home trial" : "Shakshi sleep consultation (video)";
+  const location = kind === "salon" ? s?.address ?? "" : kind === "home" ? form.address : meetingUrl ?? "Video call";
   const icsHref = start ? `data:text/calendar;charset=utf-8,${encodeURIComponent(toICS(title, start, minutes, location, kind === "video" ? `Join: ${meetingUrl ?? ""}` : undefined))}` : "#";
 
   if (done && start)
@@ -95,7 +97,7 @@ export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: str
           {kind === "video" ? `Your call is booked, ${form.name.split(" ")[0]}.` : `We’ll be expecting you, ${form.name.split(" ")[0]}.`}
         </p>
         <p className="mt-5 text-lg">{longFmt.format(start)} at {slot}</p>
-        <p className="mt-1 text-stone">{kind === "salon" ? s.name + ", " + s.address : kind === "home" ? `Home trial at ${form.address}` : "15 minutes with a Shakshi sleep specialist"}</p>
+        <p className="mt-1 text-stone">{kind === "salon" && s ? s.name + ", " + s.address : kind === "home" ? `Home trial at ${form.address}` : "15 minutes with a Shakshi sleep specialist"}</p>
         <p className="mt-6 max-w-md text-sm text-stone">
           {kind === "video" ? `We've emailed the link to ${form.email}. Join from your phone or laptop a minute early; no app needed.` : "A confirmation is on its way by SMS. Your sleep specialist will call the day before, just to say hello."}
         </p>
@@ -118,12 +120,14 @@ export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: str
   return (
     <form onSubmit={submit} noValidate className="grid gap-10 lg:grid-cols-2 lg:gap-14">
       <div>
-        <div role="radiogroup" aria-label="Type of visit" className="grid gap-2 sm:grid-cols-3">
+        <div role="radiogroup" aria-label="Type of visit" className={cn("grid gap-2", hasSalons ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
           {[
             { id: "salon" as const, t: "Salon visit", d: "Lie down on every bed, with tea" },
             { id: "home" as const, t: "Home trial", d: "A specialist brings samples to you" },
             { id: "video" as const, t: "Video call", d: "15 free minutes with a sleep specialist" },
-          ].map((o) => (
+          ]
+            .filter((o) => o.id !== "salon" || hasSalons)
+            .map((o) => (
             <button type="button" key={o.id} role="radio" aria-checked={kind === o.id} onClick={() => { setKind(o.id); setDate(null); setSlot(null); }} className={cn("border p-4 text-left transition-all duration-700", kind === o.id ? "border-midnight bg-midnight text-pearl" : "border-ink/15 hover:border-gold")}>
               <span className="block font-serif text-xl">{o.t}</span>
               <span className={cn("block text-xs", kind === o.id ? "text-pearl/60" : "text-stone")}>{o.d}</span>
@@ -131,7 +135,7 @@ export function Booking({ salon, setSalon, initialKind = "salon" }: { salon: str
           ))}
         </div>
 
-        {kind === "salon" && (
+        {kind === "salon" && hasSalons && (
           <label className="mt-6 block">
             <span className="eyebrow text-stone">Salon</span>
             <select value={salon} onChange={(e) => setSalon(e.target.value)} className="field">

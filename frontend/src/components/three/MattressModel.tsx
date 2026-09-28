@@ -11,7 +11,7 @@ export const MATTRESS_W = 1.6;
 export const MATTRESS_D = 2.0;
 const CM = 0.012; // scene units per centimetre of depth
 
-type Kind = "cover" | "gel" | "foam" | "latex" | "wool" | "springs" | "base";
+export type Kind = "cover" | "gel" | "foam" | "latex" | "wool" | "springs" | "base";
 
 export function layerKind(l: Layer, i: number): Kind {
   const s = `${l.name} ${l.material}`.toLowerCase();

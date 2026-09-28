@@ -1,46 +1,16 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/lib/motion";
 import { getProduct } from "@shakshi/shared/products";
 import { cn } from "@shakshi/shared/utils";
 import { layerKind } from "@/components/three/MattressModel";
+import type { LayersProgress } from "@/components/three/LayersScene";
 
-const W = 360;
-const D = 250;
-
-const SURFACES: Record<string, { top: string; side: string }> = {
-  cover: {
-    top: "repeating-linear-gradient(45deg,transparent 0 21px,rgb(0 0 0/.07) 21px 22px),repeating-linear-gradient(-45deg,transparent 0 21px,rgb(0 0 0/.07) 21px 22px),radial-gradient(120% 120% at 30% 20%,#fbf7f0,#e9e0d1)",
-    side: "repeating-linear-gradient(90deg,#e4dac9 0 3px,#dcd1be 3px 5px)",
-  },
-  gel: {
-    top: "radial-gradient(circle at 30% 30%,rgb(255 255 255/.35) 0 1px,transparent 2px) 0 0/9px 9px,linear-gradient(135deg,#b5d3db,#7fa6b3)",
-    side: "linear-gradient(180deg,#8fb3bf,#6d94a2)",
-  },
-  foam: {
-    top: "radial-gradient(circle,rgb(0 0 0/.09) 0 1.2px,transparent 1.8px) 0 0/7px 7px,linear-gradient(135deg,#f6eddc,#e6d8bf)",
-    side: "radial-gradient(circle,rgb(0 0 0/.1) 0 1px,transparent 1.6px) 0 0/6px 6px,#dfd0b5",
-  },
-  latex: {
-    top: "radial-gradient(circle,rgb(120 90 40/.25) 0 3px,transparent 3.6px) 0 0/16px 16px,linear-gradient(135deg,#f2e3bb,#e1cc98)",
-    side: "#d9c38e",
-  },
-  wool: {
-    top: "repeating-linear-gradient(0deg,rgb(0 0 0/.04) 0 1px,transparent 1px 3px),linear-gradient(135deg,#f3ebdf,#e2d5c1)",
-    side: "#d8cab4",
-  },
-  springs: {
-    top: "radial-gradient(circle,transparent 0 5px,#c9c1b4 5.5px 7.5px,transparent 8px) 0 0/22px 22px,linear-gradient(135deg,#2c3446,#1c2230)",
-    side: "repeating-linear-gradient(90deg,#1c2230 0 8px,#9c9486 8px 10px)",
-  },
-  base: {
-    top: "repeating-linear-gradient(90deg,rgb(0 0 0/.06) 0 1px,transparent 1px 4px),linear-gradient(135deg,#a89f94,#8b8277)",
-    side: "#7b7268",
-  },
-};
+const LayersScene = dynamic(() => import("@/components/three/LayersScene"), { ssr: false });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean } = {}) {
@@ -48,28 +18,36 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
   const layers = product.layers;
   const n = layers.length;
   const section = useRef<HTMLElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [active, setActive] = useState(-1);
+  const [inView, setInView] = useState(false);
+  const progress = useRef<LayersProgress>({ e: 0, turn: 0 });
+  const kinds = useMemo(() => layers.map((l, i) => layerKind(l, i)), [layers]);
+  const depths = useMemo(() => layers.map((l) => l.depth), [layers]);
 
-  // Thickness in px, and resting height of each slab from the bottom up
-  const thick = layers.map((l) => 12 + l.depth * 2.3);
-  const restZ = layers.map((_, i) => thick.slice(i + 1).reduce((a, b) => a + b, 0));
+  // The 3D scene only draws while the section is on screen.
+  useEffect(() => {
+    const el = section.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin: "200px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   // Layout effect: the pin is undone (ctx.revert) before React removes the section on navigation.
   useLayoutEffect(() => {
-    if (reduce || !section.current || !stage.current) {
-      stage.current?.style.setProperty("--e", "1");
+    if (reduce || !section.current) {
+      progress.current = { e: 1, turn: 0.5 };
       return;
     }
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        stage.current,
-        { "--e": 0, "--turn": 0 },
+        progress.current,
+        { e: 0, turn: 0 },
         {
-          "--e": 1,
-          "--turn": 1,
+          e: 1,
+          turn: 1,
           ease: "none",
           scrollTrigger: {
             trigger: section.current,
@@ -129,55 +107,8 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
           </ol>
         </div>
 
-        <div className="relative flex h-[46svh] items-center justify-center sm:h-[520px] lg:h-[640px]" style={{ perspective: "1800px" }} aria-hidden>
-          <div
-            ref={stage}
-            className="relative scale-[0.62] sm:scale-90 lg:scale-100"
-            style={
-              {
-                "--e": 0,
-                "--turn": 0,
-                width: W,
-                height: D,
-                transformStyle: "preserve-3d",
-                transform: "translateY(calc(var(--e) * 120px)) rotateX(58deg) rotateZ(calc(-34deg - var(--turn) * 10deg))",
-              } as CSSProperties
-            }
-          >
-            {layers.map((l, i) => {
-              const surf = SURFACES[layerKind(l, i)];
-              const t = thick[i];
-              const lift = (n - 1 - i) * 62;
-              const dim = active >= 0 && active !== i && !reduce;
-              return (
-                <div
-                  key={l.name}
-                  className="absolute inset-0"
-                  style={{ transformStyle: "preserve-3d", transform: `translateZ(calc(${restZ[i]}px + var(--e) * ${lift}px))` }}
-                >
-                  {[
-                    { style: { inset: 0, transform: `translateZ(${t}px)`, background: surf.top } },
-                    { style: { left: 0, top: D, width: W, height: t, transformOrigin: "top", transform: "rotateX(90deg)", background: surf.side } },
-                    { style: { left: W, top: 0, width: t, height: D, transformOrigin: "left", transform: "rotateY(-90deg)", background: surf.side } },
-                  ].map((f, k) => (
-                    <div
-                      key={k}
-                      className="absolute transition-[filter,box-shadow] duration-1000 ease-silk"
-                      style={{
-                        ...f.style,
-                        filter: dim ? "brightness(.45) saturate(.5)" : ["none", "brightness(.9)", "brightness(.75)"][k],
-                        boxShadow: k === 0 && active === i ? "0 0 0 1.5px #c9a96e, 0 0 60px rgb(201 169 110 / .45)" : undefined,
-                        borderRadius: k === 0 ? 6 : 2,
-                      }}
-                    />
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Soft floor shadow */}
-          <div className="absolute bottom-[8%] left-1/2 h-16 w-[70%] -translate-x-1/2 rounded-[50%] bg-black/40 blur-2xl" />
+        <div className="relative h-[46svh] sm:h-[520px] lg:h-[680px]" aria-hidden>
+          <LayersScene kinds={kinds} depths={depths} progress={progress} active={reduce ? -1 : active} live={inView} still={reduce} />
         </div>
 
         {!reduce && (

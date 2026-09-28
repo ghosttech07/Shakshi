@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/lib/motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SECTIONS } from "@shakshi/shared/cms/sections";
@@ -90,7 +90,7 @@ function useLamp(enabled: boolean) {
 
 function Lines({ lines, reduce }: { lines: string[]; reduce: boolean }) {
   return (
-    <p className="mt-8 max-w-xl font-serif text-xl font-light leading-snug text-pearl/85 sm:text-2xl lg:text-[1.6rem]">
+    <p className="mt-4 max-w-xl font-serif text-lg font-light leading-snug text-pearl/85 sm:text-xl lg:mt-6 lg:text-[1.45rem]">
       {lines.map((l, i) => (
         <span key={l} className="block overflow-hidden pb-1">
           <motion.span
@@ -118,7 +118,8 @@ export function Thread({ data = {}, edit }: { data?: ThreadData; edit?: boolean 
   const lampOn = fine && !reduce;
   const { glow, register } = useLamp(lampOn);
 
-  const wrap = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLElement>(null);
+  const track = useRef<HTMLDivElement>(null);
   const path = useRef<SVGPathElement>(null);
   const knot = useRef<SVGGElement>(null);
   const logo = useRef<HTMLDivElement>(null);
@@ -127,75 +128,77 @@ export function Thread({ data = {}, edit }: { data?: ThreadData; edit?: boolean 
   const [d, setD] = useState("");
   const [size, setSize] = useState({ w: 0, h: 0 });
 
-  // Build the thread from where the years actually sit, weaving side to side between them.
+  // Build the thread across the track: in from the left, through each year, weaving up and down, out to the right.
   useEffect(() => {
     const build = () => {
-      const box = wrap.current?.getBoundingClientRect();
+      const box = track.current?.getBoundingClientRect();
       if (!box) return;
-      const pts = [{ x: box.width / 2, y: 0 }];
+      const mid = box.height / 2;
+      const pts = [{ x: 0, y: mid }];
       for (const a of anchors.current) {
         if (!a || !a.isConnected) continue;
         const r = a.getBoundingClientRect();
         pts.push({ x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 });
       }
-      const e = end.current?.getBoundingClientRect();
-      const ex = box.width / 2;
-      const ey = e ? e.top - box.top : box.height - 200;
-      pts.push({ x: ex, y: ey });
+      pts.push({ x: box.width - 90, y: mid });
       let p = `M${pts[0].x},${pts[0].y}`;
       for (let i = 1; i < pts.length; i++) {
         const a = pts[i - 1];
         const b = pts[i];
-        const dy = b.y - a.y;
-        // a stitch-like S: leave straight down, arrive straight down
-        p += ` C${a.x},${a.y + dy * 0.55} ${b.x},${b.y - dy * 0.55} ${b.x},${b.y}`;
+        const dx = b.x - a.x;
+        // a stitch-like S: leave level, arrive level
+        p += ` C${a.x + dx * 0.55},${a.y} ${b.x - dx * 0.55},${b.y} ${b.x},${b.y}`;
       }
       // One small loop at the end: the knot
-      p += ` c 0,26 -30,34 -30,58 c 0,24 30,24 30,0 c 0,-24 -30,-16 -30,8`;
+      p += ` c 26,0 34,-30 58,-30 c 24,0 24,30 0,30 c -24,0 -16,-30 8,-30`;
       setD(p);
       setSize({ w: box.width, h: box.height });
     };
     build();
     const ro = new ResizeObserver(build);
-    if (wrap.current) ro.observe(wrap.current);
+    if (track.current) ro.observe(track.current);
     return () => ro.disconnect();
-  }, []);
+  }, [CHAPTERS.length]);
 
-  // Draw it with the scroll, trailing slightly (scrub), and fill each year as the thread reaches it.
-  useEffect(() => {
-    if (!d || !path.current || !wrap.current) return;
+  // Scrolling down moves the story sideways; the thread draws and each year fills as it passes the middle.
+  // Layout effect, so the pin is undone before React removes the page on navigation.
+  useLayoutEffect(() => {
+    if (!d || !path.current || !track.current || !stage.current) return;
     gsap.registerPlugin(ScrollTrigger);
     const len = path.current.getTotalLength();
     const ctx = gsap.context(() => {
       if (reduce) {
         gsap.set(path.current, { strokeDasharray: "none", strokeDashoffset: 0 });
-        gsap.set(".year-fill", { clipPath: "inset(0% 0 0 0)" });
+        gsap.set(".year-fill", { clipPath: "inset(0 0% 0 0)" });
         return;
       }
-      gsap.set(path.current, { strokeDasharray: len, strokeDashoffset: len });
-      gsap.to(path.current, {
-        strokeDashoffset: 0,
-        ease: "none",
-        scrollTrigger: { trigger: wrap.current, start: "top 45%", end: "bottom 75%", scrub: 1.2 },
+      const distance = () => Math.max(0, track.current!.scrollWidth - innerWidth);
+      const lead = () => innerWidth / 2 / Math.max(1, track.current!.scrollWidth); // the part of the thread already in view at the start
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: { trigger: stage.current, pin: true, start: "top top", end: () => `+=${distance()}`, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1 },
       });
+      tl.fromTo(track.current, { x: 0 }, { x: () => -distance() }, 0);
+      tl.fromTo(path.current, { strokeDasharray: len, strokeDashoffset: () => len * (1 - lead()) }, { strokeDashoffset: 0 }, 0);
+      const move = tl.getChildren()[0] as gsap.core.Tween;
       gsap.utils.toArray<HTMLElement>(".year-fill").forEach((el) => {
-        gsap.fromTo(el, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", ease: "power3.inOut", scrollTrigger: { trigger: el, start: "top 62%", end: "bottom 42%", scrub: 1.2 } });
+        gsap.fromTo(el, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", ease: "power3.inOut", scrollTrigger: { trigger: el, containerAnimation: move, start: "left 70%", end: "right 45%", scrub: 1 } });
       });
       // Touch screens: each photograph slowly brightens as it reaches the centre
       if (!lampOn) {
         gsap.utils.toArray<HTMLElement>(".lamp-color").forEach((el) => {
-          gsap.fromTo(el, { opacity: 0 }, { opacity: 1, ease: "power3.inOut", scrollTrigger: { trigger: el, start: "top 80%", end: "center 50%", scrub: 1.2 } });
+          gsap.fromTo(el, { opacity: 0 }, { opacity: 1, ease: "power3.inOut", scrollTrigger: { trigger: el, containerAnimation: move, start: "left 85%", end: "center 55%", scrub: 1 } });
         });
       }
       // The knot becomes the logo
-      gsap.timeline({ scrollTrigger: { trigger: end.current, start: "top 75%", end: "top 35%", scrub: 1.4 } })
+      gsap.timeline({ scrollTrigger: { trigger: end.current, start: "top 80%", end: "top 40%", scrub: 1.4 } })
         .fromTo(knot.current, { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.4, transformOrigin: "50% 50%", ease: "power3.inOut" })
         .fromTo(logo.current, { opacity: 0, scale: 0.85, filter: "blur(6px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", ease: "power3.inOut" }, "<0.2");
-    }, wrap);
+    });
     return () => ctx.revert();
   }, [d, reduce, lampOn, CHAPTERS.length]);
 
-  const knotAt = d ? d.match(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)\s+c 0,26/)?.slice(1).map(Number) : null;
+  const knotAt = d ? d.match(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)\s+c 26,0/)?.slice(1).map(Number) : null;
 
   return (
     <div className="relative bg-midnight text-pearl" data-dark-hero>
@@ -215,89 +218,102 @@ export function Thread({ data = {}, edit }: { data?: ThreadData; edit?: boolean 
             <Emph text={t.intro ?? ""} emClassName="text-gold-soft" />
           </span>
         </motion.h1>
-        <span aria-hidden className="absolute left-1/2 top-0 h-[30vh] w-px -translate-x-1/2 bg-gradient-to-b from-transparent to-gold" />
+        <span aria-hidden className="absolute bottom-24 left-0 h-px w-[45vw] bg-gradient-to-r from-transparent to-gold" />
         <motion.p className="eyebrow absolute bottom-10 text-pearl/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1.4 }} aria-hidden>
           {t.hint}
         </motion.p>
       </section>
 
-      {/* The story */}
-      <div ref={wrap} className="relative">
-        {d && (
-          <svg aria-hidden className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible" viewBox={`0 0 ${size.w} ${size.h}`} preserveAspectRatio="none">
-            <defs>
-              <filter id="thread-glow" x="-10%" y="-10%" width="120%" height="120%">
-                <feGaussianBlur stdDeviation="2.5" result="b" />
-                <feMerge>
-                  <feMergeNode in="b" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <path ref={path} d={d} fill="none" stroke="#c9a96e" strokeWidth="1.4" strokeLinecap="round" filter="url(#thread-glow)" />
-            {knotAt && (
-              <g ref={knot}>
-                <circle cx={knotAt[0] - 15} cy={knotAt[1] + 70} r="5" fill="#c9a96e" />
-              </g>
+      {/* The story, travelling sideways. The outer div belongs to React; GSAP's pin spacer goes inside it. */}
+      <div>
+        <section ref={stage} className={reduce ? "relative" : "relative h-[100svh] overflow-hidden"} aria-label="Our story">
+          <div ref={track} className={reduce ? "relative flex snap-x snap-mandatory overflow-x-auto" : "relative flex h-full w-max"}>
+            {d && (
+              <svg aria-hidden className="pointer-events-none absolute left-0 top-0 z-0 overflow-visible" width={size.w} height={size.h} viewBox={`0 0 ${size.w} ${size.h}`}>
+                <defs>
+                  <filter id="thread-glow" x="-10%" y="-10%" width="120%" height="120%">
+                    <feGaussianBlur stdDeviation="2.5" result="b" />
+                    <feMerge>
+                      <feMergeNode in="b" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <path ref={path} d={d} fill="none" stroke="#c9a96e" strokeWidth="1.4" strokeLinecap="round" filter="url(#thread-glow)" />
+                {knotAt && (
+                  <g ref={knot}>
+                    <circle cx={knotAt[0] + 70} cy={knotAt[1] - 15} r="5" fill="#c9a96e" />
+                  </g>
+                )}
+              </svg>
             )}
-          </svg>
-        )}
 
-        {CHAPTERS.map((c, i) => {
-          const right = i % 2 === 1;
-          return (
-            <section key={i} className="container-lux relative z-10 grid min-h-[120svh] items-center gap-12 py-24 lg:grid-cols-2 lg:gap-24" aria-labelledby={`ch-${i}`} {...f(`chapters.${i}.title`)}>
-              <div className={right ? "lg:order-2" : ""}>
-                <div
-                  ref={(el) => {
-                    anchors.current[i] = el;
-                    if (el && lampOn) register("year")(el);
-                  }}
-                  className="year relative inline-block font-serif text-[6.5rem] font-light leading-none sm:text-[9rem] lg:text-[11rem]"
-                  aria-hidden
+            {CHAPTERS.map((c, i) => {
+              const high = i % 2 === 0;
+              return (
+                <article
+                  key={i}
+                  className="relative z-10 flex h-[100svh] w-screen shrink-0 snap-center items-center px-6 sm:px-12 lg:px-[8vw]"
+                  aria-labelledby={`ch-${i}`}
+                  {...f(`chapters.${i}.title`)}
                 >
-                  <span className="text-transparent [-webkit-text-stroke:1px_rgb(201_169_110/0.7)]">{c.year}</span>
-                  <span className="year-fill absolute inset-0 text-gold" style={{ clipPath: reduce ? "none" : "inset(100% 0 0 0)" }}>
-                    {c.year}
-                  </span>
-                </div>
-                <p className="eyebrow mt-8 text-gold">{c.label || c.year}</p>
-                <h2 id={`ch-${i}`} className="mt-3 text-4xl sm:text-5xl">
-                  {c.title}
-                </h2>
-                <Lines lines={c.lines} reduce={reduce} />
-              </div>
-              <div className={right ? "lg:order-1" : ""} style={{ perspective: 1200 }}>
-                <figure ref={lampOn ? register("image") : undefined} className="lamp-photo relative aspect-[4/5] w-full max-w-md overflow-hidden lg:mx-auto">
-                  {/* In darkness… */}
-                  <Image src={c.image} alt={c.alt ?? ""} fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:brightness(0.14)_saturate(0.4)]" data-keep-bright />
-                  {/* …until the lamp finds it */}
-                  <div className="lamp-color absolute inset-0" aria-hidden style={{ opacity: lampOn || reduce ? 1 : 0 }}>
-                    <Image src={c.image} alt="" fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:sepia(0.18)_saturate(1.1)_brightness(1.05)]" data-keep-bright />
+                  <div className={`grid w-full items-center gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 ${high ? "lg:-translate-y-[7vh]" : "lg:translate-y-[7vh]"}`}>
+                    <div className={high ? "" : "lg:order-2"}>
+                      <div
+                        ref={(el) => {
+                          anchors.current[i] = el;
+                          if (el && lampOn) register("year")(el);
+                        }}
+                        className="year relative inline-block font-serif text-[4.5rem] font-light leading-none sm:text-[7rem] lg:text-[10rem]"
+                        aria-hidden
+                      >
+                        <span className="text-transparent [-webkit-text-stroke:1px_rgb(201_169_110/0.7)]">{c.year}</span>
+                        <span className="year-fill absolute inset-0 text-gold" style={{ clipPath: reduce ? "none" : "inset(0 100% 0 0)" }}>
+                          {c.year}
+                        </span>
+                      </div>
+                      <p className="eyebrow mt-4 text-gold lg:mt-8">{c.label || c.year}</p>
+                      <h2 id={`ch-${i}`} className="mt-2 text-3xl sm:text-4xl lg:mt-3 lg:text-5xl">
+                        {c.title}
+                      </h2>
+                      <Lines lines={c.lines} reduce={reduce} />
+                    </div>
+                    <div className={high ? "" : "lg:order-1"} style={{ perspective: 1200 }}>
+                      <figure ref={lampOn ? register("image") : undefined} className="lamp-photo relative mx-auto aspect-[4/3] max-h-[30svh] w-full max-w-md overflow-hidden lg:aspect-[4/5] lg:max-h-[62svh]">
+                        {/* In darkness… */}
+                        <Image src={c.image} alt={c.alt ?? ""} fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:brightness(0.14)_saturate(0.4)]" data-keep-bright />
+                        {/* …until the lamp finds it */}
+                        <div className="lamp-color absolute inset-0" aria-hidden style={{ opacity: lampOn || reduce ? 1 : 0 }}>
+                          <Image src={c.image} alt="" fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover [filter:sepia(0.18)_saturate(1.1)_brightness(1.05)]" data-keep-bright />
+                        </div>
+                      </figure>
+                    </div>
                   </div>
-                </figure>
-              </div>
-            </section>
-          );
-        })}
-
-        {/* The knot, the logo, the invitation */}
-        <section ref={end} className="relative z-10 flex min-h-[110svh] flex-col items-center justify-center px-6 pt-40 text-center" aria-labelledby="thread-end">
-          <div ref={logo} style={{ opacity: reduce ? 1 : 0 }}>
-            <Logo variant="lockup" tone="light" className="h-20 [background-color:var(--color-gold)]! sm:h-28" />
+                </article>
+              );
+            })}
+            {/* Room for the thread to tie its knot before the story ends */}
+            <div aria-hidden className="h-[100svh] w-[30vw] shrink-0" />
           </div>
-          <h2 id="thread-end" className="display mt-14 text-4xl font-light sm:text-6xl">
-            <span {...f("closing")}>
-              <Emph text={t.closing ?? ""} emClassName="text-gold-soft" />
-            </span>
-          </h2>
-          {t.ctaText && (
-            <Link href={t.ctaLink || "/shop"} className="btn btn-gold mt-12" {...f("ctaText")}>
-              {t.ctaText}
-            </Link>
-          )}
         </section>
       </div>
+
+      {/* The logo, the invitation */}
+      <section ref={end} className="relative z-10 flex min-h-[90svh] flex-col items-center justify-center px-6 py-32 text-center" aria-labelledby="thread-end">
+        <div ref={logo} style={{ opacity: reduce ? 1 : 0 }}>
+          <Logo variant="lockup" tone="light" className="h-20 [background-color:var(--color-gold)]! sm:h-28" />
+        </div>
+        <h2 id="thread-end" className="display mt-14 text-4xl font-light sm:text-6xl">
+          <span {...f("closing")}>
+            <Emph text={t.closing ?? ""} emClassName="text-gold-soft" />
+          </span>
+        </h2>
+        {t.ctaText && (
+          <Link href={t.ctaLink || "/shop"} className="btn btn-gold mt-12" {...f("ctaText")}>
+            {t.ctaText}
+          </Link>
+        )}
+      </section>
     </div>
   );
 }

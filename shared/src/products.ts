@@ -276,60 +276,6 @@ export const COVERS = [
 
 export const FREE_GIFT_THRESHOLD = 100000;
 
-// Testimonials
-export const TESTIMONIALS = [
-  {
-    name: "Ananya Mehra",
-    city: "Mumbai",
-    image: IMG.p1,
-    product: "The Cirrus",
-    quote: "The first night I simply disappeared. I've never slept through a monsoon storm before, and now I barely remember the nights.",
-    rating: 5,
-    before: 68,
-    after: 91,
-  },
-  {
-    name: "Karan Oberoi",
-    city: "New Delhi",
-    image: IMG.p2,
-    product: "The Sovereign",
-    quote: "It feels like the best suite I've ever stayed in, except it's mine. My lower back pain stopped being part of my mornings.",
-    rating: 5,
-    before: 62,
-    after: 88,
-  },
-  {
-    name: "Ishita Rao",
-    city: "Bengaluru",
-    image: IMG.p3,
-    product: "The Lumen",
-    quote: "I always slept hot. The Lumen stays cool until dawn, quietly, without any fuss. It is the calmest thing in my home.",
-    rating: 5,
-    before: 71,
-    after: 93,
-  },
-  {
-    name: "Arjun Kapoor",
-    city: "Pune",
-    image: IMG.p4,
-    product: "The Shakshi Signature",
-    quote: "My partner and I move constantly. Neither of us feels it any more. We both wake up rested, which is a small miracle.",
-    rating: 5,
-    before: 65,
-    after: 89,
-  },
-  {
-    name: "Meera Sethi",
-    city: "Hyderabad",
-    image: IMG.p6,
-    product: "The Atelier",
-    quote: "You can feel the handwork. It smells faintly of wool and sunshine, and it has made our whole bedroom feel slower.",
-    rating: 5,
-    before: 70,
-    after: 90,
-  },
-];
-
 // Reviews
 export type Review = {
   id: string;

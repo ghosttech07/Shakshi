@@ -39,7 +39,7 @@ const BLOCKS: Record<string, Block> = {
   "text-image": B.TextImage,
   "feature-grid": B.FeatureGrid,
   stats: B.Stats,
-  testimonials: ({ d, edit }) => <Testimonials eyebrow={str(d.eyebrow)} items={Array.isArray(d.items) ? d.items : undefined} edit={edit} />,
+  testimonials: ({ d, edit }) => <Testimonials eyebrow={str(d.eyebrow) || undefined} count={typeof d.count === "number" ? d.count : undefined} minRating={Number(d.minRating) || undefined} edit={edit} />,
   press: B.Press,
   tools: B.Tools,
   "library-teaser": B.LibraryTeaser,

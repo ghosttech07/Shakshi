@@ -212,14 +212,11 @@ export const SECTIONS: Record<string, SectionDef> = {
     defaults: { items: [{ value: "92%", label: "Natural or recycled materials" }, { value: "12 hrs", label: "Of handwork in every mattress" }, { value: "40,000+", label: "Native trees planted" }], tone: "dark" },
   },
   testimonials: {
-    label: "Testimonials",
-    description: "Carousel of sleepers with photos, ratings and sleep-score changes.",
+    label: "Customer reviews (live)",
+    description: "Real, approved customer reviews, newest first. Updates by itself as you approve reviews; hidden until the first one is approved.",
     group: "Trust",
-    fields: [
-      t("eyebrow", "Eyebrow"),
-      list("items", "Testimonials", "name", [t("name", "Name"), t("city", "City"), img("image", "Portrait"), t("product", "Mattress"), ta("quote", "Quote"), num("rating", "Stars", 1, 5), num("before", "Sleep score before", 0, 100), num("after", "Sleep score after", 0, 100)]),
-    ],
-    defaults: { eyebrow: "Sleepers, in their own words", items: [] },
+    fields: [t("eyebrow", "Eyebrow"), num("count", "How many recent reviews to cycle through", 1, 30), sel("minRating", "Show reviews rated", [["5", "5 stars only"], ["4", "4 stars and up"], ["3", "3 stars and up"], ["1", "Any rating"]])],
+    defaults: { eyebrow: "Sleepers, in their own words", count: 12, minRating: "4" },
   },
   press: {
     label: "Press & awards",

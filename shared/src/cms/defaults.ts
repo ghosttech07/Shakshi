@@ -1,4 +1,4 @@
-import { CONTACT, SHOWROOMS, TESTIMONIALS, FREE_GIFT_THRESHOLD } from "../products";
+import { CONTACT, SHOWROOMS, FREE_GIFT_THRESHOLD } from "../products";
 import { DEFAULT_SETTINGS } from "../settings";
 import { SECTIONS } from "./sections";
 import type { PageDoc, Section, SectionData, SiteConfig } from "./types";
@@ -65,7 +65,7 @@ const policy = (slug: string, title: string, body: string): PageDoc =>
 export const DEFAULT_PAGES: PageDoc[] = [
   page("", "Home", { title: "", description: "" }, [
     ["hero"], ["product-grid"], ["recommended"], ["layers-anatomy"], ["firmness"],
-    ["testimonials", { items: TESTIMONIALS.map((x) => ({ ...x })) }], ["press"], ["newsletter"],
+    ["testimonials"], ["press"], ["newsletter"],
   ]),
   page("about", "Our Story", { title: "Our Story · The Thread", description: "The Shakshi story, told as a single gold thread: from one bed stitched by hand in 2012 to the homes we make them for today." }, [["thread-journey"]]),
   page("shop", "Shop", { title: "The Collection", description: "Handcrafted luxury mattresses, from cloud-soft to sculpted and firm. Filter by firmness, size, material and sleeping position." }, [header("The Collection", "Find the one you'll never want to leave.", "Every mattress is handcrafted to order, delivered by our white-glove team, and yours to try for 100 nights."), ["shop-catalog"]]),

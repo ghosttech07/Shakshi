@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { useStore, cartCount } from "@/lib/store";
 import { useAccount } from "@/lib/account";
 import { useHydrated } from "@/lib/useHydrated";
-import { IMG } from "@shakshi/shared/images";
 import { EASE, cn } from "@shakshi/shared/utils";
 import { IconBag, IconHeart, IconMenu, IconClose, IconUser, IconArrow } from "@/components/ui/Icons";
 import { AmbientControl } from "@/components/ambient/AmbientControl";
@@ -108,7 +107,8 @@ function DiscoverMenu({ item, open, setOpen }: { item: NavItem | undefined; open
           {item.menu === "products" ? (
             <ProductsPanel item={item} close={() => setOpen(false)} />
           ) : (
-          <div className="container-lux grid grid-cols-[1fr_1fr_1.1fr] gap-12 py-10">
+          <div className="container-lux py-10">
+          <div className="grid max-w-3xl grid-cols-2 gap-12">
             {columns(item.children ?? []).map((links, i) => (
               <div key={i}>
                 <p className="eyebrow text-gold-ink">{i === 0 ? item.label : " "}</p>
@@ -124,17 +124,7 @@ function DiscoverMenu({ item, open, setOpen }: { item: NavItem | undefined; open
                 </ul>
               </div>
             ))}
-            <Link href="/showroom?kind=video#book" onClick={() => setOpen(false)} className="group relative block overflow-hidden text-pearl">
-              <Img src={IMG.sleepSoft} alt="" sizes="30vw" dark wrapperClassName="absolute inset-0" className="transition-transform duration-[1400ms] ease-silk group-hover:scale-105" />
-              <span className="absolute inset-0 bg-gradient-to-t from-midnight/85 to-midnight/10" />
-              <span className="relative flex h-full min-h-[220px] flex-col justify-end p-6">
-                <span className="eyebrow text-gold">Complimentary</span>
-                <span className="mt-2 font-serif text-3xl leading-tight">A 15-minute call with a sleep specialist</span>
-                <span className="mt-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gold">
-                  Book a video consultation <IconArrow size={14} />
-                </span>
-              </span>
-            </Link>
+          </div>
           </div>
           )}
         </motion.div>

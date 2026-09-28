@@ -502,10 +502,11 @@ html[data-motion="off"]::view-transition-old(.page), html[data-motion="off"]::vi
 /* ---------- Home hero: sky and a still render of the 3D scene (the LCP image) ---------- */
 .hero-sky { background: radial-gradient(120% 90% at 15% 0%, #fbf4e8 0%, #f1e4d0 45%, #e4d2b9 100%); }
 html[data-theme="night"] .hero-sky { background: radial-gradient(120% 90% at 15% 0%, #2a3450 0%, #151c2b 50%, #0a0e17 100%); }
-.hero-poster { background: center / cover no-repeat url("/hero/day-mobile.webp"); }
+/* Phones and tablets: a transparent picture of the bed, fitted inside its own space below the text */
+.hero-poster { background: center / contain no-repeat url("/hero/day-mobile.webp"); }
 html[data-theme="night"] .hero-poster { background-image: url("/hero/night-mobile.webp"); }
 @media (min-width: 1024px) {
-  .hero-poster { background-image: url("/hero/day-desktop-bare.webp"); }
+  .hero-poster { background-size: cover; background-image: url("/hero/day-desktop-bare.webp"); }
   .hero-poster[data-dressed] { background-image: url("/hero/day-desktop.webp"); }
   html[data-theme="night"] .hero-poster { background-image: url("/hero/night-desktop-bare.webp"); }
   html[data-theme="night"] .hero-poster[data-dressed] { background-image: url("/hero/night-desktop.webp"); }

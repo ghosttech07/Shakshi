@@ -292,19 +292,23 @@ function Bed() {
   );
 }
 
-/** Frames the bed to the right on wide screens so the headline can breathe on the left. */
+/**
+ * Wide screens: the bed sits to the right so the headline can breathe on the left.
+ * Narrower screens give the bed its own space below the text, so it's centred and sized to fit it.
+ */
 function Framing() {
   const { camera, size } = useThree();
+  const wide = size.width >= 1024;
   // Layout effect: the framing is in place before the first frame is drawn (no jump on load).
   useLayoutEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
-    if (size.width >= 1024) cam.setViewOffset(size.width, size.height, -size.width * 0.2, -size.height * 0.02, size.width, size.height);
-    // Narrow screens: headline on top, bed resting in the lower half
-    else cam.setViewOffset(size.width, size.height, -size.width * 0.07, -size.height * 0.24, size.width, size.height);
+    if (wide) cam.setViewOffset(size.width, size.height, -size.width * 0.2, -size.height * 0.02, size.width, size.height);
+    else cam.clearViewOffset();
     cam.updateProjectionMatrix();
-  }, [camera, size]);
-  // Narrow screens step back so the whole bed fits beneath the headline.
-  const radius = size.width < 768 ? 12.5 : 6.4;
+  }, [camera, size, wide]);
+  // Step back far enough that the bed (about 3.7 m across as it turns) always fits the width.
+  const aspect = size.width / Math.max(1, size.height);
+  const radius = wide ? 6.4 : Math.min(11, Math.max(6.2, 3.7 / (2 * Math.tan(THREE.MathUtils.degToRad(15)) * aspect)));
   useFrame(() => {
     const a = 0.72;
     camera.position.set(Math.sin(a) * radius, radius * 0.42, Math.cos(a) * radius);

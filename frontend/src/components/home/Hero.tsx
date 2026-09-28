@@ -104,12 +104,13 @@ export function Hero({ data = {}, edit }: { data?: Record<string, unknown>; edit
   const fall = policy === "full" && !reduce;
 
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[640px] overflow-hidden" aria-labelledby="hero-title">
+    <section ref={ref} className="relative flex min-h-[100svh] flex-col overflow-hidden lg:block lg:h-[100svh] lg:min-h-[640px]" aria-labelledby="hero-title">
       <div className="hero-sky absolute inset-0" aria-hidden />
       <div aria-hidden className="day-only absolute -left-1/4 -top-1/4 h-[130%] w-[70%] rotate-[18deg] bg-[linear-gradient(90deg,transparent,rgb(255_248_235/0.55),transparent)] blur-3xl motion-safe:animate-breathe" />
       <div aria-hidden className="night-only absolute -left-1/4 -top-1/4 h-[130%] w-[60%] rotate-[18deg] bg-[linear-gradient(90deg,transparent,rgb(170_190_235/0.12),transparent)] blur-3xl motion-safe:animate-breathe" />
 
-      <motion.div style={{ y: sceneY }} className="absolute inset-0">
+      {/* Below desktop width the bed sits beneath the text in its own space, so nothing overlaps */}
+      <motion.div style={{ y: sceneY }} className="relative order-2 h-[min(50svh,480px)] min-h-[300px] w-full lg:absolute lg:inset-0 lg:order-none lg:h-auto lg:min-h-0">
         {is3d ? (
           <>
             <div className={cn("hero-poster absolute inset-0 transition-opacity duration-[1600ms] ease-silk", ready && "opacity-0")} data-dressed={(policy !== null && !fall) || undefined} aria-hidden />
@@ -132,7 +133,7 @@ export function Hero({ data = {}, edit }: { data?: Record<string, unknown>; edit
 
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ivory to-transparent" />
 
-      <motion.div style={{ y: contentY, opacity: contentOpacity }} className="container-lux relative z-10 flex h-full flex-col justify-start pt-32 sm:pt-36 lg:justify-center lg:pt-0">
+      <motion.div style={{ y: contentY, opacity: contentOpacity }} className="container-lux relative z-10 order-1 flex flex-col justify-start pt-28 sm:pt-36 lg:h-full lg:justify-center lg:pt-0">
         <div className="max-w-xl">
           <motion.p className="eyebrow text-gold-ink" {...f("eyebrow")} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.4, delay: 0.3, ease: EASE }}>
             <span className="day-only">{str(h.eyebrow)}</span>
@@ -164,7 +165,7 @@ export function Hero({ data = {}, edit }: { data?: Record<string, unknown>; edit
         </div>
       </motion.div>
 
-      <motion.div aria-hidden className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-3 text-ink/50 sm:flex" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2, duration: 1.5 }}>
+      <motion.div aria-hidden className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-3 text-ink/50 lg:flex" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2, duration: 1.5 }}>
         <span className="eyebrow text-[0.6rem]">Scroll to unwind</span>
         <span className="relative h-12 w-px overflow-hidden bg-ink/15">
           <motion.span className="absolute inset-x-0 top-0 h-1/2 bg-gold-ink" animate={reduce ? {} : { y: ["-100%", "200%"] }} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }} />

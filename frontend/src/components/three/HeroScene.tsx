@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { RoundedBox, Sparkles } from "@react-three/drei";
-import { useEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { linenTexture, quiltTexture } from "./fabric";
 
@@ -140,9 +140,10 @@ function Bed() {
 }
 
 /** Frames the bed to the right on wide screens so the headline can breathe on the left. */
-function Framing({ drift }: { drift: boolean }) {
+function Framing() {
   const { camera, size } = useThree();
-  useEffect(() => {
+  // Layout effect: the framing is in place before the first frame is drawn (no jump on load).
+  useLayoutEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     if (size.width >= 1024) cam.setViewOffset(size.width, size.height, -size.width * 0.2, -size.height * 0.02, size.width, size.height);
     // Narrow screens: headline on top, bed resting in the lower half
@@ -151,13 +152,22 @@ function Framing({ drift }: { drift: boolean }) {
   }, [camera, size]);
   // Narrow screens step back so the whole bed fits beneath the headline.
   const radius = size.width < 768 ? 12.5 : 6.4;
-  useFrame(({ clock }) => {
-    const t = drift ? clock.elapsedTime : 0;
-    const a = 0.72 + Math.sin(t * 0.08) * 0.1;
-    camera.position.set(Math.sin(a) * radius, radius * 0.42 + Math.sin(t * 0.11) * 0.08, Math.cos(a) * radius);
+  useFrame(() => {
+    const a = 0.72;
+    camera.position.set(Math.sin(a) * radius, radius * 0.42, Math.cos(a) * radius);
     camera.lookAt(0, 0.4, 0.1);
   });
   return null;
+}
+
+/** The bed turns slowly on its own, like a showroom turntable: one full turn about every 40 seconds. */
+const TURN_SECONDS = 40;
+function Turntable({ spin, children }: { spin: boolean; children: ReactNode }) {
+  const group = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (spin && group.current) group.current.rotation.y += (Math.min(delta, 0.1) * Math.PI * 2) / TURN_SECONDS;
+  });
+  return <group ref={group}>{children}</group>;
 }
 
 /** Tells the page once real frames are on screen, so the poster beneath can step aside. */
@@ -210,11 +220,13 @@ export default function HeroScene({ active, night = false, mode = "fall", drift 
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: night ? 0.95 : 1.05 }}
       aria-hidden
     >
-      <Framing drift={drift} />
+      <Framing />
       <Ready onReady={onReady} />
       <Lights night={night} />
-      <Bed />
-      {duvet && <Duvet settled={mode === "settled"} />}
+      <Turntable spin={drift}>
+        <Bed />
+        {duvet && <Duvet settled={mode === "settled"} />}
+      </Turntable>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[30, 30]} />
         <shadowMaterial opacity={night ? 0.3 : 0.16} color={night ? "#05070c" : "#5a4630"} />

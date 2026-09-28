@@ -15,7 +15,7 @@ const TEMPLATE = { list: [{ id: "", kind: "pillow", name: "", price: 0, image: "
 export async function PUT(req: Request) {
   if (!(await isAdmin())) return bad("Unauthorised", 401);
   const b = await body(req, 200_000);
-  if (!b) return bad("Bad request");
+  if (!b || !Array.isArray(b.list)) return bad("Bad request");
   const items = shape(TEMPLATE, b).list;
   const seen = new Set<string>();
   const out: Accessory[] = [];

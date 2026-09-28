@@ -182,18 +182,18 @@ export function ProductEditor({ product, stock, ctx, base, frontend, builtIn }: 
           </section>
 
           <section className="card p-5 sm:p-6">
-            <h2 className="text-xl">{builtIn ? "Remove from the collection" : "Delete this mattress"}</h2>
-            <p className="mt-1 text-sm text-stone">{builtIn ? "It disappears from the shop. Past orders are unaffected." : "This can't be undone. Past orders are unaffected."}</p>
+            <h2 className="text-lg">Delete this mattress</h2>
+            <p className="mt-1 text-sm text-stone">It is removed from the website straight away. Past orders are not affected.</p>
             <button
               className="btn btn-danger mt-3"
               onClick={async () => {
-                if (!confirm(`Remove ${product.name} from the shop?`)) return;
+                if (!confirm(`Delete ${product.name}? It will be removed from the website straight away.`)) return;
                 await api("DELETE", `/api/admin/products/${encodeURIComponent(product.slug)}`);
                 router.push(`${base}/products`);
                 router.refresh();
               }}
             >
-              {builtIn ? "Remove" : "Delete"}
+              Delete
             </button>
           </section>
         </div>

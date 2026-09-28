@@ -4,6 +4,7 @@ import { getCatalog, getStock, stockKey } from "@/lib/server/catalog";
 import { SIZES, priceFor } from "@shakshi/shared/products";
 import { Badge, PageHead, TableWrap, inr } from "@/components/studio/ui";
 import { NewProductForm } from "@/components/studio/NewProductForm";
+import { ActionButton } from "@/components/studio/actions";
 
 export const metadata = { title: "Mattresses" };
 
@@ -14,7 +15,7 @@ export default async function ProductsPage() {
     <>
       <PageHead eyebrow="Catalogue" title="Mattresses" intro="Click a mattress to change its photos, prices, stock or description." actions={<NewProductForm base={base} />} />
       <TableWrap>
-        <table className="table min-w-[900px]">
+        <table className="table min-w-[980px]">
           <thead>
             <tr>
               <th>Mattress</th>
@@ -24,6 +25,7 @@ export default async function ProductsPage() {
                 <th key={s.id}>{s.label}</th>
               ))}
               <th>Shown</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -49,6 +51,16 @@ export default async function ProductsPage() {
                   return <td key={s.id}>{typeof q === "number" ? <Badge tone={q === 0 ? "bad" : q <= 3 ? "warn" : "neutral"}>{q}</Badge> : <span className="text-xs text-stone">to order</span>}</td>;
                 })}
                 <td>{p.published === false ? <Badge>Hidden</Badge> : <Badge tone="ok">Shown</Badge>}</td>
+                <td className="text-right">
+                  <ActionButton
+                    url={`/api/admin/products/${encodeURIComponent(p.slug)}`}
+                    method="DELETE"
+                    confirm={`Delete ${p.name}? It will be removed from the website straight away. Past orders are not affected.`}
+                    className="btn btn-danger btn-sm"
+                  >
+                    Delete
+                  </ActionButton>
+                </td>
               </tr>
             ))}
           </tbody>

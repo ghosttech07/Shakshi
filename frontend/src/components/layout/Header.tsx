@@ -26,7 +26,9 @@ const columns = (links: Child[]) => {
   return [links.slice(0, half), links.slice(half)].filter((c) => c.length);
 };
 
-const hasMenu = (n: NavItem) => n.menu === "products" || !!n.children?.length;
+/** A menu item's dropdown links, leaving out any blank entries. */
+const realChildren = (n: NavItem) => (n.children ?? []).filter((c) => c.label.trim() && c.href.trim());
+const hasMenu = (n: NavItem) => n.menu === "products" || realChildren(n).length > 0;
 
 /** Mattresses, pillows and covers: each heading opens its range; each name opens that product. */
 function useProductGroups(shopHref: string) {
@@ -116,7 +118,7 @@ function DiscoverMenu({ item, open, setOpen }: { item: NavItem | undefined; open
           ) : (
           <div className="container-lux py-10">
           <div className="grid max-w-3xl grid-cols-2 gap-12">
-            {columns(item.children ?? []).map((links, i) => (
+            {columns(realChildren(item)).map((links, i) => (
               <div key={i}>
                 <p className="eyebrow text-gold-ink">{i === 0 ? item.label : " "}</p>
                 <ul className="mt-5 space-y-4">
@@ -391,7 +393,7 @@ export function Header() {
                     <div key={m.label} className="col-span-2">
                       <p className="eyebrow text-gold">{m.label}</p>
                       <ul className="mt-3 space-y-2">
-                        {(m.children ?? []).map((l) => (
+                        {realChildren(m).map((l) => (
                           <li key={l.href}>
                             <Link href={l.href} className="font-serif text-xl">
                               {l.label}

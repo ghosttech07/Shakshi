@@ -7,9 +7,10 @@ import { IconPhone, IconWhatsApp, IconMail } from "@/components/ui/Icons";
 export function Footer({ site }: { site: SiteConfig }) {
   // A column named like a top-menu dropdown (e.g. "About") lists exactly that dropdown's links,
   // so the two can never drift apart.
+  const real = (l: { label: string; href: string }) => !!(l.label.trim() && l.href.trim());
   const linksFor = (c: SiteConfig["footer"]["columns"][number]) => {
-    const menu = site.nav.find((n) => n.label.toLowerCase() === c.title.toLowerCase() && n.children?.length);
-    return menu ? menu.children!.map((l) => ({ label: l.label, href: l.href })) : c.links;
+    const menu = site.nav.find((n) => n.label.toLowerCase() === c.title.toLowerCase() && n.children?.some(real));
+    return (menu ? menu.children!.map((l) => ({ label: l.label, href: l.href })) : c.links).filter(real);
   };
   const settings = site.contact;
   return (

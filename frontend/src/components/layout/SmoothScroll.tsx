@@ -45,7 +45,25 @@ export function SmoothScroll() {
     const tick = (time: number) => lenis?.raf(time * 1000);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
+
+    // Content that appears after load (recommendations, live reviews, images) moves everything
+    // below it, so pinned sections re-measure; otherwise they pin too early and leave a blank gap.
+    let height = document.body.scrollHeight;
+    let timer = 0;
+    const resized = new ResizeObserver(() => {
+      const next = document.body.scrollHeight;
+      if (Math.abs(next - height) < 2) return;
+      height = next;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        ScrollTrigger.refresh();
+        height = document.body.scrollHeight;
+      }, 120);
+    });
+    resized.observe(document.body);
     return () => {
+      resized.disconnect();
+      window.clearTimeout(timer);
       gsap.ticker.remove(tick);
       lenis?.destroy();
       lenis = null;

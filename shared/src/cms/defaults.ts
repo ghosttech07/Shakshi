@@ -23,8 +23,8 @@ export const DEFAULT_SITE: SiteConfig = {
   footer: {
     columns: [
       { title: "Products", links: [{ label: "Mattresses", href: "/shop" }, { label: "Pillows", href: "/shop/pillows" }, { label: "Mattress Covers", href: "/shop/covers" }] },
-      { title: "About", links: [{ label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "Our Story", href: "/about" }] },
-      { title: "The House", links: [{ label: "Your Account", href: "/account" }, { label: "FAQ", href: "/faq" }] },
+      { title: "About", links: [{ label: "Our Story", href: "/about" }, { label: "Sleep Studio", href: "/sleep-studio" }, { label: "Sleep Library", href: "/sleep-library" }, { label: "FAQ", href: "/faq" }] },
+      { title: "The House", links: [{ label: "Your Account", href: "/account" }] },
       { title: "Policies", links: [{ label: "Warranty", href: "/policies/warranty" }, { label: "Returns", href: "/policies/returns" }, { label: "Privacy", href: "/policies/privacy" }, { label: "Terms", href: "/policies/terms" }] },
     ],
     note: "Crafted for the deepest kind of rest.",

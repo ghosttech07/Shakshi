@@ -5,6 +5,12 @@ import type { SiteConfig } from "@shakshi/shared/cms/types";
 import { IconPhone, IconWhatsApp, IconMail } from "@/components/ui/Icons";
 
 export function Footer({ site }: { site: SiteConfig }) {
+  // A column named like a top-menu dropdown (e.g. "About") lists exactly that dropdown's links,
+  // so the two can never drift apart.
+  const linksFor = (c: SiteConfig["footer"]["columns"][number]) => {
+    const menu = site.nav.find((n) => n.label.toLowerCase() === c.title.toLowerCase() && n.children?.length);
+    return menu ? menu.children!.map((l) => ({ label: l.label, href: l.href })) : c.links;
+  };
   const settings = site.contact;
   return (
     <footer className="relative bg-midnight text-pearl linen-dark">
@@ -36,7 +42,7 @@ export function Footer({ site }: { site: SiteConfig }) {
               <nav key={c.title} aria-label={c.title}>
                 <h3 className="eyebrow font-sans text-gold">{c.title}</h3>
                 <ul className="mt-6 space-y-3 text-sm text-pearl/70">
-                  {c.links.map((l) => (
+                  {linksFor(c).map((l) => (
                     <li key={l.href + l.label}>
                       <Link href={l.href} className="link-lux hover:text-pearl">
                         {l.label}

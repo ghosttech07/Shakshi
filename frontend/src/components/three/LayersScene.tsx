@@ -114,19 +114,17 @@ type Built = {
   phase: number;
 };
 
-type Shared = { progress: MutableRefObject<LayersProgress>; activeRef: MutableRefObject<number>; hover: MutableRefObject<number>; still?: boolean };
+type Shared = { progress: MutableRefObject<LayersProgress>; activeRef: MutableRefObject<number>; still?: boolean };
 
 /**
- * A layer floating free: soft ones roll in waves that travel down the stack, every layer bobs and
- * tilts on its own breath, and the soft ones swell up under the pointer.
+ * A layer floating free: soft ones roll in waves that travel down the stack, and every layer bobs
+ * and tilts on its own breath.
  */
-function Layer({ b, index, progress, activeRef, hover, still }: { b: Built; index: number } & Shared) {
+function Layer({ b, index, progress, activeRef, still }: { b: Built; index: number } & Shared) {
   const mesh = useRef<THREE.Mesh>(null);
   const amp = useRef(0);
   const glow = useRef(0);
-  const bulge = useRef(0);
-  const at = useRef(0);
-  useFrame(({ clock, pointer }, dt) => {
+  useFrame(({ clock }, dt) => {
     const m = mesh.current;
     if (!m) return;
     const e = progress.current.e;
@@ -146,14 +144,10 @@ function Layer({ b, index, progress, activeRef, hover, still }: { b: Built; inde
     const target = 0.14 * e * (1 - index * 0.08);
     const was = amp.current;
     amp.current = THREE.MathUtils.damp(amp.current, target, 3, dt);
-    bulge.current = THREE.MathUtils.damp(bulge.current, still ? 0 : hover.current * (0.35 + 0.65 * e), 4, dt);
-    at.current = THREE.MathUtils.damp(at.current, THREE.MathUtils.clamp(pointer.x * W * 0.75, -W / 2, W / 2), 5, dt);
-    if (Math.abs(amp.current) < 0.0004 && Math.abs(was) < 0.0004 && bulge.current < 0.002) return;
+    if (Math.abs(amp.current) < 0.0004 && Math.abs(was) < 0.0004) return;
     const pos = b.geo.attributes.position as THREE.BufferAttribute;
     const arr = pos.array as Float32Array;
     const A = amp.current;
-    const B = bulge.current * 0.11;
-    const px = at.current;
     const s = t * 1.35;
     for (let i = 0; i < pos.count; i++) {
       const x = b.rest[i * 3];
@@ -162,8 +156,7 @@ function Layer({ b, index, progress, activeRef, hover, still }: { b: Built; inde
         Math.sin(x * 3.3 + s + b.phase) * (0.7 + 0.3 * Math.cos(z * 2.2 - s * 0.7 + b.phase)) +
         0.3 * Math.sin(x * 5.6 - s * 0.9 + z * 1.6) +
         0.18 * Math.sin(z * 4.2 + s * 1.1 + x * 0.8);
-      const dx = x - px;
-      arr[i * 3 + 1] = b.rest[i * 3 + 1] + A * wave + B * Math.exp(-(dx * dx) / 0.14);
+      arr[i * 3 + 1] = b.rest[i * 3 + 1] + A * wave;
     }
     pos.needsUpdate = true;
     b.geo.computeVertexNormals();
@@ -240,7 +233,7 @@ function useLogo() {
   return tex;
 }
 
-/** Keeps the whole stack in frame at any screen shape, and lets it lean gently toward the pointer. */
+/** Keeps the whole stack in frame at any screen shape, whichever way it has turned. */
 function Rig({ progress }: { progress: MutableRefObject<LayersProgress> }) {
   const { camera, size } = useThree();
   const look = useMemo(() => new THREE.Vector3(), []);
@@ -251,8 +244,9 @@ function Rig({ progress }: { progress: MutableRefObject<LayersProgress> }) {
     const tan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
     const needH = 1.35 + 1.8 * e;
     const needW = 3.1;
-    const dist = Math.max(needH / (2 * tan), needW / (2 * tan * aspect)) * 1.08;
-    look.set(0, 0.42 + 0.78 * e, 0);
+    // Extra room: as it turns, the nearest corner swings toward the camera and looks bigger
+    const dist = Math.max(needH / (2 * tan), needW / (2 * tan * aspect)) * 1.16;
+    look.set(0, 0.36 + 0.76 * e, 0);
     const dir = new THREE.Vector3(0, 0.38, 1).normalize();
     cam.position.copy(look).addScaledVector(dir, dist);
     cam.lookAt(look);
@@ -260,8 +254,10 @@ function Rig({ progress }: { progress: MutableRefObject<LayersProgress> }) {
   return null;
 }
 
-function Stack({ kinds, depths, progress, active, still, hover }: Omit<Props, "live"> & { hover: MutableRefObject<number> }) {
+function Stack({ kinds, depths, progress, active, still }: Omit<Props, "live">) {
   const turn = useRef<THREE.Group>(null);
+  const spin = useRef(0);
+  const offset = useRef(-0.42);
   const activeRef = useRef(active);
   activeRef.current = active;
   const logo = useLogo();
@@ -312,21 +308,17 @@ function Stack({ kinds, depths, progress, active, still, hover }: Omit<Props, "l
     [built]
   );
 
-  useFrame(({ pointer, clock }, dt) => {
+  // Turns slowly on its own, a full circle about every 30 seconds; scrolling adds a little extra turn.
+  useFrame(({ clock }, dt) => {
     const g = turn.current;
     if (!g) return;
-    const p = progress.current;
-    const t = clock.elapsedTime;
-    const lean = still ? 0 : hover.current;
-    // Slow idle sway, plus a lean toward the pointer while it's over the mattress
-    const sway = still ? 0 : Math.sin(t * 0.32) * 0.16 + Math.sin(t * 0.13) * 0.06;
-    const aimY = -0.42 + p.turn * 0.3 + sway + pointer.x * 0.18 * lean;
-    const aimX = (still ? 0 : Math.sin(t * 0.27) * 0.025) - pointer.y * 0.06 * lean;
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, aimY, 2.5, dt);
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, aimX, 2.5, dt);
+    if (!still) spin.current += dt * ((Math.PI * 2) / 30);
+    offset.current = THREE.MathUtils.damp(offset.current, -0.42 + progress.current.turn * 0.3, 2.5, dt);
+    g.rotation.y = offset.current + spin.current;
+    g.rotation.x = still ? 0 : Math.sin(clock.elapsedTime * 0.27) * 0.025;
   });
 
-  const shared = { progress, activeRef, hover, still };
+  const shared = { progress, activeRef, still };
   return (
     <group ref={turn}>
       {built.map((b, i) =>
@@ -338,11 +330,8 @@ function Stack({ kinds, depths, progress, active, still, hover }: Omit<Props, "l
 }
 
 export default function LayersScene({ kinds, depths, progress, active, live, still }: Props) {
-  const hover = useRef(0);
   return (
     <Canvas
-      onPointerEnter={() => (hover.current = 1)}
-      onPointerLeave={() => (hover.current = 0)}
       shadows
       dpr={[1, 1.75]}
       frameloop={live ? "always" : "never"}
@@ -357,7 +346,7 @@ export default function LayersScene({ kinds, depths, progress, active, live, sti
       <directionalLight position={[3, 2.5, -4]} intensity={1.6} color="#e9c98f" />
       <directionalLight position={[4, 1, 3]} intensity={0.5} color="#c9d8ff" />
       <Rig progress={progress} />
-      <Stack kinds={kinds} depths={depths} progress={progress} active={active} still={still} hover={hover} />
+      <Stack kinds={kinds} depths={depths} progress={progress} active={active} still={still} />
     </Canvas>
   );
 }

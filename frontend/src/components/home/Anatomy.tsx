@@ -107,7 +107,7 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
           </ol>
         </div>
 
-        <div className="relative h-[46svh] sm:h-[520px] lg:h-[680px]" aria-hidden>
+        <div className="relative h-[46svh] sm:h-[min(520px,calc(100svh-10rem))] lg:h-[min(680px,calc(100svh-10rem))]" aria-hidden>
           <LayersScene kinds={kinds} depths={depths} progress={progress} active={reduce ? -1 : active} live={inView} still={reduce} />
         </div>
 

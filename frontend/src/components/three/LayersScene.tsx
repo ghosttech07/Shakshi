@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Sparkles } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import * as THREE from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -23,7 +24,7 @@ type Props = {
 const W = 2.2;
 const D = 1.5;
 const CM = 0.022;
-const GAP = 0.3;
+const GAP = 0.36;
 // The base is an open tray the support core sits in.
 const TRAY = { wall: 0.05, floor: 0.05, height: 0.26, pad: 0.06 };
 
@@ -113,32 +114,56 @@ type Built = {
   phase: number;
 };
 
-/** A soft layer: rolls in slow waves once it floats free, like foam hanging on air. */
-function Layer({ b, index, progress, activeRef, still }: { b: Built; index: number; progress: MutableRefObject<LayersProgress>; activeRef: MutableRefObject<number>; still?: boolean }) {
+type Shared = { progress: MutableRefObject<LayersProgress>; activeRef: MutableRefObject<number>; hover: MutableRefObject<number>; still?: boolean };
+
+/**
+ * A layer floating free: soft ones roll in waves that travel down the stack, every layer bobs and
+ * tilts on its own breath, and the soft ones swell up under the pointer.
+ */
+function Layer({ b, index, progress, activeRef, hover, still }: { b: Built; index: number } & Shared) {
   const mesh = useRef<THREE.Mesh>(null);
   const amp = useRef(0);
   const glow = useRef(0);
-  useFrame(({ clock }, dt) => {
+  const bulge = useRef(0);
+  const at = useRef(0);
+  useFrame(({ clock, pointer }, dt) => {
     const m = mesh.current;
     if (!m) return;
     const e = progress.current.e;
-    m.position.y = b.y + b.lift * e;
+    const t = still ? 1.2 : clock.elapsedTime;
+    const drift = still ? 0 : e;
+    // Bob and tilt, each layer at its own pace
+    m.position.y = b.y + b.lift * e + Math.sin(t * 1.15 + index * 1.7) * 0.03 * drift;
+    m.rotation.z = Math.sin(t * 0.75 + index * 2.1) * 0.035 * drift;
+    m.rotation.x = Math.cos(t * 0.62 + index * 1.3) * 0.03 * drift;
     glow.current = THREE.MathUtils.damp(glow.current, activeRef.current === index ? 1 : 0, 4, dt);
     b.mat.emissiveIntensity = glow.current * 0.22;
-    if (!b.soft) return;
-    const target = 0.1 * e * (1 - index * 0.1);
+    if (!b.soft) {
+      // The support core breathes, as if taking a weight and letting it go
+      m.scale.y = 1 + Math.sin(t * 1.6) * 0.03 * drift;
+      return;
+    }
+    const target = 0.14 * e * (1 - index * 0.08);
     const was = amp.current;
     amp.current = THREE.MathUtils.damp(amp.current, target, 3, dt);
-    if (Math.abs(amp.current) < 0.0004 && Math.abs(was) < 0.0004) return;
-    const t = still ? 1.2 : clock.elapsedTime;
+    bulge.current = THREE.MathUtils.damp(bulge.current, still ? 0 : hover.current * (0.35 + 0.65 * e), 4, dt);
+    at.current = THREE.MathUtils.damp(at.current, THREE.MathUtils.clamp(pointer.x * W * 0.75, -W / 2, W / 2), 5, dt);
+    if (Math.abs(amp.current) < 0.0004 && Math.abs(was) < 0.0004 && bulge.current < 0.002) return;
     const pos = b.geo.attributes.position as THREE.BufferAttribute;
     const arr = pos.array as Float32Array;
     const A = amp.current;
+    const B = bulge.current * 0.11;
+    const px = at.current;
+    const s = t * 1.35;
     for (let i = 0; i < pos.count; i++) {
       const x = b.rest[i * 3];
       const z = b.rest[i * 3 + 2];
-      const wave = Math.sin(x * 3.1 + t * 0.9 + b.phase) * (0.75 + 0.25 * Math.cos(z * 1.9 - t * 0.55 + b.phase)) + 0.22 * Math.sin(x * 5.3 - t * 0.7 + z * 1.3);
-      arr[i * 3 + 1] = b.rest[i * 3 + 1] + A * wave;
+      const wave =
+        Math.sin(x * 3.3 + s + b.phase) * (0.7 + 0.3 * Math.cos(z * 2.2 - s * 0.7 + b.phase)) +
+        0.3 * Math.sin(x * 5.6 - s * 0.9 + z * 1.6) +
+        0.18 * Math.sin(z * 4.2 + s * 1.1 + x * 0.8);
+      const dx = x - px;
+      arr[i * 3 + 1] = b.rest[i * 3 + 1] + A * wave + B * Math.exp(-(dx * dx) / 0.14);
     }
     pos.needsUpdate = true;
     b.geo.computeVertexNormals();
@@ -224,10 +249,10 @@ function Rig({ progress }: { progress: MutableRefObject<LayersProgress> }) {
     const e = progress.current.e;
     const aspect = size.width / Math.max(1, size.height);
     const tan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
-    const needH = 1.35 + 1.45 * e;
+    const needH = 1.35 + 1.8 * e;
     const needW = 3.1;
     const dist = Math.max(needH / (2 * tan), needW / (2 * tan * aspect)) * 1.08;
-    look.set(0, 0.42 + 0.62 * e, 0);
+    look.set(0, 0.42 + 0.78 * e, 0);
     const dir = new THREE.Vector3(0, 0.38, 1).normalize();
     cam.position.copy(look).addScaledVector(dir, dist);
     cam.lookAt(look);
@@ -235,7 +260,7 @@ function Rig({ progress }: { progress: MutableRefObject<LayersProgress> }) {
   return null;
 }
 
-function Stack({ kinds, depths, progress, active, still }: Omit<Props, "live">) {
+function Stack({ kinds, depths, progress, active, still, hover }: Omit<Props, "live"> & { hover: MutableRefObject<number> }) {
   const turn = useRef<THREE.Group>(null);
   const activeRef = useRef(active);
   activeRef.current = active;
@@ -271,7 +296,7 @@ function Stack({ kinds, depths, progress, active, still }: Omit<Props, "live">) 
         }
         geo.computeVertexNormals();
       }
-      out[i] = { kind, soft, geo, rest: new Float32Array(pos.array), mat: material(kind), y: top + h / 2, lift: j * GAP, phase: i * 0.55 };
+      out[i] = { kind, soft, geo, rest: new Float32Array(pos.array), mat: material(kind), y: top + h / 2, lift: j * GAP, phase: i * 0.35 };
       top += h + (egg ? 0.02 : 0);
     }
     return out;
@@ -287,28 +312,37 @@ function Stack({ kinds, depths, progress, active, still }: Omit<Props, "live">) 
     [built]
   );
 
-  useFrame(({ pointer }, dt) => {
+  useFrame(({ pointer, clock }, dt) => {
     const g = turn.current;
     if (!g) return;
     const p = progress.current;
-    const aimY = -0.42 + p.turn * 0.3 + (still ? 0 : pointer.x * 0.1);
-    const aimX = still ? 0 : -pointer.y * 0.04;
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, aimY, 3, dt);
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, aimX, 3, dt);
+    const t = clock.elapsedTime;
+    const lean = still ? 0 : hover.current;
+    // Slow idle sway, plus a lean toward the pointer while it's over the mattress
+    const sway = still ? 0 : Math.sin(t * 0.32) * 0.16 + Math.sin(t * 0.13) * 0.06;
+    const aimY = -0.42 + p.turn * 0.3 + sway + pointer.x * 0.18 * lean;
+    const aimX = (still ? 0 : Math.sin(t * 0.27) * 0.025) - pointer.y * 0.06 * lean;
+    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, aimY, 2.5, dt);
+    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, aimX, 2.5, dt);
   });
 
+  const shared = { progress, activeRef, hover, still };
   return (
     <group ref={turn}>
       {built.map((b, i) =>
-        b.kind === "base" ? <Tray key={i} b={b} index={i} progress={progress} activeRef={activeRef} logo={logo} /> : <Layer key={i} b={b} index={i} progress={progress} activeRef={activeRef} still={still} />
+        b.kind === "base" ? <Tray key={i} b={b} index={i} progress={progress} activeRef={activeRef} logo={logo} /> : <Layer key={i} b={b} index={i} {...shared} />
       )}
+      {!still && <Sparkles count={46} scale={[3.4, 2.6, 2.4]} position={[0, 1.2, 0]} size={2.6} speed={0.35} opacity={0.75} color="#e2c48c" noise={0.6} />}
     </group>
   );
 }
 
 export default function LayersScene({ kinds, depths, progress, active, live, still }: Props) {
+  const hover = useRef(0);
   return (
     <Canvas
+      onPointerEnter={() => (hover.current = 1)}
+      onPointerLeave={() => (hover.current = 0)}
       shadows
       dpr={[1, 1.75]}
       frameloop={live ? "always" : "never"}
@@ -323,7 +357,7 @@ export default function LayersScene({ kinds, depths, progress, active, live, sti
       <directionalLight position={[3, 2.5, -4]} intensity={1.6} color="#e9c98f" />
       <directionalLight position={[4, 1, 3]} intensity={0.5} color="#c9d8ff" />
       <Rig progress={progress} />
-      <Stack kinds={kinds} depths={depths} progress={progress} active={active} still={still} />
+      <Stack kinds={kinds} depths={depths} progress={progress} active={active} still={still} hover={hover} />
     </Canvas>
   );
 }

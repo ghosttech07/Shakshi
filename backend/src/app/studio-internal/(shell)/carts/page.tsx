@@ -17,7 +17,7 @@ const STATUS = [
 const templates = (c: CartSnapshot, storefront: string) => {
   const first = (c.name ?? "").split(" ")[0] || "there";
   const items = c.items.map((i) => i.name).join(", ");
-  const email = `Hello ${first},\n\nYou left ${items} waiting in your Shakshi bag. It's still there for you, with complimentary white-glove delivery and our 100-night trial.\n\nIf you had a question about firmness, sizes or delivery, just reply to this email, or book a free 15-minute video call with a sleep specialist: ${storefront}/showroom?kind=video#book\n\nWarmly,\nThe Shakshi atelier`;
+  const email = `Hello ${first},\n\nYou left ${items} waiting in your Shakshi bag. It's still there for you, with complimentary white-glove delivery.\n\nIf you had a question about firmness, sizes or delivery, just reply to this email, or book a free 15-minute video call with a sleep specialist: ${storefront}/showroom?kind=video#book\n\nWarmly,\nThe Shakshi atelier`;
   const wa = `Hello ${first}, this is the Shakshi atelier. Your ${items} is still waiting in your bag. Could we help with anything, sizes, firmness or delivery? You can finish here: ${storefront}/checkout`;
   return { email, wa };
 };

@@ -9,12 +9,12 @@ import { useHydrated } from "@/lib/useHydrated";
 import { useCatalog } from "@/lib/catalog-context";
 import { useSite } from "@/lib/site-context";
 import { EASE, emiFrom, formatINR } from "@shakshi/shared/utils";
-import { IconMinus, IconPlus, IconGift, IconLock, IconMoon, IconShield } from "@/components/ui/Icons";
+import { IconMinus, IconPlus, IconGift, IconLock, IconMoon, IconShield, IconTruck } from "@/components/ui/Icons";
 
 export function TrustBadges({ dark }: { dark?: boolean }) {
   const items = [
     { icon: IconLock, label: "Secure payment" },
-    { icon: IconMoon, label: "100-night trial" },
+    { icon: IconTruck, label: "White-glove delivery" },
     { icon: IconShield, label: "10-year warranty" },
   ];
   return (

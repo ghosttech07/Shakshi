@@ -13,7 +13,7 @@ import { guideReply } from "@shakshi/shared/concierge-knowledge";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const STARTERS = ["Which mattress suits a side sleeper?", "I sleep hot. What do you recommend?", "How does the 100-night trial work?", "When could it be delivered?"];
+const STARTERS = ["Which mattress suits a side sleeper?", "I sleep hot. What do you recommend?", "What does the warranty cover?", "When could it be delivered?"];
 
 const GREETING: Msg = {
   role: "assistant",
@@ -215,7 +215,7 @@ export function Concierge() {
                     send(input);
                   }
                 }}
-                placeholder="Ask about comfort, delivery, the trial…"
+                placeholder="Ask about comfort, delivery, the warranty…"
                 className="max-h-32 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm text-pearl placeholder:text-pearl/40 focus:outline-none"
               />
               <button type="submit" disabled={busy || !input.trim()} aria-label="Send" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gold text-midnight transition-opacity disabled:opacity-40">

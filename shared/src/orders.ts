@@ -75,13 +75,6 @@ export function currentStage(o: { created_at: string; status: string | null; dat
   return stage;
 }
 
-export const TRIAL_NIGHTS = 100;
-export const CHECK_INS = [
-  { night: 7, title: "One week in", body: "Your body is still learning the new support. Most sleepers notice the change in their mornings first. How are yours?" },
-  { night: 30, title: "A month of nights", body: "This is when the mattress has fully settled around you. A good moment to rotate it head-to-foot for the first time." },
-  { night: 90, title: "Ten nights left", body: "Your trial ends in ten nights. If anything feels less than extraordinary, tell us now and we'll make it right." },
-];
-
 export const REFERRAL_REWARD = 5000;
 export const GIFT_RE = /^GIFT-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 export const REFERRAL_RE = /^SHK-[A-Z0-9]{4,10}$/;

@@ -25,7 +25,7 @@ import { IconCheck, IconHeart, IconPlus } from "@/components/ui/Icons";
 
 const ADDON_IMAGES: Record<AddonId, string> = { pillows: IMG.pillowWhite, protector: IMG.linen, frame: IMG.platform, removal: IMG.classic };
 
-const TABS = ["Materials", "Dimensions", "Care", "Delivery & Trial", "Reviews"] as const;
+const TABS = ["Materials", "Dimensions", "Care", "Delivery & Warranty", "Reviews"] as const;
 type Tab = (typeof TABS)[number];
 
 function Tabs({ product, extraReviews }: { product: Product; extraReviews: Review[] }) {
@@ -138,11 +138,10 @@ function Tabs({ product, extraReviews }: { product: Product; extraReviews: Revie
               ))}
             </div>
           )}
-          {tab === "Delivery & Trial" && (
-            <div className="grid gap-10 md:grid-cols-3">
+          {tab === "Delivery & Warranty" && (
+            <div className="grid gap-10 md:grid-cols-2">
               {[
                 ["Complimentary white-glove delivery", "Our two-person team carries your mattress to your room, sets it up, dresses it if you wish, and takes every scrap of packaging away. Metro cities in 3–5 days."],
-                ["100 nights to decide", "Sleep on it for a full season. After 21 nights, if it isn't right, we collect it from your home and refund you in full. No questions, no fuss."],
                 ["A decade of nights", "Every Shakshi is covered by a 10-year warranty against sagging deeper than 2.5 cm and any manufacturing flaw."],
               ].map(([t, b]) => (
                 <div key={t}>

@@ -28,7 +28,7 @@ export const DEFAULT_SITE: SiteConfig = {
   seo: {
     titleTemplate: "%s · Shakshi",
     defaultTitle: "Shakshi · A Commitment for Complete Rest",
-    description: "Handcrafted luxury mattresses for the deepest kind of rest. 100-night trial, 10-year warranty and complimentary white-glove delivery across India.",
+    description: "Handcrafted luxury mattresses for the deepest kind of rest. 10-year warranty and complimentary white-glove delivery across India.",
     ogImage: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1200&h=630&fit=crop&q=75",
   },
   analytics: {},
@@ -51,7 +51,6 @@ const page = (slug: string, title: string, seo: PageDoc["seo"], types: [string, 
 const header = (eyebrow: string, title: string, intro = "", tone: "light" | "dark" | "image" = "light", image = "") => ["page-header", { eyebrow, title, intro, tone, image }] as [string, SectionData];
 
 const FAQS = [
-  { q: "How does the 100-night trial work?", a: "<p>Sleep on your mattress for up to 100 nights. We ask for at least 21, as your body takes a little time to adjust. If it isn't right, we collect it from your home at no cost and refund you in full.</p>" },
   { q: "When will my mattress arrive?", a: "<p>Metro cities receive in 3–5 days, the rest of India in 6–9. Enter your pincode on any mattress page for an exact window. Delivery is always complimentary and white-glove.</p>" },
   { q: "Do you take my old mattress away?", a: "<p>Yes, for a small fee we collect your old mattress on the day of delivery and see that it is recycled or donated responsibly.</p>" },
   { q: "Which firmness should I choose?", a: "<p>Side sleepers are usually happiest plush to medium; back sleepers medium to medium-firm; stomach sleepers firmer. Feel each one in our <a href=\"/sleep-studio\">Sleep Studio</a>, or book a free video call and a specialist will guide you.</p>" },
@@ -68,7 +67,7 @@ export const DEFAULT_PAGES: PageDoc[] = [
     ["testimonials"], ["press"], ["newsletter"],
   ]),
   page("about", "Our Story", { title: "Our Story · The Thread", description: "The Shakshi story, told as a single gold thread: from one bed stitched by hand in 2012 to the homes we make them for today." }, [["thread-journey"]]),
-  page("shop", "Shop", { title: "The Collection", description: "Handcrafted luxury mattresses, from cloud-soft to sculpted and firm. Filter by firmness, size, material and sleeping position." }, [header("The Collection", "Find the one you'll never want to leave.", "Every mattress is handcrafted to order, delivered by our white-glove team, and yours to try for 100 nights."), ["shop-catalog"]]),
+  page("shop", "Shop", { title: "The Collection", description: "Handcrafted luxury mattresses, from cloud-soft to sculpted and firm. Filter by firmness, size, material and sleeping position." }, [header("The Collection", "Find the one you'll never want to leave.", "Every mattress is handcrafted to order and delivered by our white-glove team."), ["shop-catalog"]]),
   page("showroom", "Showrooms & Contact", { title: "Showrooms & Contact", description: "Visit a Shakshi salon, book a home trial or a free video consultation, or speak with a sleep concierge." }, [header("Showrooms & contact", "Some things must be felt to be believed."), ["showrooms"], ["booking"], ["contact"]]),
   page("sleep-library", "Sleep Library", { title: "The Sleep Library · Essays on Resting Well", description: "Essays from sleep physicians, physiotherapists and our own atelier." }, [header("The Sleep Library", "Slow reading, for deeper nights.", "Essays from sleep physicians, physiotherapists and our own atelier. Read one tonight, an hour before bed."), ["library-index"]]),
   page("sleep-studio", "Sleep Studio", { title: "The Sleep Studio", description: "Feel each mattress yield, calculate bedtimes by sleep cycles, and order free fabric swatches." }, [["sleep-studio-hero"], ["sleep-calculator"], ["swatches"]]),
@@ -104,10 +103,9 @@ export const DEFAULT_PAGES: PageDoc[] = [
     ["cta", { eyebrow: "Refer a friend", title: "Give ₹5,000. *Get ₹5,000.*", body: "Share your personal link. Your friend takes ₹5,000 off their first mattress, and when they order, you receive the same in Shakshi credit, plus 1,000 points.", ctaText: "Get your link", ctaLink: "/account#rewards", secondaryText: "Send a gift card instead", secondaryLink: "/gift-cards", image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0" }],
     ["newsletter", { title: "One quiet letter a month." }],
   ]),
-  page("faq", "FAQ", { title: "Questions & Answers", description: "Answers about the 100-night trial, delivery, firmness, payment and care." }, [header("Questions", "Everything you might *wonder.*"), ["faq", { eyebrow: "", title: "", items: FAQS }], ["cta", { title: "Still wondering?", body: "Our concierges are awake for you, on WhatsApp, by phone, or on a free video call.", ctaText: "Book a video call", ctaLink: "/showroom?kind=video#book", secondaryText: "Contact us", secondaryLink: "/showroom#contact" }]]),
-  policy("trial", "The 100-night trial", "<p>Sleep on your Shakshi for up to 100 nights. We ask that you give it at least 21, as your body takes time to adjust to new support.</p><h2>Returning</h2><p>If it isn't right, contact our concierge. We'll arrange a collection from your home at no cost, and refund you in full to your original payment method within 7 days of collection.</p><p>One trial per household. Custom sizes are made to order and can be exchanged but not refunded.</p>"),
+  page("faq", "FAQ", { title: "Questions & Answers", description: "Answers about delivery, firmness, payment, warranty and care." }, [header("Questions", "Everything you might *wonder.*"), ["faq", { eyebrow: "", title: "", items: FAQS }], ["cta", { title: "Still wondering?", body: "Our concierges are awake for you, on WhatsApp, by phone, or on a free video call.", ctaText: "Book a video call", ctaLink: "/showroom?kind=video#book", secondaryText: "Contact us", secondaryLink: "/showroom#contact" }]]),
   policy("warranty", "Warranty", "<p>Every Shakshi mattress carries a 10-year warranty against manufacturing defects, including body impressions deeper than 2.5 cm.</p><h2>What isn't covered</h2><p>Normal softening, stains, burns, damage from an unsuitable base, or use without a protector.</p><p>Register your warranty in your account, or keep your invoice safe.</p>"),
-  policy("returns", "Returns & exchanges", "<p>Pillows, protectors and linen can be returned unused within 30 days. Mattresses are covered by our 100-night trial.</p><p>Gift cards are not refundable but never lose value during their three-year life.</p>"),
+  policy("returns", "Returns & exchanges", "<p>Pillows, protectors and linen can be returned unused within 30 days. For a mattress, please speak with our concierge.</p><p>Gift cards are not refundable but never lose value during their three-year life.</p>"),
   policy("privacy", "Privacy", "<p>We collect only what we need to deliver your order, answer your questions and, if you ask, write to you. We never sell your information.</p><p>Your account and wishlist are kept in your own browser. You can clear them at any time from your account settings.</p><p><em>Please have this page reviewed by your legal adviser before launch.</em></p>"),
   policy("terms", "Terms of sale", "<p>These terms apply to orders placed with Shakshi. Prices include GST. Delivery dates are estimates and we'll always tell you promptly if anything changes.</p><p><em>Please have this page reviewed by your legal adviser before launch.</em></p>"),
 ];

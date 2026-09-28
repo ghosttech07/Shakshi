@@ -35,7 +35,7 @@ const ROWS: { label: string; render: (p: Product, size: SizeId) => React.ReactNo
   { label: "Motion isolation", render: (p) => <Dots value={p.motionIsolation} label="Motion isolation" /> },
   { label: "Edge support", render: (p) => <Dots value={p.edgeSupport} label="Edge support" /> },
   { label: "Rating", render: (p) => <span className="flex items-center gap-2"><Stars value={p.rating} size={12} /> {p.rating.toFixed(1)}</span> },
-  { label: "Trial & warranty", render: () => "100 nights · 10 years" },
+  { label: "Warranty", render: () => "10 years" },
 ];
 
 export function CompareBar({ size }: { size: SizeId }) {

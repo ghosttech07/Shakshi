@@ -143,7 +143,7 @@ export function Invoice({ id }: { id: string }) {
         </dl>
 
         <footer className="mt-12 border-t border-[#1c2230]/15 pt-6 text-xs leading-relaxed text-[#6b635a]">
-          <p>Includes your 100-night trial and 10-year warranty. Keep this invoice for warranty claims.</p>
+          <p>Includes your 10-year warranty. Keep this invoice for warranty claims.</p>
           <p>
             Questions? {settings.phone} · {settings.email}
           </p>

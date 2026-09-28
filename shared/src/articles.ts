@@ -90,7 +90,7 @@ export const ARTICLES: Article[] = [
       { type: "p", text: "A lighter body presses less deeply, so a mattress will feel firmer to them; a broader frame sinks further and often feels more comfortable with extra support beneath. As a rule of thumb, move one step softer if you're petite and one step firmer if you're broad." },
       { type: "tip", title: "The ten-minute test", text: "Lie in your real sleeping position for at least ten minutes. The first minute tells you about the top layer; the tenth tells you about support." },
       { type: "h2", text: "Why your first week is misleading" },
-      { type: "p", text: "Muscles that have spent years compensating for a sagging mattress need time to relax into proper alignment. Many of our guests feel the difference only after two or three weeks, which is precisely why our trial lasts one hundred nights." },
+      { type: "p", text: "Muscles that have spent years compensating for a sagging mattress need time to relax into proper alignment. Many of our guests feel the difference only after two or three weeks." },
       { type: "quote", text: "The right mattress should disappear the moment you lie down. If you're thinking about it at 3am, it isn't right yet.", cite: "Arjun Rao" },
     ],
   },

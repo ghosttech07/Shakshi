@@ -26,7 +26,7 @@ const cta = [t("ctaText", "Button text"), link("ctaLink", "Button link")];
 
 export const ICONS: [string, string][] = [
   ["hand", "Hand (handcrafted)"],
-  ["moon", "Moon (trial)"],
+  ["moon", "Moon"],
   ["shield", "Shield (warranty)"],
   ["truck", "Truck (delivery)"],
   ["leaf", "Leaf (eco)"],
@@ -137,7 +137,6 @@ export const SECTIONS: Record<string, SectionDef> = {
       eyebrow: "Why Shakshi",
       items: [
         { icon: "hand", title: "Handcrafted", body: "Hand-tufted and finished by our artisans, never rushed." },
-        { icon: "moon", title: "100-night trial", body: "Sleep on it for a season. Return it freely if it isn't right." },
         { icon: "shield", title: "10-year warranty", body: "Built to hold its shape for a decade of nights." },
         { icon: "truck", title: "White-glove delivery", body: "Complimentary, set up in your room, packaging taken away." },
         { icon: "leaf", title: "Eco-certified", body: "Organic cotton, natural latex and responsibly sourced wool." },
@@ -157,7 +156,6 @@ export const SECTIONS: Record<string, SectionDef> = {
       colB: "Typical online mattress",
       rows: [
         { label: "Handcrafted to order", ours: "yes", a: "no", b: "no" },
-        { label: "Try it at home", ours: "100 nights", a: "no", b: "Often 30–100 nights" },
         { label: "Feel it before buying", ours: "Salons, home trials & video calls", a: "yes", b: "no" },
         { label: "Delivery", ours: "White-glove, set up in your room", a: "Kerbside, often charged", b: "Rolled in a box" },
         { label: "Natural materials", ours: "Wool, organic cotton, natural latex", a: "Varies", b: "Mostly synthetic foams" },

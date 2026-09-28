@@ -74,7 +74,7 @@ export function ContactForm() {
             <label className="sm:col-span-2">
               <span className="eyebrow text-stone">How can we help?</span>
               <select value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} className="field">
-                {["Choosing a mattress", "An existing order", "Delivery & set-up", "My 100-night trial", "Warranty", "Something else"].map((t) => (
+                {["Choosing a mattress", "An existing order", "Delivery & set-up", "Warranty", "Something else"].map((t) => (
                   <option key={t}>{t}</option>
                 ))}
               </select>

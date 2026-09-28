@@ -63,7 +63,7 @@ export function Footer({ site }: { site: SiteConfig }) {
         <div className="gold-rule mt-20" />
         <div className="mt-8 flex flex-col gap-4 text-xs text-pearl/50 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} {site.brand.name}®. {settings.address}</p>
-          <p className="tracking-[0.2em] uppercase">100 nights · 10 years · White-glove, always</p>
+          <p className="tracking-[0.2em] uppercase">10-year warranty · White-glove, always</p>
         </div>
       </div>
     </footer>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAccount, type LocalOrder } from "@/lib/account";
-import { CHECK_INS, STAGES, TRIAL_NIGHTS, currentStage, stageTimes, type StageId } from "@shakshi/shared/orders";
+import { STAGES, currentStage, stageTimes, type StageId } from "@shakshi/shared/orders";
 import { EASE, cn, formatINR } from "@shakshi/shared/utils";
 import { Img } from "@/components/ui/Img";
 import { IconCheck, IconShield, IconMoon } from "@/components/ui/Icons";
@@ -130,41 +130,6 @@ function Warranty({ order }: { order: LocalOrder }) {
   );
 }
 
-function Trial({ order, deliveredAt }: { order: LocalOrder; deliveredAt: Date }) {
-  const night = Math.max(1, Math.min(TRIAL_NIGHTS, Math.floor((Date.now() - deliveredAt.getTime()) / 86400000) + 1));
-  const left = TRIAL_NIGHTS - night;
-  const r = 44;
-  const c = 2 * Math.PI * r;
-  const due = [...CHECK_INS].reverse().find((k) => night >= k.night);
-  return (
-    <div className="mt-8 grid gap-8 border-t border-ink/10 pt-8 md:grid-cols-[auto_1fr] md:gap-12">
-      <div className="flex items-center gap-5">
-        <svg width="108" height="108" viewBox="0 0 108 108" className="-rotate-90" role="img" aria-label={`Night ${night} of ${TRIAL_NIGHTS}`}>
-          <circle cx="54" cy="54" r={r} fill="none" stroke="currentColor" strokeOpacity=".1" strokeWidth="3" />
-          <motion.circle cx="54" cy="54" r={r} fill="none" stroke="#c9a96e" strokeWidth="3" strokeLinecap="round" strokeDasharray={c} initial={{ strokeDashoffset: c }} animate={{ strokeDashoffset: c - (night / TRIAL_NIGHTS) * c }} transition={{ duration: 1.8, ease: EASE }} />
-        </svg>
-        <div>
-          <p className="eyebrow text-stone">100-night trial</p>
-          <p className="font-serif text-4xl">Night {night}</p>
-          <p className="text-xs text-stone">{left > 0 ? `${left} nights to decide` : "Your trial is complete. Sleep well."}</p>
-        </div>
-      </div>
-      <ul className="grid gap-3 sm:grid-cols-3">
-        {CHECK_INS.map((k) => {
-          const open = night >= k.night;
-          return (
-            <li key={k.night} className={cn("border p-4 transition-colors duration-700", due?.night === k.night ? "border-gold bg-gold/[0.07]" : open ? "border-ink/15" : "border-dashed border-ink/15 opacity-60")}>
-              <p className="eyebrow text-gold-ink">Night {k.night}</p>
-              <p className="mt-2 font-serif text-xl">{k.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-stone">{open ? k.body : `Opens on ${dayFmt.format(new Date(deliveredAt.getTime() + (k.night - 1) * 86400000))}`}</p>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
 function OrderCard({ order }: { order: LocalOrder }) {
   const tracking = useTracking(order);
   const delivered = tracking?.stage === "delivered";
@@ -197,7 +162,6 @@ function OrderCard({ order }: { order: LocalOrder }) {
         </div>
       </header>
       {tracking ? <Timeline tracking={tracking} /> : <div className="skeleton mt-8 h-16" />}
-      {delivered && tracking && <Trial order={order} deliveredAt={new Date(tracking.times.delivered)} />}
       <div className="mt-8 border-t border-ink/10 pt-6">
         <Warranty order={order} />
       </div>

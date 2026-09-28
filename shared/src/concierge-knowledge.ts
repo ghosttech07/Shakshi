@@ -19,7 +19,6 @@ SIZES: ${SIZES.map((s) => `${s.label} ${s.dims}`).join("; ")}.
 ACCESSORIES: ${ACCESSORIES.map((a) => `${a.name} ${formatINR(a.price)}`).join("; ")}. Aurelia bed frame ${formatINR(58000)}. Old-mattress removal ${formatINR(1500)}.
 
 POLICIES:
-- 100-night home trial. Sleep on it for at least 21 nights; if it isn't right, we collect it free and refund in full.
 - 10-year warranty against sagging over 2.5cm and manufacturing defects.
 - Free white-glove delivery: two-person team, full set-up, packaging removed. Metro cities (Delhi NCR, Mumbai, Pune, Bengaluru, Hyderabad, Chennai, Kolkata, Ahmedabad, Jaipur, Chandigarh) in 3–5 days; elsewhere in India 6–9 days.
 - No-cost EMI over 3, 6 or 12 months on major cards; pay-later options available at checkout.
@@ -56,11 +55,6 @@ const RULES: Rule[] = [
     reply: "Stomach sleepers are happiest a little firmer, so **The Atelier** (medium-firm, natural latex) or **The Sovereign** (luxe firm) keep your hips level and your back at ease.",
   },
   {
-    test: /trial|return|refund|100/i,
-    reply:
-      "You have **100 nights** to decide. We ask you to give it at least 21 nights, as your body takes a little time to settle in. If it isn't right, we collect it from your home at no cost and refund you in full.",
-  },
-  {
     test: /deliver|shipping|pincode|when.*arrive|white.?glove/i,
     reply:
       "Delivery is always complimentary and white-glove: a two-person team sets everything up and takes the packaging away. Metro cities receive in **3–5 days**, the rest of India in **6–9 days**. Enter your pincode on any mattress page for an exact date.",
@@ -87,7 +81,7 @@ const RULES: Rule[] = [
   },
   {
     test: /price|cost|cheap|expensive|budget/i,
-    reply: `Our Queen mattresses range from ${formatINR(64900)} (The Cirrus) to ${formatINR(169900)} (The Sovereign), with no-cost EMI and a 100-night trial on every one.`,
+    reply: `Our Queen mattresses range from ${formatINR(64900)} (The Cirrus) to ${formatINR(169900)} (The Sovereign), with no-cost EMI on every one.`,
   },
   {
     test: /natural|organic|eco|latex|allerg/i,

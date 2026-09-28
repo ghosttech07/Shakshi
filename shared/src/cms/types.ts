@@ -1,7 +1,7 @@
 /**
  * The content model. Every storefront page is an ordered list of sections; every section has a
  * type (from the registry in ./sections) and its own editable fields. Global content (brand,
- * navigation, footer, theme, SEO, popups…) lives in one SiteConfig document.
+ * navigation, footer, theme, SEO…) lives in one SiteConfig document.
  */
 
 export type FieldType =
@@ -87,10 +87,6 @@ export type SiteConfig = {
     metroPrefixes: string[];
     remotePrefixes: string[];
     unserviceable: string[];
-  };
-  popups: {
-    exitIntent: { enabled: boolean; eyebrow: string; title: string; body: string; ctaText: string; ctaLink: string; offer: string; image?: string; start?: string; end?: string };
-    newsletterOffer: string;
   };
   showrooms: { id: string; city: string; name: string; address: string; hours: string; phone: string; image: string; lat: number; lng: number }[];
 };

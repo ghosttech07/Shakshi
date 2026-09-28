@@ -42,10 +42,6 @@ export const DEFAULT_SITE: SiteConfig = {
     remotePrefixes: DEFAULT_SETTINGS.remotePrefixes,
     unserviceable: DEFAULT_SETTINGS.unserviceable,
   },
-  popups: {
-    exitIntent: { enabled: true, eyebrow: "Before you drift away", title: "Talk to a *sleep specialist*.", body: "Fifteen unhurried minutes on video, always free. We’ll help you find the mattress your body has been waiting for.", ctaText: "Book a free video call", ctaLink: "/showroom?kind=video#book", offer: "Or join the Sleep Society and receive a complimentary Silk Protector with your first mattress.", image: "https://images.unsplash.com/photo-1531353826977-0941b4779a1c" },
-    newsletterOffer: "A complimentary Silk Protector with your first mattress.",
-  },
   showrooms: SHOWROOMS.map((s) => ({ ...s })),
 };
 

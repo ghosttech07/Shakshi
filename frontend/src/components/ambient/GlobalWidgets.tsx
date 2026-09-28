@@ -9,14 +9,13 @@ import { useSite } from "@/lib/site-context";
 const CartDrawer = dynamic(() => import("@/components/commerce/CartDrawer").then((m) => m.CartDrawer), { ssr: false });
 const QuickView = dynamic(() => import("@/components/commerce/QuickView").then((m) => m.QuickView), { ssr: false });
 const Concierge = dynamic(() => import("@/components/features/Concierge").then((m) => m.Concierge), { ssr: false });
-const ExitIntent = dynamic(() => import("@/components/features/ExitIntent").then((m) => m.ExitIntent), { ssr: false });
 const SocialProof = dynamic(() => import("./SocialProof").then((m) => m.SocialProof), { ssr: false });
 const Cursor = dynamic(() => import("./Cursor").then((m) => m.Cursor), { ssr: false });
 const FlyToCart = dynamic(() => import("./FlyToCart").then((m) => m.FlyToCart), { ssr: false });
 const SiteEffects = dynamic(() => import("./SiteEffects").then((m) => m.SiteEffects), { ssr: false });
 
 export function GlobalWidgets() {
-  const { theme, popups } = useSite();
+  const { theme } = useSite();
   const preview = usePathname() === "/preview";
   const t = theme.toggles;
   return (
@@ -24,7 +23,6 @@ export function GlobalWidgets() {
       <CartDrawer />
       <QuickView />
       {t.concierge && !preview && <Concierge />}
-      {popups.exitIntent.enabled && !preview && <ExitIntent />}
       {t.socialProof && !preview && <SocialProof />}
       {t.cursor && theme.motion === "full" && !preview && <Cursor />}
       <FlyToCart />

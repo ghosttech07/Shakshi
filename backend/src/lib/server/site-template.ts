@@ -13,6 +13,5 @@ export const SITE_TEMPLATE: SiteConfig = {
   analytics: { gaId: "", metaPixelId: "" },
   redirects: [{ from: "", to: "", permanent: true }],
   commerce: { ...DEFAULT_SITE.commerce, metroPrefixes: [""], remotePrefixes: [""], unserviceable: [""] },
-  popups: { exitIntent: { ...DEFAULT_SITE.popups.exitIntent, image: "", start: "", end: "" }, newsletterOffer: "" },
   showrooms: [{ id: "", city: "", name: "", address: "", hours: "", phone: "", image: "", lat: 0, lng: 0 }],
 };

@@ -189,6 +189,5 @@ export function mergeSite(s: Partial<SiteConfig>): SiteConfig {
     seo: { ...d.seo, ...s.seo },
     analytics: { ...d.analytics, ...s.analytics },
     commerce: { ...d.commerce, ...s.commerce },
-    popups: { ...d.popups, ...s.popups, exitIntent: { ...d.popups.exitIntent, ...s.popups?.exitIntent } },
   };
 }

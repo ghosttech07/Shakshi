@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { phoneHref } from "@shakshi/shared/settings";
 import type { SiteConfig } from "@shakshi/shared/cms/types";
-import { IconPhone, IconWhatsApp, IconMail } from "@/components/ui/Icons";
+import { IconPhone, IconWhatsApp, IconMail, IconPin } from "@/components/ui/Icons";
 
 export function Footer({ site }: { site: SiteConfig }) {
   // A column named like a top-menu dropdown (e.g. "About") lists exactly that dropdown's links,
@@ -36,6 +36,13 @@ export function Footer({ site }: { site: SiteConfig }) {
                   <IconMail size={18} className="text-gold" /> {settings.email}
                 </a>
               </li>
+              {settings.address && (
+                <li>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-start gap-3 leading-relaxed hover:text-gold">
+                    <IconPin size={18} className="mt-0.5 shrink-0 text-gold" /> <span>{settings.address}</span>
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
           <div className="grid grid-cols-2 gap-10 lg:grid-cols-4">

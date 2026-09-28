@@ -7,7 +7,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   phone: CONTACT.phone,
   email: CONTACT.email,
   whatsapp: CONTACT.whatsapp,
-  address: "Shakshi Atelier, Whitefield Road, Bengaluru 560066",
+  address: "363/288/1, Hasanganj, Campbell Rd, opp. Exon Montessory School, Bawali, Lucknow, Uttar Pradesh 226017",
   announcement: { enabled: true, text: "Complimentary white-glove delivery on every mattress", link: "/shop" },
   metroPrefixes: ["11", "12", "20", "40", "41", "56", "50", "60", "70", "38", "30", "16"],
   remotePrefixes: ["79", "18", "19", "74", "73"],

@@ -312,8 +312,8 @@ export const SHOWROOMS = [
 ];
 
 export const CONTACT = {
-  phone: "+91 1800 266 8876",
-  phoneHref: "tel:+9118002668876",
-  whatsapp: "https://wa.me/919800000000?text=Hello%20Shakshi%2C%20I%27d%20love%20some%20help%20choosing%20a%20mattress.",
-  email: "concierge@shakshi.example",
+  phone: "+91 7525099887",
+  phoneHref: "tel:+917525099887",
+  whatsapp: "https://wa.me/917525099887?text=Hello%20Shakshi%2C%20I%27d%20love%20some%20help%20choosing%20a%20mattress.",
+  email: "Sales@shakshiproducts.com",
 };

@@ -2,6 +2,8 @@
 Downloads the free (CC0) Poly Haven furniture, materials and sky used by the 3D house,
 then shrinks them for the web. Run from the repository: python frontend/scripts/fetch-house-assets.py
 Output: frontend/public/house/  (models/*.gltf staging, textures/*.webp, env/*)
+Then compress each model: npx @gltf-transform/cli optimize <in.gltf> <out.glb> --texture-compress webp
+  --texture-size 1024 --compress meshopt (trees and grass also: --simplify true --simplify-ratio 0.08).
 All assets: https://polyhaven.com (CC0, free for commercial use).
 """
 import json, os, sys, urllib.request
@@ -16,15 +18,17 @@ MODELS = [
     "potted_plant_02", "potted_plant_04", "potted_plant_01", "ceramic_vase_01",
     "book_encyclopedia_set_01", "hanging_picture_frame_02", "standing_picture_frame_01", "standing_picture_frame_02",
     "modern_ceiling_lamp_01", "dining_chair_02", "side_table_01", "steel_frame_shelves_01",
+    "island_tree_02", "grass_medium_01",  # slimmed with --simplify (see README in this folder's header)
 ]
 # texture name -> maps to fetch (Poly Haven map keys) and output size
 TEXTURES = {
     "herringbone_parquet": 1024, "painted_plaster_wall": 1024, "marble_01": 1024, "rough_linen": 1024,
     "poly_wool_herringbone": 1024, "black_oak_veneer": 1024, "exterior_wall_cladding": 1024,
     "exterior_wall_cladding_03": 1024, "grass_ground": 1024, "stone_tiles_02": 1024, "brushed_concrete": 1024,
+    "beige_wall_001": 1024,
 }
 MAPS = {"Diffuse": "diff", "nor_gl": "nor", "Rough": "rough"}
-SKY = "belfast_sunset_puresky"
+SKY = "qwantani_dusk_2_puresky"
 
 
 def get(url):

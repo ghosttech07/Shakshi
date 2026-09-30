@@ -78,7 +78,7 @@ export function SocialProof() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-5 left-5 z-[65] max-w-[calc(100vw-6.5rem)] sm:bottom-8 sm:left-8" role="status" aria-live="polite">
+    <div className="social-proof pointer-events-none fixed bottom-5 left-5 z-[65] max-w-[calc(100vw-6.5rem)] sm:bottom-8 sm:left-8" role="status" aria-live="polite">
       <AnimatePresence>
         {notice && !blocked && (
           <motion.div

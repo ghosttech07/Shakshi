@@ -50,7 +50,11 @@ export function HouseExperience() {
   useEffect(() => {
     if (!intro) return;
     lockScroll();
-    return () => unlockScroll();
+    document.body.dataset.intro = "1";
+    return () => {
+      unlockScroll();
+      delete document.body.dataset.intro;
+    };
   }, [intro]);
 
   const endIntro = useCallback(() => {
@@ -101,7 +105,7 @@ export function HouseExperience() {
       <div aria-hidden style={{ height: "900svh" }} />
 
       {/* Room captions */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[12svh] z-10 flex justify-center px-5">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[22svh] z-10 flex justify-center px-5">
         <AnimatePresence mode="wait">
           {!intro &&
             CAPTIONS.filter((c) => p >= c.from && p <= c.to).map((c) => (

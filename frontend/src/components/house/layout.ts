@@ -32,8 +32,8 @@ export const BED = { x: 0, z: -13.45 };
  * The last stop is the bedroom, where the bed and everything clickable is in view.
  */
 export const PATH: { at: number; pos: [number, number, number]; look: [number, number, number] }[] = [
-  { at: 0.0, pos: [11, 5.2, 34], look: [0, 1.9, 0] },
-  { at: 0.16, pos: [3.5, 2.6, 21], look: [0, 1.7, 2] },
+  { at: 0.0, pos: [15, 2.4, 25], look: [-1.5, 2.9, 2] },
+  { at: 0.16, pos: [5, 1.9, 17], look: [0, 1.9, 2] },
   { at: 0.3, pos: [0.2, 1.7, 10.5], look: [0, 1.55, 0] },
   { at: 0.42, pos: [0.15, 1.66, 5.4], look: [-1.2, 1.4, 0] },
   { at: 0.55, pos: [0.4, 1.66, 2.2], look: [-3.6, 1.1, 2.4] },

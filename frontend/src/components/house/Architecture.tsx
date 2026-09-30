@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import { useMemo, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import { box, plane, type SurfaceKey } from "./materials";
@@ -153,13 +154,13 @@ function Downlights({ spots }: { spots: [number, number][] }) {
   );
 }
 
-/** The pool: deep turquoise water catching the sunset. */
+/** The pool: stone coping around lit turquoise water that moves gently. */
 function Pool({ mats }: { mats: Mats }) {
   const water = useMemo(
-    () => new THREE.MeshPhysicalMaterial({ color: "#1d5f6b", roughness: 0.04, metalness: 0.1, envMapIntensity: 1.6, clearcoat: 1, clearcoatRoughness: 0.03, transparent: true, opacity: 0.92 }),
+    () => new THREE.MeshPhysicalMaterial({ color: "#2a8fa0", roughness: 0.02, metalness: 0.05, envMapIntensity: 1.8, clearcoat: 1, clearcoatRoughness: 0.02, transparent: true, opacity: 0.78 }),
     []
   );
-  const ref = useRef<THREE.Mesh>(null);
+  const basin = useMemo(() => new THREE.MeshStandardMaterial({ color: "#7fd3dd", emissive: "#2bb7c9", emissiveIntensity: 0.9, roughness: 0.6 }), []);
   const geo = useMemo(() => new THREE.PlaneGeometry(9, 3.6, 60, 24).rotateX(-Math.PI / 2), []);
   const rest = useMemo(() => new Float32Array(geo.attributes.position.array), [geo]);
   useFrame(({ clock }) => {
@@ -173,14 +174,115 @@ function Pool({ mats }: { mats: Mats }) {
     pos.needsUpdate = true;
     geo.computeVertexNormals();
   });
+  const c = 0.4; // coping width
   return (
-    <group position={[-7.5, 0, 13.4]}>
-      <Block size={[9.8, 0.3, 4.4]} at={[0, -0.32, 0]} mat={mats.paving} />
-      <mesh position={[0, -0.33, 0]} material={new THREE.MeshStandardMaterial({ color: "#0b3a44", roughness: 0.6 })}>
+    <group position={[-7.5, 0, 13.6]}>
+      {/* coping: four stone strips framing the water */}
+      <Block size={[9 + c * 2, 0.16, c]} at={[0, -0.2, 1.8 + c / 2]} mat={mats.paving} />
+      <Block size={[9 + c * 2, 0.16, c]} at={[0, -0.2, -1.8 - c / 2]} mat={mats.paving} />
+      <Block size={[c, 0.16, 3.6]} at={[4.5 + c / 2, -0.2, 0]} mat={mats.paving} />
+      <Block size={[c, 0.16, 3.6]} at={[-4.5 - c / 2, -0.2, 0]} mat={mats.paving} />
+      {/* lit basin below the surface */}
+      <mesh position={[0, -1.1, 0]} material={basin}>
         <boxGeometry args={[9, 0.02, 3.6]} />
       </mesh>
-      <mesh ref={ref} geometry={geo} material={water} position={[0, -0.2, 0]} receiveShadow />
+      {[-4.5, 4.5].map((x) => (
+        <mesh key={x} position={[x, -0.66, 0]} material={basin}>
+          <boxGeometry args={[0.02, 0.9, 3.6]} />
+        </mesh>
+      ))}
+      {[-1.8, 1.8].map((z) => (
+        <mesh key={z} position={[0, -0.66, z]} material={basin}>
+          <boxGeometry args={[9, 0.9, 0.02]} />
+        </mesh>
+      ))}
+      <mesh geometry={geo} material={water} position={[0, -0.22, 0]} receiveShadow />
+      <pointLight position={[0, -0.6, 0]} intensity={6} distance={7} decay={2} color="#5fd6e6" />
     </group>
+  );
+}
+
+/** Trees and soft grass: the garden that frames the house. */
+function Garden() {
+  const tree = useGLTF("/house/models/island_tree_02.glb").scene;
+  const grass = useGLTF("/house/models/grass_medium_01.glb").scene;
+  const clone = (o: THREE.Object3D) => {
+    const c = o.clone(true);
+    c.traverse((m) => {
+      const mesh = m as THREE.Mesh;
+      if (mesh.isMesh) {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+    });
+    return c;
+  };
+  const trees = useMemo(
+    () =>
+      ([
+        [-14.5, -0.36, 9, 1.25, 0.4],
+        [12.5, -0.36, 12.5, 1.05, 2.1],
+        [-11, -0.36, -6, 1.4, 4.2],
+        [11.5, -0.36, -3, 1.2, 1.2],
+        // a loose line of trees further back, so the horizon isn't bare
+        [-26, -0.36, -24, 1.6, 0.8],
+        [-15, -0.36, -31, 1.8, 2.6],
+        [-3, -0.36, -34, 1.5, 4.0],
+        [9, -0.36, -30, 1.9, 1.7],
+        [21, -0.36, -22, 1.6, 3.3],
+        [29, -0.36, -6, 1.7, 5.1],
+        [-31, -0.36, -2, 1.5, 0.3],
+      ] as const).map(([x, y, z, s, r]) => ({ obj: clone(tree), x, y, z, s, r })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tree]
+  );
+  const tufts = useMemo(() => {
+    const out: { obj: THREE.Object3D; x: number; z: number; s: number; r: number }[] = [];
+    // along the front of the house, both sides of the terrace, and around the pool
+    const rows: [number, number, number, number][] = [
+      [-13, 6.6, -9.2, 6.6],
+      [9.2, 6.6, 13, 6.6],
+      [-13, 15.9, -2, 15.9],
+      [7.8, 7.2, 7.8, 13],
+      [-7.6, -14.6, -7.6, 5.2],
+      [7.6, -14.6, 7.6, 5.2],
+    ];
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (const [x0, z0, x1, z1] of rows) {
+      const n = Math.round(Math.hypot(x1 - x0, z1 - z0) / 0.9);
+      for (let i = 0; i <= n; i++) {
+        const k = i / n;
+        out.push({ obj: clone(grass), x: x0 + (x1 - x0) * k + (rnd() - 0.5) * 0.5, z: z0 + (z1 - z0) * k + (rnd() - 0.5) * 0.5, s: 0.9 + rnd() * 0.6, r: rnd() * 6.28 });
+      }
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grass]);
+  return (
+    <group>
+      {trees.map((t, i) => (
+        <primitive key={i} object={t.obj} position={[t.x, t.y, t.z]} scale={t.s} rotation={[0, t.r, 0]} />
+      ))}
+      {tufts.map((t, i) => (
+        <primitive key={`g${i}`} object={t.obj} position={[t.x, -0.36, t.z]} scale={t.s} rotation={[0, t.r, 0]} />
+      ))}
+    </group>
+  );
+}
+
+/** Soffit downlights set into the underside of the roof's front overhang. */
+function Soffit() {
+  const xs = [-6.5, -4.5, -2.5, -0.5, 1.5, 3.5, 5.5];
+  return (
+    <>
+      {xs.map((x) => (
+        <mesh key={x} position={[x, HOUSE.height - 0.002, 7.1]} rotation={[Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.06, 20]} />
+          <meshStandardMaterial color="#fff1d6" emissive="#ffd9a0" emissiveIntensity={9} toneMapped={false} />
+        </mesh>
+      ))}
+    </>
   );
 }
 
@@ -219,7 +321,8 @@ export function Architecture({ mats, progress }: { mats: Mats; progress: Mutable
     <group>
       {/* Ground: lawn stretching away, and the stone terrace in front */}
       <mesh geometry={useMemo(() => plane(160, 160, 3), [])} material={mats.lawn} position={[0, -0.36, 0]} receiveShadow />
-      <Block size={[26, 0.24, 7.4]} at={[0, -0.24, 9.7]} mat={mats.paving} />
+      <Block size={[20, 0.24, 5.4]} at={[1, -0.24, 8.7]} mat={mats.paving} />
+      <Block size={[8, 0.24, 5.2]} at={[7, -0.24, 13.8]} mat={mats.paving} />
       <Block size={[W + 1.4, 0.36, D + 1.4]} at={[0, -0.18, (z0 + z1) / 2]} mat={mats.concrete} shadow={false} />
 
       {/* Interior floor and ceiling */}
@@ -256,16 +359,27 @@ export function Architecture({ mats, progress }: { mats: Mats; progress: Mutable
       {/* Roof slab with a deep front overhang, and the upper wing clad in dark oak */}
       <Block size={[W + 1.2, 0.35, D + 2.4]} at={[0, H + 0.175, (z0 + z1) / 2 + 0.8]} mat={mats.render} />
       <Block size={[9.4, 3.2, 10.2]} at={[-2.9, HOUSE.roofTop + 1.6, 2.1]} mat={mats.darkOak} />
-      {/* its long ribbon window, glowing warm */}
-      <mesh position={[-2.9, HOUSE.roofTop + 1.7, 7.21]}>
-        <planeGeometry args={[8.2, 1.1]} />
-        <meshStandardMaterial color="#ffd6a0" emissive="#ffb866" emissiveIntensity={1.6} toneMapped={false} />
+      {/* its long ribbon window: a warm-lit room seen through glass */}
+      <mesh position={[-2.9, HOUSE.roofTop + 1.7, 7.19]}>
+        <planeGeometry args={[8.2, 1.3]} />
+        <meshStandardMaterial color="#3a2a1f" emissive="#ffb866" emissiveIntensity={0.55} roughness={0.8} />
       </mesh>
+      <mesh position={[-2.9, HOUSE.roofTop + 1.7, 7.22]} material={glass}>
+        <planeGeometry args={[8.2, 1.3]} />
+      </mesh>
+      {Array.from({ length: 7 }, (_, i) => (
+        <mesh key={i} position={[-2.9 - 4.1 + i * (8.2 / 6), HOUSE.roofTop + 1.7, 7.24]} material={frameMat}>
+          <boxGeometry args={[0.05, 1.34, 0.05]} />
+        </mesh>
+      ))}
+      <pointLight position={[-2.9, HOUSE.roofTop + 1.8, 5.5]} intensity={5} distance={6} decay={2} color="#ffc27a" />
 
       <Downlights spots={[[-4, 1.5], [-4, 4.5], [3.5, 1.5], [3.5, 4.5], [-2.6, -2.2], [3.4, -3], [-4.5, -9], [4.5, -9], [-4.5, -13], [4.5, -13]]} />
 
       <Pool mats={mats} />
       <Bollards />
+      <Soffit />
+      <Garden />
     </group>
   );
 }

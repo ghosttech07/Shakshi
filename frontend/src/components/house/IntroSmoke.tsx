@@ -73,12 +73,14 @@ export function IntroSmoke({ hold = 3, dissolve = 2.4, ready, onDone }: { hold?:
       const s = gl.createShader(type)!;
       gl.shaderSource(s, src);
       gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error("[intro] shader:", gl.getShaderInfoLog(s));
       return s;
     };
     const prog = gl.createProgram()!;
     gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
     gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
     gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error("[intro] link:", gl.getProgramInfoLog(prog));
     gl.useProgram(prog);
     const buf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
@@ -144,8 +146,11 @@ export function IntroSmoke({ hold = 3, dissolve = 2.4, ready, onDone }: { hold?:
     };
     raf = requestAnimationFrame(frame);
     return () => {
+      // Release what this run created (never the context itself: React may run this effect twice)
       cancelAnimationFrame(raf);
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      gl.deleteTexture(tex);
+      gl.deleteBuffer(buf);
+      gl.deleteProgram(prog);
     };
   }, [hold, dissolve]);
 

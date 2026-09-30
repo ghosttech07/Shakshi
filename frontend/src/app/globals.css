@@ -543,7 +543,8 @@ html.lamp-mode .lamp-photo .lamp-color {
 }
 
 /* ---------- The 3D house ---------- */
-body[data-page="house"] > footer, body[data-page="house"] footer.relative { display: none; }
+body[data-page="house"] > footer, body[data-page="house"] footer.relative, body[data-page="house"] .social-proof { display: none; }
+body[data-intro] .concierge-fab, body[data-intro] .cursor-ring, body[data-intro] .cursor-dot { opacity: 0; pointer-events: none; }
 .house-hotspot { position: relative; display: flex; align-items: center; gap: 0.6rem; transform: translateX(0.25rem); white-space: nowrap; }
 .house-hotspot-dot { position: relative; width: 14px; height: 14px; border-radius: 9999px; background: #c9a96e; box-shadow: 0 0 0 4px rgb(201 169 110 / 0.28), 0 0 18px 4px rgb(201 169 110 / 0.55); }
 .house-hotspot-dot::after { content: ""; position: absolute; inset: -6px; border-radius: 9999px; border: 1.5px solid rgb(245 240 232 / 0.75); animation: house-pulse 2.2s ease-out infinite; }

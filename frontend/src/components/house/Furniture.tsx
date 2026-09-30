@@ -73,9 +73,9 @@ function Lamp({ at, height, shade = 0.42, table = false }: { at: [number, number
       </mesh>
       <mesh position={[0, height, 0]}>
         <cylinderGeometry args={[shade * 0.42, shade * 0.52, shade * 0.62, 40, 1, true]} />
-        <meshStandardMaterial color="#fff3de" emissive="#ffcf8a" emissiveIntensity={2.2} side={THREE.DoubleSide} toneMapped={false} />
+        <meshStandardMaterial color="#fff3de" emissive="#ffcf8a" emissiveIntensity={1.3} side={THREE.DoubleSide} toneMapped={false} />
       </mesh>
-      <pointLight position={[0, height - 0.05, 0]} intensity={table ? 2.2 : 3.2} distance={table ? 3.2 : 5} decay={2} color="#ffc98a" />
+      <pointLight position={[0, height - 0.05, 0]} intensity={table ? 1.3 : 2.2} distance={table ? 3 : 5} decay={2} color="#ffc98a" />
     </group>
   );
 }
@@ -101,7 +101,7 @@ export function Furniture({ mats, active, onSelect }: { mats: Mats; active: bool
   const g = useMemo(
     () => ({
       rugLiving: plane(4.4, 3.6, 0.9),
-      rugBed: plane(3.6, 3.0, 0.9),
+      rugBed: plane(2.9, 2.1, 0.9),
       tableTop: box(2.7, 0.05, 1.05, 1.6),
       tableLeg: box(0.08, 0.72, 0.85, 1.2),
       island: box(1.0, 0.88, 2.8, 1.2),
@@ -159,7 +159,17 @@ export function Furniture({ mats, active, onSelect }: { mats: Mats; active: bool
       <mesh geometry={g.tallCabinets} material={mats.darkOak} position={[6.44, 1.45, -3]} castShadow receiveShadow />
 
       {/* ───── Bedroom ───── */}
-      <mesh geometry={g.rugBed} material={mats.wool} position={[0, 0.008, -12.6]} receiveShadow />
+      <mesh geometry={g.rugBed} material={mats.wool} position={[0, 0.008, -12.1]} receiveShadow />
+      {/* Warm LED coves tracing the ceiling edge of the living room and the bedroom */}
+      {[
+        { x: 0, z: 0.25, w: 13.4, d: 0.04 },
+        { x: 0, z: -14.72, w: 13.4, d: 0.04 },
+      ].map((c) => (
+        <mesh key={c.z} position={[c.x, HOUSE.height - 0.06, c.z]}>
+          <boxGeometry args={[c.w, 0.02, c.d]} />
+          <meshStandardMaterial color="#ffe7c2" emissive="#ffc27a" emissiveIntensity={5} toneMapped={false} />
+        </mesh>
+      ))}
       {/* Dark oak slatted wall behind the bed */}
       {Array.from({ length: 22 }, (_, i) => (
         <mesh key={i} geometry={g.slat} material={mats.darkOak} position={[-2.63 + i * 0.25, 1.475, -14.83]} castShadow receiveShadow />
@@ -176,13 +186,13 @@ export function Furniture({ mats, active, onSelect }: { mats: Mats; active: bool
       </Hotspot>
 
       {/* Bookshelf: the Sleep Library */}
-      <Hotspot id="library" label="Sleep Library" anchor={[-4.6, 2.3, -14.3]} active={active} onSelect={onSelect}>
-        <Model name="steel_frame_shelves_01" at={[-4.6, 0, -14.55]} scale={0.1} />
-        <Model name="book_encyclopedia_set_01" at={[-4.98, 0.06, -14.55]} />
-        <Model name="book_encyclopedia_set_01" at={[-4.98, 0.6, -14.55]} />
-        <Model name="book_encyclopedia_set_01" at={[-4.98, 1.15, -14.55]} />
-        <Model name="potted_plant_04" at={[-4.3, 1.66, -14.5]} />
-        <Model name="ceramic_vase_01" at={[-4.3, 0.61, -14.5]} scale={0.6} />
+      <Hotspot id="library" label="Sleep Library" anchor={[-3.75, 2.3, -14.3]} active={active} onSelect={onSelect}>
+        <Model name="steel_frame_shelves_01" at={[-3.75, 0, -14.55]} scale={0.1} />
+        <Model name="book_encyclopedia_set_01" at={[-4.13, 0.06, -14.55]} />
+        <Model name="book_encyclopedia_set_01" at={[-4.13, 0.6, -14.55]} />
+        <Model name="book_encyclopedia_set_01" at={[-4.13, 1.15, -14.55]} />
+        <Model name="potted_plant_04" at={[-3.45, 1.66, -14.5]} />
+        <Model name="ceramic_vase_01" at={[-3.45, 0.61, -14.5]} scale={0.6} />
       </Hotspot>
 
       <Model name="mid_century_lounge_chair" at={[4.6, 0, -12.9]} rot={-2.5} />

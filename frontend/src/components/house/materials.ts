@@ -18,18 +18,22 @@ export type Surface = {
   rough?: number; // roughness multiplier
   normal?: number;
   noRough?: boolean;
+  /** Keep the weave (surface detail) but not the texture's own colour: the tint is the colour. */
+  noColour?: boolean;
+  /** How strongly the sky is reflected (interiors less, so rooms keep their own warm light). */
+  env?: number;
 };
 
 export const SURFACES = {
-  oakFloor: { name: "herringbone_parquet", tile: 2.2, tint: "#e8d6bd", rough: 0.85, normal: 0.6 },
-  plaster: { name: "painted_plaster_wall", tile: 3, tint: "#f4efe7", rough: 1, normal: 0.35 },
-  marble: { name: "marble_01", tile: 1.6, tint: "#f6f1ea", rough: 0.35, normal: 0.3 },
-  linen: { name: "rough_linen", tile: 0.5, tint: "#efe7da", rough: 1, normal: 0.8 },
-  wool: { name: "poly_wool_herringbone", tile: 0.9, tint: "#d9ccb8", rough: 1, normal: 1 },
-  darkOak: { name: "black_oak_veneer", tile: 1.2, tint: "#6b4e36", rough: 0.7, normal: 0.5 },
+  oakFloor: { name: "herringbone_parquet", tile: 2.2, tint: "#fff1dd", rough: 0.82, normal: 0.55, env: 0.4 },
+  plaster: { name: "beige_wall_001", tile: 2.5, tint: "#d6d0c6", rough: 0.95, normal: 0.3, noColour: true, env: 0.35 },
+  marble: { name: "marble_01", tile: 1.6, tint: "#f6f1ea", rough: 0.35, normal: 0.3, env: 0.6 },
+  linen: { name: "rough_linen", tile: 0.5, tint: "#cdbfa9", rough: 1, normal: 1.1, noColour: true, env: 0.35 },
+  wool: { name: "poly_wool_herringbone", tile: 0.9, tint: "#b9a88f", rough: 1, normal: 1.8, noColour: true, env: 0.3 },
+  darkOak: { name: "black_oak_veneer", tile: 1.2, tint: "#6b4e36", rough: 0.7, normal: 0.5, env: 0.45 },
   stone: { name: "exterior_wall_cladding", tile: 2.4, tint: "#c9c1b4", rough: 1, normal: 1 },
   render: { name: "exterior_wall_cladding_03", tile: 3, tint: "#f1ece4", rough: 1, normal: 0.4 },
-  lawn: { name: "grass_ground", tile: 3, tint: "#7d8a55", rough: 1, normal: 0.8 },
+  lawn: { name: "grass_ground", tile: 3, tint: "#8fa05f", rough: 1, normal: 0.8 },
   paving: { name: "stone_tiles_02", tile: 2.4, tint: "#d8d0c3", rough: 0.9, normal: 0.7 },
   concrete: { name: "brushed_concrete", tile: 3, tint: "#cfc9c0", rough: 0.9, normal: 0.5 },
 } satisfies Record<string, Surface>;
@@ -55,13 +59,13 @@ export function useSurfaces() {
       }
       map.colorSpace = THREE.SRGBColorSpace;
       out[k] = new THREE.MeshStandardMaterial({
-        map,
+        map: s.noColour ? null : map,
         normalMap,
         normalScale: new THREE.Vector2(s.normal ?? 1, s.normal ?? 1),
         roughnessMap,
         roughness: s.rough ?? 1,
         color: s.tint ?? "#ffffff",
-        envMapIntensity: 0.9,
+        envMapIntensity: s.env ?? 0.9,
       });
       out[k].userData.tile = s.tile;
     });

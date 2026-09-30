@@ -101,10 +101,11 @@ function archShape(w: number, h: number) {
 export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; theme: Theme; mats: Mats; active: boolean; onSelect: (id: HotspotId) => void }) {
   const f = roomFrame(room);
   const H = HOUSE.height;
-  const wallIn = f.depth / 2 - HOUSE.wall / 2 - 0.015; // painted face, just in front of the structure
+  const wallIn = f.depth / 2 - HOUSE.wall * 1.5 - 0.015; // painted face, just in front of the outer wall's plaster lining
   const sideIn = f.width / 2 - HOUSE.wall / 2 - 0.015;
   const winX = f.width / 2 - 1.3; // the two tall windows either side of the bed
-  const bedZ = -f.depth / 2 + 0.3 + BED_D / 2 + 0.12;
+  const back = -wallIn; // the face of the wall behind the bed
+  const bedZ = back + 0.22 + BED_D / 2 + 0.12;
 
   const m = useMemo(() => {
     const paint = mats.plaster.clone();
@@ -118,7 +119,7 @@ export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; t
     const wood = new THREE.MeshStandardMaterial({ color: theme.nightstand, roughness: 0.55 });
     const metal = new THREE.MeshStandardMaterial({ color: theme.metal, roughness: 0.3, metalness: 1 });
     const lampBase = new THREE.MeshStandardMaterial({ color: theme.lampBase, roughness: 0.35, metalness: theme.lampBase === theme.metal ? 1 : 0 });
-    const shade = new THREE.MeshStandardMaterial({ color: theme.shade, emissive: "#ffcf8a", emissiveIntensity: 1.2, side: THREE.DoubleSide, toneMapped: false });
+    const shade = new THREE.MeshStandardMaterial({ color: theme.shade, emissive: "#ffcf8a", emissiveIntensity: 2.6, side: THREE.DoubleSide, toneMapped: false });
     const sheer = new THREE.MeshStandardMaterial({ color: "#f2ece2", roughness: 1, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
     const upholstery = new THREE.MeshPhysicalMaterial({ color: theme.headboard, roughness: 0.9, sheen: 1, sheenColor: new THREE.Color(theme.headboardSheen) });
     return { paint, floor, rug, accent, cane, wood, metal, lampBase, shade, sheer, upholstery };
@@ -133,7 +134,6 @@ export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; t
       side: wallShape(f.depth - HOUSE.wall, H),
       rug: plane(3.2, 2.4, 0.9),
       arch: archShape(3.2, 3.05),
-      archSmall: archShape(0.9, 1.5),
       curtain: (() => {
         const c = new THREE.PlaneGeometry(0.75, H - 0.2, 30, 1);
         const p = c.attributes.position as THREE.BufferAttribute;
@@ -196,13 +196,14 @@ export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; t
       {theme.accent === "arch" && (
         <group position={[0, 0, -wallIn + 0.02]}>
           <mesh geometry={g.arch} material={m.accent} />
+          {/* a brass line tracing the arch */}
+          <mesh position={[0, 3.05 - 1.6, 0.012]} material={m.metal}>
+            <torusGeometry args={[1.68, 0.018, 8, 48, Math.PI]} />
+          </mesh>
           {[-1, 1].map((s) => (
-            <group key={s} position={[s * 2.55, 1.2, 0.01]}>
-              <mesh geometry={g.archSmall} material={m.accent} />
-              <mesh position={[0, 0.02, 0.06]} material={m.metal}>
-                <boxGeometry args={[0.95, 0.04, 0.14]} />
-              </mesh>
-            </group>
+            <mesh key={s} position={[s * 1.68, (3.05 - 1.6) / 2, 0.012]} material={m.metal}>
+              <boxGeometry args={[0.036, 3.05 - 1.6, 0.036]} />
+            </mesh>
           ))}
         </group>
       )}
@@ -212,7 +213,7 @@ export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; t
 
       {/* Bedside tables and lamps */}
       {[-1, 1].map((s) => (
-        <group key={s} position={[s * nightX, 0, -f.depth / 2 + 0.6]}>
+        <group key={s} position={[s * nightX, 0, back + 0.6]}>
           <RoundedBox args={[0.56, 0.44, 0.44]} radius={0.02} position={[0, 0.34, 0]} material={m.wood} castShadow />
           <mesh position={[0, 0.34, 0.225]} material={m.metal}>
             <boxGeometry args={[0.18, 0.015, 0.01]} />
@@ -239,14 +240,14 @@ export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; t
       ))}
 
       {/* Photo frames on the right-hand table: Our Story */}
-      <Hotspot id="story" label="Our Story" anchor={[nightX - 0.2, 1.05, -f.depth / 2 + 0.75]} active={on} onSelect={onSelect}>
-        <Model name="standing_picture_frame_01" at={[nightX - 0.2, topY, -f.depth / 2 + 0.66]} rot={-Math.PI / 2 - 0.3} scale={1.25} />
-        <Model name="standing_picture_frame_02" at={[-nightX + 0.2, topY, -f.depth / 2 + 0.66]} rot={-Math.PI / 2 + 0.3} scale={1.25} />
+      <Hotspot id="story" label="Our Story" anchor={[nightX - 0.2, 1.05, back + 0.75]} active={on} onSelect={onSelect}>
+        <Model name="standing_picture_frame_01" at={[nightX - 0.2, topY, back + 0.66]} rot={-Math.PI / 2 - 0.3} scale={1.25} />
+        <Model name="standing_picture_frame_02" at={[-nightX + 0.2, topY, back + 0.66]} rot={-Math.PI / 2 + 0.3} scale={1.25} />
       </Hotspot>
 
       {/* A bookshelf against the left wall: the Sleep Library */}
-      <Hotspot id="library" label="Sleep Library" anchor={[-f.width / 2 + 0.5, 2.35, -f.depth / 2 + 1.35]} active={on} onSelect={onSelect}>
-        <group position={[-f.width / 2 + 0.42, 0, -f.depth / 2 + 1.35]} rotation={[0, Math.PI / 2, 0]}>
+      <Hotspot id="library" label="Sleep Library" anchor={[-f.width / 2 + 0.5, 2.35, back + 1.35]} active={on} onSelect={onSelect}>
+        <group position={[-f.width / 2 + 0.42, 0, back + 1.35]} rotation={[0, Math.PI / 2, 0]}>
           <Model name="steel_frame_shelves_01" at={[0, 0, 0]} scale={0.1} />
           <Model name="book_encyclopedia_set_01" at={[-0.38, 0.06, 0]} />
           <Model name="book_encyclopedia_set_01" at={[-0.38, 0.6, 0]} />
@@ -265,10 +266,10 @@ export function Bedroom({ room, theme, mats, active, onSelect }: { room: Room; t
       )))}
 
       {/* Theme extras */}
-      {theme.extras.includes("lounge") && <Model name="mid_century_lounge_chair" at={[f.width / 2 - 1.1, 0, -f.depth / 2 + 1.5]} rot={-0.7} />}
+      {theme.extras.includes("lounge") && <Model name="mid_century_lounge_chair" at={[f.width / 2 - 1.1, 0, back + 1.5]} rot={-0.7} />}
       {theme.extras.includes("plants") && (
         <>
-          <Model name="potted_plant_02" at={[f.width / 2 - 0.5, 0, -f.depth / 2 + 0.5]} />
+          <Model name="potted_plant_02" at={[f.width / 2 - 0.5, 0, back + 0.5]} />
           <Model name="potted_plant_01" at={[-f.width / 2 + 0.5, 0, f.depth / 2 - 0.9]} scale={1.2} />
         </>
       )}

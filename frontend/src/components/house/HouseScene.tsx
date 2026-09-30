@@ -14,7 +14,7 @@ import { BEDROOMS, PATH, roomFrame, type ThemeId } from "./layout";
 import { useSurfaces } from "./materials";
 import { THEMES } from "./themes";
 
-const SKY_TURN = 0;
+const SKY_TURN = 3.3;
 const SKY = "/house/env/qwantani_dusk_2_puresky";
 
 /**
@@ -67,6 +67,12 @@ function CameraRig({ progress }: { progress: MutableRefObject<number> }) {
   return null;
 }
 
+/** Turns the panorama so the sunset glows behind the house (dev: ?sky=<radians> to try others). */
+function skyTurn(): [number, number, number] {
+  const q = typeof location === "undefined" ? NaN : Number(new URLSearchParams(location.search).get("sky") ?? NaN);
+  return [0, Number.isFinite(q) ? q : SKY_TURN, 0];
+}
+
 /** The blue-hour sky as the visible background (the lighting comes from its HDR twin). */
 function Sky() {
   const { scene } = useThree();
@@ -75,12 +81,7 @@ function Sky() {
     tex.mapping = THREE.EquirectangularReflectionMapping;
     tex.colorSpace = THREE.SRGBColorSpace;
     scene.background = tex;
-    // Turns the panorama so the sunset glows behind the house (dev: ?sky=<radians> to try others)
-    const q = Number(new URLSearchParams(location.search).get("sky"));
-    const turn = Number.isFinite(q) && location.search.includes("sky=") ? q : SKY_TURN;
-    scene.backgroundRotation.set(0, turn, 0);
-    scene.backgroundIntensity = 0.8;
-    scene.environmentRotation.set(0, turn, 0);
+    scene.backgroundIntensity = 0.5;
     scene.fog = new THREE.Fog("#8f86a3", 90, 300);
     return () => {
       scene.background = null;
@@ -111,8 +112,8 @@ function RoamingLights() {
     const warm = "#ffe6c6";
     const list: Zone[] = [
       { centre: new THREE.Vector3(0, 2, 13), lights: [{ pos: [-3, 3.1, 7.4], color: "#ffcf92", intensity: 11, distance: 10 }, { pos: [3, 3.1, 7.4], color: "#ffcf92", intensity: 11, distance: 10 }] },
-      { centre: new THREE.Vector3(0, 1.6, 3), lights: [{ pos: [-5, 3.0, 3], color: warm, intensity: 10, distance: 12 }, { pos: [4.5, 3.0, 3], color: warm, intensity: 8, distance: 11 }] },
-      { centre: new THREE.Vector3(0, 1.6, -3), lights: [{ pos: [-3.4, 2.6, -3], color: "#ffdcae", intensity: 7, distance: 9 }, { pos: [4.6, 3.0, -3], color: warm, intensity: 6, distance: 9 }] },
+      { centre: new THREE.Vector3(0, 1.6, 3), lights: [{ pos: [-5, 3.0, 3], color: warm, intensity: 5.5, distance: 11 }, { pos: [4.5, 3.0, 3], color: warm, intensity: 4.5, distance: 10 }] },
+      { centre: new THREE.Vector3(0, 1.6, -3), lights: [{ pos: [-3.4, 2.6, -3], color: "#ffdcae", intensity: 5, distance: 9 }, { pos: [4.6, 3.0, -3], color: warm, intensity: 4, distance: 9 }] },
       { centre: new THREE.Vector3(0, 1.6, -14), lights: [{ pos: [0, 3.1, -9], color: warm, intensity: 4, distance: 8 }, { pos: [0, 3.1, -19], color: warm, intensity: 4, distance: 8 }] },
     ];
     for (const b of BEDROOMS) {
@@ -122,8 +123,10 @@ function RoamingLights() {
       list.push({
         centre: new THREE.Vector3(f.x * 0.55, 1.6, f.z),
         lights: [
-          { pos: inRoom(b.id, 0, 3.0, 0.6), color: t.light, intensity: dark ? 10 : 7.5, distance: 10 },
-          { pos: inRoom(b.id, 0, 1.3, -f.depth / 2 + 1.3), color: "#ffc98a", intensity: dark ? 4.5 : 3.5, distance: 5 },
+          // the room's ceiling light, over the foot of the bed
+          { pos: inRoom(b.id, 0, 3.05, -0.9), color: t.light, intensity: dark ? 6.5 : 4.2, distance: 9 },
+          // a warm wash grazing down the wall behind the bed
+          { pos: inRoom(b.id, 0, 2.75, -f.depth / 2 + 0.75), color: "#ffc98a", intensity: dark ? 2.6 : 1.7, distance: 4 },
         ],
       });
     }
@@ -264,6 +267,7 @@ type Props = { progress: MutableRefObject<number>; room: ThemeId | null; onSelec
 function HouseScene({ progress, room, onSelect, onReady, lite = false }: Props) {
   // Sharpness adapts to the device: it steps down if frames start to slip, so scrolling stays smooth
   const [dpr, setDpr] = useState(lite ? 1 : 1.5);
+  const turn = useMemo(skyTurn, []);
   return (
     <Canvas
       shadows
@@ -278,15 +282,16 @@ function HouseScene({ progress, room, onSelect, onReady, lite = false }: Props) 
         onIncline={() => setDpr((d) => Math.min(lite ? 1.25 : 1.75, d + 0.25))}
       />
       <Suspense fallback={null}>
+        <Environment files={`${SKY}_1k.hdr`} environmentIntensity={0.6} environmentRotation={turn} backgroundRotation={turn} backgroundIntensity={0.5} />
+        {/* after the Environment, which resets the backdrop settings when it loads */}
         <Sky />
-        <Environment files={`${SKY}_1k.hdr`} environmentIntensity={0.6} />
         <Lights />
         <StillShadows />
         <House progress={progress} room={room} onSelect={onSelect} />
         <CameraRig progress={progress} />
         <EffectComposer multisampling={0} enableNormalPass={false}>
           <N8AO halfRes aoRadius={0.9} distanceFalloff={0.8} intensity={lite ? 1.6 : 2.4} quality={lite ? "performance" : "medium"} />
-          <Bloom mipmapBlur luminanceThreshold={0.95} luminanceSmoothing={0.2} intensity={0.55} />
+          <Bloom mipmapBlur luminanceThreshold={1.6} luminanceSmoothing={0.3} intensity={0.7} />
           <HueSaturation saturation={0.06} />
           <BrightnessContrast contrast={0.08} />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />

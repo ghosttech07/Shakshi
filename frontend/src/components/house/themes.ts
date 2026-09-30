@@ -24,7 +24,7 @@ export type Theme = {
   shade: string;
   metal: string; // lamp stems, frames
   light: string; // warm light colour in the room
-  extras: ("lounge" | "plants" | "bench" | "art" | "jharokha")[];
+  extras: ("lounge" | "plants" | "bench" | "art")[];
 };
 
 export const THEMES: Record<ThemeId, Theme> = {
@@ -114,6 +114,6 @@ export const THEMES: Record<ThemeId, Theme> = {
     shade: "#ffe7c4",
     metal: "#c9a45c",
     light: "#ffcf96",
-    extras: ["jharokha", "plants", "bench"],
+    extras: ["plants", "bench"],
   },
 };

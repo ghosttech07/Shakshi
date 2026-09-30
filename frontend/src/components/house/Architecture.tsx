@@ -281,7 +281,7 @@ function Bollards() {
 
 /** The landscape: lawn rolling up into soft hills far away, clipped hedges, trees and grass. */
 function Garden({ mats }: { mats: Mats }) {
-  // Flat near the house, rising into gentle hills beyond ~70 m (the fog softens them)
+  // Flat near the house, rising into low hills far off, kept below the sunset on the horizon
   const ground = useMemo(() => {
     const g = new THREE.PlaneGeometry(700, 700, 140, 140);
     g.rotateX(-Math.PI / 2);
@@ -292,7 +292,7 @@ function Garden({ mats }: { mats: Mats }) {
       const z = p.getZ(i);
       const r = Math.hypot(x, z - 10);
       const hills = 9 * Math.sin(x * 0.018 + 1.3) * Math.cos(z * 0.021) + 6 * Math.sin(x * 0.041 - z * 0.033) + 12;
-      p.setY(i, THREE.MathUtils.smoothstep(r, 70, 170) * Math.max(0, hills));
+      p.setY(i, THREE.MathUtils.smoothstep(r, 90, 220) * Math.max(0, hills) * 0.5);
       uv.setXY(i, x / 3, z / 3);
     }
     g.computeVertexNormals();
@@ -305,7 +305,7 @@ function Garden({ mats }: { mats: Mats }) {
     m.normalScale = new THREE.Vector2(2, 2);
     return m;
   }, [mats.lawn]);
-  const stoneMat = useMemo(() => new THREE.MeshStandardMaterial({ color: "#cfc6b6", roughness: 0.9 }), []);
+  const stoneMat = useMemo(() => new THREE.MeshStandardMaterial({ color: "#8d857a", roughness: 0.95 }), []);
 
   const trees = useMemo<Place[]>(
     () => [
@@ -335,6 +335,8 @@ function Garden({ mats }: { mats: Mats }) {
       [-15, 7.2, -11, 7.2],
       [11, 7.2, 15, 7.2],
       [-15, 16.8, -3, 16.8],
+      [-16, 19.2, -8, 19.2],
+      [9, 19.2, 17, 19.2],
       [9.6, 7.6, 9.6, 16],
       [-9.8, -22.4, -9.8, 5.2],
       [9.8, -22.4, 9.8, 5.2],
@@ -353,8 +355,6 @@ function Garden({ mats }: { mats: Mats }) {
   const hedges: { at: [number, number, number]; size: [number, number, number] }[] = [
     { at: [-19, 0.25, 4], size: [0.9, 1.2, 22] },
     { at: [19, 0.25, 2], size: [0.9, 1.2, 26] },
-    { at: [-12.5, 0.1, 18.6], size: [9, 0.9, 0.8] },
-    { at: [12.5, 0.1, 18.6], size: [9, 0.9, 0.8] },
   ];
 
   return (
@@ -451,11 +451,11 @@ export function Architecture({ mats, progress }: { mats: Mats; progress: Mutable
       <Block size={[W + 1.2, 0.35, D + 2.4]} at={[0, H + 0.175, (z0 + z1) / 2 + 0.8]} mat={mats.render} />
       <mesh geometry={soffitGeo} material={mats.darkOak} position={[0, H - 0.002, z1 + 1.05]} />
       <Block size={[10.4, 3.2, 10.2]} at={[-3.4, HOUSE.roofTop + 1.6, 2.1]} mat={mats.darkOak} />
-      <mesh position={[-3.4, HOUSE.roofTop + 1.7, 7.19]}>
+      <mesh position={[-3.4, HOUSE.roofTop + 1.7, 7.205]}>
         <planeGeometry args={[9.2, 1.3]} />
-        <meshStandardMaterial color="#3a2a1f" emissive="#ffb866" emissiveIntensity={0.55} roughness={0.8} />
+        <meshStandardMaterial color="#2a1d14" emissive="#ffb86e" emissiveIntensity={0.95} roughness={0.8} />
       </mesh>
-      <mesh position={[-3.4, HOUSE.roofTop + 1.7, 7.22]} material={glass}>
+      <mesh position={[-3.4, HOUSE.roofTop + 1.7, 7.23]} material={glass}>
         <planeGeometry args={[9.2, 1.3]} />
       </mesh>
       {Array.from({ length: 8 }, (_, i) => (

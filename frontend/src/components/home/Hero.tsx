@@ -106,8 +106,8 @@ export function Hero({ data = {}, edit }: { data?: Record<string, unknown>; edit
   return (
     <section ref={ref} className="relative flex min-h-[100svh] flex-col overflow-hidden lg:block lg:h-[100svh] lg:min-h-[640px]" aria-labelledby="hero-title">
       <div className="hero-sky absolute inset-0" aria-hidden />
-      <div aria-hidden className="day-only absolute -left-1/4 -top-1/4 h-[130%] w-[70%] rotate-[18deg] bg-[linear-gradient(90deg,transparent,rgb(255_248_235/0.55),transparent)] blur-3xl motion-safe:animate-breathe" />
-      <div aria-hidden className="night-only absolute -left-1/4 -top-1/4 h-[130%] w-[60%] rotate-[18deg] bg-[linear-gradient(90deg,transparent,rgb(170_190_235/0.12),transparent)] blur-3xl motion-safe:animate-breathe" />
+      <div aria-hidden className="day-only absolute -left-1/4 -top-1/4 h-[130%] w-[70%] rotate-[18deg] bg-[linear-gradient(90deg,transparent,rgb(255_248_235/0.55),transparent)] blur-3xl will-change-transform motion-safe:animate-breathe" />
+      <div aria-hidden className="night-only absolute -left-1/4 -top-1/4 h-[130%] w-[60%] rotate-[18deg] bg-[linear-gradient(90deg,transparent,rgb(170_190_235/0.12),transparent)] blur-3xl will-change-transform motion-safe:animate-breathe" />
 
       {/* Below desktop width the bed sits beneath the text in its own space, so nothing overlaps */}
       <motion.div style={{ y: sceneY }} className="relative order-2 h-[min(50svh,480px)] min-h-[300px] w-full lg:absolute lg:inset-0 lg:order-none lg:h-auto lg:min-h-0">

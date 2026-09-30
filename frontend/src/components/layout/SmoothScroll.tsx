@@ -39,8 +39,9 @@ export function SmoothScroll() {
     gsap.registerPlugin(ScrollTrigger);
     if (prefersCalm()) return;
 
-    // Inertia-based: each frame closes 8% of the gap, so the page glides to a stop.
-    lenis = new Lenis({ lerp: 0.08, smoothWheel: true, wheelMultiplier: 0.9 });
+    // Inertia-based: each frame closes 11% of the gap, so the page glides to a stop without
+    // trailing behind the wheel. Touch screens keep their own native scrolling, which is smoothest there.
+    lenis = new Lenis({ lerp: 0.11, smoothWheel: true, wheelMultiplier: 1 });
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis?.raf(time * 1000);
     gsap.ticker.add(tick);
@@ -74,6 +75,32 @@ export function SmoothScroll() {
   useEffect(() => {
     if (!window.location.hash) lenis?.scrollTo(0, { immediate: true });
     requestAnimationFrame(() => ScrollTrigger.refresh());
+  }, [pathname]);
+
+  // Photos further down load lazily, and decoding one the moment it scrolls into view stalls the
+  // scroll for a frame or two. While the browser is idle, fetch and decode the ones a couple of
+  // screens ahead, so they're ready before the visitor gets there.
+  useEffect(() => {
+    let stop = false;
+    const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
+    const warm = () => {
+      if (stop) return;
+      const ahead = scrollY + innerHeight * 3;
+      document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]:not([data-warmed])').forEach((img) => {
+        if (img.getBoundingClientRect().top + scrollY > ahead) return;
+        img.dataset.warmed = "1";
+        img.loading = "eager";
+        img.decode().catch(() => {});
+      });
+    };
+    const onScroll = () => ric(warm);
+    const first = window.setTimeout(() => ric(warm), 1200);
+    addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      stop = true;
+      window.clearTimeout(first);
+      removeEventListener("scroll", onScroll);
+    };
   }, [pathname]);
 
   return null;

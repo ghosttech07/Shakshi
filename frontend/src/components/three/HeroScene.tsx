@@ -387,7 +387,7 @@ export default function HeroScene({ active, night = false, mode = "fall", drift 
   return (
     <Canvas
       shadows
-      dpr={[1, 1.75]}
+      dpr={[1, 1.5]}
       frameloop={active ? "always" : "never"}
       camera={{ fov: 30, near: 0.1, far: 40, position: [3.4, 2.3, 3.8] }}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: night ? 0.95 : 1.02 }}

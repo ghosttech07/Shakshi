@@ -29,7 +29,7 @@ export function Anatomy(_props: { data?: Record<string, unknown>; edit?: boolean
   useEffect(() => {
     const el = section.current;
     if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin: "200px 0px" });
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin: "600px 0px" });
     io.observe(el);
     return () => io.disconnect();
   }, []);

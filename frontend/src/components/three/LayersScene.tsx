@@ -333,8 +333,8 @@ export default function LayersScene({ kinds, depths, progress, active, live, sti
   return (
     <Canvas
       shadows
-      dpr={[1, 1.75]}
-      frameloop={live ? "always" : "never"}
+      dpr={[1, 1.5]}
+      frameloop={live ? "always" : "demand"} // "demand" draws one frame on load, so the scene is ready (shaders compiled) before you scroll to it
       camera={{ fov: 30, near: 0.1, far: 50, position: [0, 2, 6] }}
       gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05 }}
       style={{ touchAction: "pan-y" }}

@@ -135,9 +135,10 @@
     line-height: 0.95;
     letter-spacing: -0.02em;
   }
+  /* Page width: uses the whole screen up to very large monitors, with an edge margin that grows gently */
   .container-lux {
     width: 100%;
-    max-width: 88rem;
+    max-width: 120rem;
     margin-inline: auto;
     padding-inline: 1.25rem;
   }
@@ -145,7 +146,7 @@
     .container-lux { padding-inline: 2.5rem; }
   }
   @media (min-width: 1280px) {
-    .container-lux { padding-inline: 4rem; }
+    .container-lux { padding-inline: clamp(3rem, 4vw, 5rem); }
   }
   .gold-rule {
     height: 1px;

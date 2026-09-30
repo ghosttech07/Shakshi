@@ -4,7 +4,6 @@ import { RoundedBox, useGLTF } from "@react-three/drei";
 import { useMemo } from "react";
 import * as THREE from "three";
 import { box, plane, type SurfaceKey } from "./materials";
-import { Hotspot, type HotspotId } from "./Hotspot";
 import { HOUSE } from "./layout";
 
 type Mats = Record<SurfaceKey, THREE.MeshStandardMaterial>;
@@ -95,7 +94,7 @@ function Curtain({ at, height, width, rot = 0 }: { at: [number, number, number];
   );
 }
 
-export function Furniture({ mats, active, onSelect }: { mats: Mats; active: boolean; onSelect: (id: HotspotId) => void }) {
+export function Furniture({ mats }: { mats: Mats }) {
   const H = HOUSE.height;
   const g = useMemo(
     () => ({

@@ -22,13 +22,15 @@ const TITLES: Record<PanelKind, { title: string; all: string; href: string }> = 
 /** Clean studio shot of each mattress on white where we have one, the product photo otherwise. */
 const packshot = (p: Product) => `/house/packshots/${p.slug}.webp`;
 
-function MattressCard({ p, index }: { p: Product; index: number }) {
+function MattressCard({ p, index, here }: { p: Product; index: number; here?: boolean }) {
   const [src, setSrc] = useState(packshot(p));
   return (
     <motion.article initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: index * 0.06, ease: EASE }} className="group relative flex flex-col">
       <Link href={`/mattress/${p.slug}`} className="relative block aspect-[5/4] overflow-hidden rounded-sm bg-[#f6f5f2]">
         <Image src={src} alt={p.name} fill sizes="(min-width:1280px) 22vw, (min-width:768px) 30vw, 90vw" className="object-contain p-4 transition-transform duration-700 ease-silk group-hover:scale-[1.04]" onError={() => setSrc(p.images[0])} />
-        {p.badge && <span className="absolute left-3 top-3 rounded-sm bg-[#e4463b] px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">{p.badge}</span>}
+        {here ? (
+          <span className="absolute left-3 top-3 rounded-sm bg-[#1c1c1c] px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">In this room</span>
+        ) : p.badge && <span className="absolute left-3 top-3 rounded-sm bg-[#e4463b] px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">{p.badge}</span>}
       </Link>
       <div className="mt-3 flex items-center gap-2">
         <Stars value={p.rating} size={12} />
@@ -60,7 +62,7 @@ function AccessoryCard({ a, index }: { a: Accessory; index: number }) {
 }
 
 /** The list that opens over the bedroom when the visitor clicks the mattress, the pillows or the bedding. */
-export function ProductPanel({ kind, onClose }: { kind: PanelKind | null; onClose: () => void }) {
+export function ProductPanel({ kind, onClose, featured }: { kind: PanelKind | null; onClose: () => void; featured?: string }) {
   const { products, accessories } = useCatalog();
   const [tab, setTab] = useState(0);
   useEffect(() => setTab(0), [kind]);
@@ -76,8 +78,11 @@ export function ProductPanel({ kind, onClose }: { kind: PanelKind | null; onClos
     const list = [...products];
     if (tab === 1) list.sort((a, b) => b.rating - a.rating);
     if (tab === 2) list.sort((a, b) => b.reviewCount - a.reviewCount);
+    // The mattress on the bed in this room leads the list
+    const i = tab === 0 ? list.findIndex((p) => p.slug === featured) : -1;
+    if (i > 0) list.unshift(...list.splice(i, 1));
     return list;
-  }, [products, tab]);
+  }, [products, tab, featured]);
   const items = useMemo(() => {
     const k = kind === "pillows" ? "pillow" : "cover";
     const list = accessories.filter((a) => a.kind === k);
@@ -120,7 +125,7 @@ export function ProductPanel({ kind, onClose }: { kind: PanelKind | null; onClos
               </div>
             </header>
             <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-9 md:grid-cols-3 xl:grid-cols-4">
-              {kind === "mattresses" ? mattresses.map((p, i) => <MattressCard key={p.slug} p={p} index={i} />) : items.map((a, i) => <AccessoryCard key={a.id} a={a} index={i} />)}
+              {kind === "mattresses" ? mattresses.map((p, i) => <MattressCard key={p.slug} p={p} index={i} here={p.slug === featured} />) : items.map((a, i) => <AccessoryCard key={a.id} a={a} index={i} />)}
             </div>
             <Link href={TITLES[kind].href} className="mt-9 flex items-center justify-center gap-2 border border-[#1c1c1c] py-3 text-[0.7rem] font-semibold uppercase tracking-[0.16em] hover:bg-[#1c1c1c] hover:text-white sm:hidden">
               {TITLES[kind].all} <IconArrow size={13} />

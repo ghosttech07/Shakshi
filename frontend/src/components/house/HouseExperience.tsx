@@ -4,32 +4,34 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { lockScroll, unlockScroll } from "@/components/layout/SmoothScroll";
-import { EASE } from "@shakshi/shared/utils";
+import { lockScroll, scrollToTarget, unlockScroll } from "@/components/layout/SmoothScroll";
+import { useCatalog } from "@/lib/catalog-context";
+import { EASE, cn } from "@shakshi/shared/utils";
 import { IntroSmoke } from "./IntroSmoke";
 import { ProductPanel, type PanelKind } from "./ProductPanel";
 import type { HotspotId } from "./Hotspot";
+import { BEDROOMS, roomAt, roomProgress, type ThemeId } from "./layout";
+import { THEMES } from "./themes";
 
 const HouseScene = dynamic(() => import("./HouseScene"), { ssr: false });
 
-/** Room captions, shown while the camera passes through each room. */
-const CAPTIONS: { from: number; to: number; eyebrow: string; title: string }[] = [
-  { from: 0.0, to: 0.14, eyebrow: "Shakshi", title: "Welcome home." },
-  { from: 0.44, to: 0.6, eyebrow: "The living room", title: "Where the evening slows." },
-  { from: 0.63, to: 0.76, eyebrow: "The dining room", title: "Gathered, unhurried." },
-  { from: 0.84, to: 0.95, eyebrow: "The bedroom", title: "Where rest begins." },
-];
-
 const SEEN = "shk-house-intro";
 
+/** What the page shows around the scene. It changes only a few times on the whole walk, so scrolling doesn't re-render React. */
+type Stage = { room: ThemeId | null; start: boolean; welcome: boolean };
+const stageAt = (p: number): Stage => ({ room: roomAt(p), start: p < 0.02, welcome: p < 0.1 });
+const same = (a: Stage, b: Stage) => a.room === b.room && a.start === b.start && a.welcome === b.welcome;
+
 /**
- * The house. A logo that dissolves into smoke, then a scroll-driven walk through a villa at dusk:
- * the living room, the dining room, and into the bedroom, where everything that glows can be clicked.
+ * The house. A logo that dissolves into smoke, then a scroll-driven walk: in through the front
+ * doors, straight down the corridor and into four bedrooms, each with its own theme. In each
+ * bedroom the mattress, the pillows and the bedding open the collection.
  */
 export function HouseExperience() {
   const router = useRouter();
+  const { products } = useCatalog();
   const progress = useRef(0);
-  const [p, setP] = useState(0);
+  const [stage, setStage] = useState<Stage>(() => stageAt(0));
   const [ready, setReady] = useState(false);
   const [intro, setIntro] = useState(true);
   const [panel, setPanel] = useState<PanelKind | null>(null);
@@ -64,13 +66,14 @@ export function HouseExperience() {
     } catch {}
   }, []);
 
-  // Scroll position → progress through the house
+  // Scroll position → progress through the house (the scene reads it every frame; React only hears about changes of room)
   useEffect(() => {
     let raf = 0;
     const read = () => {
       const max = document.documentElement.scrollHeight - innerHeight;
       progress.current = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
-      setP(Math.round(progress.current * 200) / 200);
+      const next = stageAt(progress.current);
+      setStage((cur) => (same(cur, next) ? cur : next));
     };
     const onScroll = () => {
       cancelAnimationFrame(raf);
@@ -86,7 +89,11 @@ export function HouseExperience() {
     };
   }, []);
 
-  const arrived = p >= 0.985;
+  const goTo = useCallback((id: ThemeId) => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    scrollToTarget(Math.round(roomProgress(id) * max));
+  }, []);
+
   const select = useCallback(
     (id: HotspotId) => {
       if (id === "library") return router.push("/sleep-library");
@@ -95,31 +102,74 @@ export function HouseExperience() {
     },
     [router]
   );
+  const onReady = useCallback(() => setReady(true), []);
+  const closePanel = useCallback(() => setPanel(null), []);
+
+  const room = stage.room;
+  const theme = room ? THEMES[room] : null;
+  const onBed = theme ? products.find((p) => p.slug === theme.product) : undefined;
+  const number = room ? BEDROOMS.findIndex((b) => b.id === room) + 1 : 0;
 
   return (
     <div className="relative">
       {/* The house fills the whole screen; the page scrolls beneath it */}
       <div className="fixed inset-0 z-0 bg-[#0b0d12]">
-        <HouseScene progress={progress} active={arrived && !panel} onSelect={select} onReady={() => setReady(true)} lite={lite} />
+        <HouseScene progress={progress} room={panel ? null : room} onSelect={select} onReady={onReady} lite={lite} />
       </div>
-      <div aria-hidden style={{ height: "900svh" }} />
+      <div aria-hidden style={{ height: "1000svh" }} />
 
-      {/* Room captions */}
+      {/* Arriving */}
       <div className="pointer-events-none fixed inset-x-0 bottom-[22svh] z-10 flex justify-center px-5">
-        <AnimatePresence mode="wait">
-          {!intro &&
-            CAPTIONS.filter((c) => p >= c.from && p <= c.to).map((c) => (
-              <motion.div key={c.title} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.9, ease: EASE }} className="text-center text-pearl [text-shadow:0_2px_24px_rgb(0_0_0/0.55)]">
-                <p className="eyebrow text-gold-soft">{c.eyebrow}</p>
-                <p className="display mt-3 text-4xl sm:text-6xl">{c.title}</p>
-              </motion.div>
-            ))}
+        <AnimatePresence>
+          {!intro && stage.welcome && (
+            <motion.div key="welcome" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.9, ease: EASE }} className="text-center text-pearl [text-shadow:0_2px_24px_rgb(0_0_0/0.55)]">
+              <p className="eyebrow text-gold-soft">Shakshi</p>
+              <p className="display mt-3 text-4xl sm:text-6xl">Welcome home.</p>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
+      {/* In a bedroom: its name, its mood and the mattress on its bed */}
+      <div className="pointer-events-none fixed left-0 top-24 z-10 max-w-[min(26rem,calc(100vw-4.5rem))] px-5 sm:bottom-24 sm:top-auto sm:px-10 lg:px-14">
+        <AnimatePresence mode="wait">
+          {theme && !panel && (
+            <motion.div key={theme.id} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.8, ease: EASE }} className="text-pearl [text-shadow:0_2px_20px_rgb(0_0_0/0.6)]">
+              <p className="eyebrow text-gold-soft">
+                Bedroom {number} of {BEDROOMS.length}
+              </p>
+              <p className="display mt-2 text-3xl sm:text-5xl">{theme.name}</p>
+              <p className="mt-3 text-sm leading-relaxed text-pearl/85 sm:text-base">{theme.line}</p>
+              {onBed && (
+                <p className="mt-4 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-pearl/70">
+                  On the bed: <span className="text-gold-soft">{onBed.name}</span>
+                </p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Jump between the bedrooms */}
+      <AnimatePresence>
+        {!intro && !stage.welcome && !panel && (
+          <motion.nav key="rooms" aria-label="Bedrooms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }} className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col sm:right-8">
+            {BEDROOMS.map((b) => {
+              const on = room === b.id;
+              return (
+                <button key={b.id} onClick={() => goTo(b.id)} aria-label={THEMES[b.id].name} aria-current={on ? "true" : undefined} className="group flex items-center justify-end gap-3 py-2 pl-3 pr-1 text-pearl">
+                  <span className={cn("hidden text-[0.65rem] font-semibold uppercase tracking-[0.18em] transition-opacity [text-shadow:0_1px_10px_rgb(0_0_0/0.7)] md:inline", on ? "opacity-100" : "opacity-0 group-hover:opacity-80")}>{THEMES[b.id].name}</span>
+                  <span className={cn("block rounded-full border border-pearl/70 transition-all duration-500", on ? "h-3 w-3 bg-gold" : "h-2 w-2 group-hover:bg-pearl/60")} />
+                </button>
+              );
+            })}
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
       {/* First screen: invite the scroll */}
       <AnimatePresence>
-        {!intro && p < 0.02 && (
+        {!intro && stage.start && (
           <motion.div key="cue" className="pointer-events-none fixed inset-x-0 bottom-8 z-10 flex flex-col items-center gap-3 text-pearl/80" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1 }}>
             <span className="eyebrow text-[0.65rem]">Scroll to step inside</span>
             <span className="relative h-12 w-px overflow-hidden bg-pearl/25">
@@ -129,11 +179,11 @@ export function HouseExperience() {
         )}
       </AnimatePresence>
 
-      {/* In the bedroom: how to explore */}
+      {/* In a bedroom: how to explore */}
       <AnimatePresence>
-        {arrived && !panel && (
-          <motion.p key="hint" className="pointer-events-none fixed inset-x-0 bottom-6 z-10 px-5 text-center text-sm text-pearl/85 [text-shadow:0_1px_12px_rgb(0_0_0/0.6)]" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, delay: 0.6 }}>
-            Click the mattress, the pillows or the bedding to see the collection. The bookshelf and the photographs tell our story.
+        {room && !panel && (
+          <motion.p key="hint" className="pointer-events-none fixed inset-x-0 bottom-6 z-10 mx-auto max-w-2xl px-5 text-center text-xs text-pearl/85 [text-shadow:0_1px_12px_rgb(0_0_0/0.6)] sm:text-sm" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, delay: 0.6 }}>
+            Tap the mattress, the pillows or the bedding to see the collection. Keep scrolling for the next bedroom.
           </motion.p>
         )}
       </AnimatePresence>
@@ -151,7 +201,7 @@ export function HouseExperience() {
         )}
       </AnimatePresence>
 
-      <ProductPanel kind={panel} onClose={() => setPanel(null)} />
+      <ProductPanel kind={panel} onClose={closePanel} featured={theme?.product} />
     </div>
   );
 }

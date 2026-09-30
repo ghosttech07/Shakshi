@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, PerformanceMonitor, useTexture } from "@react-three/drei";
+import { Environment, PerformanceMonitor } from "@react-three/drei";
 import { Bloom, BrightnessContrast, EffectComposer, HueSaturation, N8AO, SMAA, ToneMapping, Vignette } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
 import { memo, Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
@@ -81,22 +81,98 @@ function skyTurn(): [number, number, number] {
   return [0, Number.isFinite(q) ? q : SKY_TURN, 0];
 }
 
-/** The blue-hour sky as the visible background (the lighting comes from its HDR twin). */
+/** Where the last of the sun glows on the horizon: behind the house, as you walk up to it. */
+const SUN = new THREE.Vector3(-0.79, 0, -0.62).normalize();
+
+const skyVert = /* glsl */ `
+  varying vec3 vDir;
+  void main() {
+    vDir = position;
+    vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    gl_Position = p.xyww; // always at the far plane, behind everything
+  }
+`;
+const skyFrag = /* glsl */ `
+  uniform vec3 zenith, upper, mid, horizon, glow, ground, sun;
+  varying vec3 vDir;
+  float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+  void main() {
+    vec3 d = normalize(vDir);
+    float h = d.y;
+    vec3 col = mix(horizon, mid, smoothstep(0.0, 0.12, h));
+    col = mix(col, upper, smoothstep(0.1, 0.38, h));
+    col = mix(col, zenith, smoothstep(0.35, 0.95, h));
+    // the afterglow: strongest on the horizon toward the sun, fading up and around
+    float toward = max(dot(normalize(vec3(d.x, 0.0, d.z)), sun), 0.0);
+    col += glow * pow(toward, 5.0) * exp(-max(h, 0.0) * 7.0);
+    col += glow * 0.25 * pow(toward, 1.5) * exp(-max(h, 0.0) * 14.0);
+    // a few early stars, high up
+    vec3 cell = floor(d * 260.0);
+    float star = step(0.9975, hash(cell)) * smoothstep(0.3, 0.8, h) * (0.5 + 0.5 * hash(cell + 1.0));
+    col += vec3(star) * 0.35;
+    // below the horizon (only seen past the hills): dusk haze
+    col = mix(col, ground, smoothstep(0.0, -0.06, h));
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+/**
+ * The blue-hour sky: deep indigo overhead, a warm afterglow low on the horizon behind the house,
+ * a few early stars. Drawn by a small shader (no image to download); the lighting comes from the HDR.
+ */
 function Sky() {
   const { scene } = useThree();
-  const tex = useTexture(`${SKY}_bg.webp`);
+  const mat = useMemo(() => {
+    const c = (hex: string) => new THREE.Color(hex);
+    return new THREE.ShaderMaterial({
+      vertexShader: skyVert,
+      fragmentShader: skyFrag,
+      uniforms: {
+        zenith: { value: c("#070d24") },
+        upper: { value: c("#152152") },
+        mid: { value: c("#3b4381") },
+        horizon: { value: c("#b98493") },
+        glow: { value: c("#ff9a55") },
+        ground: { value: c("#2c2c48") },
+        sun: { value: SUN },
+      },
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false,
+    });
+  }, []);
   useEffect(() => {
-    tex.mapping = THREE.EquirectangularReflectionMapping;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    scene.background = tex;
-    scene.backgroundIntensity = 0.5;
-    scene.fog = new THREE.Fog("#8f86a3", 90, 300);
+    scene.background = null;
+    scene.fog = new THREE.Fog("#34345a", 70, 290);
     return () => {
-      scene.background = null;
       scene.fog = null;
+      mat.dispose();
     };
-  }, [scene, tex]);
-  return null;
+  }, [scene, mat]);
+  const cam = useThree((st) => st.camera);
+  const dome = useRef<THREE.Mesh>(null);
+  // the dome travels with the camera, so it's always infinitely far away
+  useFrame(() => dome.current?.position.copy(cam.position));
+  return (
+    <mesh ref={dome} material={mat} renderOrder={-1} frustumCulled={false}>
+      <sphereGeometry args={[400, 48, 24]} />
+    </mesh>
+  );
+}
+
+/**
+ * Outside, the evening is cool and dim, so the lit rooms glow warm through the glass; indoors the
+ * ambient light comes up to a comfortable level. Blended by where the camera is.
+ */
+function Ambience() {
+  const { scene, camera } = useThree();
+  const hemi = useRef<THREE.HemisphereLight>(null);
+  useFrame(() => {
+    const inside = THREE.MathUtils.smoothstep(-camera.position.z, -9.5, -5.5); // 0 in the garden → 1 past the front glass
+    scene.environmentIntensity = THREE.MathUtils.lerp(0.2, 0.6, inside);
+    if (hemi.current) hemi.current.intensity = THREE.MathUtils.lerp(0.26, 0.16, inside);
+  });
+  return <hemisphereLight ref={hemi} args={["#34427a", "#1b1812", 0.26]} />;
 }
 
 type LightSpec = { pos: [number, number, number]; color: string; intensity: number; distance: number };
@@ -117,12 +193,12 @@ function inRoom(id: ThemeId, x: number, y: number, z: number): [number, number, 
  */
 function RoamingLights() {
   const zones = useMemo<Zone[]>(() => {
-    const warm = "#ffe6c6";
     const list: Zone[] = [
-      { centre: new THREE.Vector3(0, 2, 13), lights: [{ pos: [-3, 3.1, 7.4], color: "#ffcf92", intensity: 11, distance: 10 }, { pos: [3, 3.1, 7.4], color: "#ffcf92", intensity: 11, distance: 10 }] },
-      { centre: new THREE.Vector3(0, 1.6, 3), lights: [{ pos: [-5, 3.0, 3], color: warm, intensity: 5.5, distance: 11 }, { pos: [4.5, 3.0, 3], color: warm, intensity: 4.5, distance: 10 }] },
-      { centre: new THREE.Vector3(0, 1.6, -3), lights: [{ pos: [-3.4, 2.6, -3], color: "#ffdcae", intensity: 5, distance: 9 }, { pos: [4.6, 3.0, -3], color: warm, intensity: 4, distance: 9 }] },
-      { centre: new THREE.Vector3(0, 1.6, -14), lights: [{ pos: [0, 3.1, -9], color: warm, intensity: 4, distance: 8 }, { pos: [0, 3.1, -19], color: warm, intensity: 4, distance: 8 }] },
+      // from the garden: the terrace under the soffit, and the living room glowing through the glass
+      { centre: new THREE.Vector3(0, 2, 13), lights: [{ pos: [0, 3.1, 7.4], color: "#ffcf92", intensity: 12, distance: 11 }, { pos: [-1.5, 2.7, 2.5], color: "#ffc07e", intensity: 16, distance: 14 }] },
+      { centre: new THREE.Vector3(0, 1.6, 3), lights: [{ pos: [-5, 2.45, 3], color: "#ffc387", intensity: 8, distance: 11 }, { pos: [4.5, 2.45, 2], color: "#ffc387", intensity: 7, distance: 11 }] },
+      { centre: new THREE.Vector3(0, 1.6, -3), lights: [{ pos: [-3.4, 2.4, -3], color: "#ffc387", intensity: 7, distance: 9 }, { pos: [4.6, 2.9, -3], color: "#ffcf9a", intensity: 6, distance: 9 }] },
+      { centre: new THREE.Vector3(0, 1.6, -14), lights: [{ pos: [0, 2.7, -9], color: "#ffcf9a", intensity: 4, distance: 8 }, { pos: [0, 2.7, -19], color: "#ffcf9a", intensity: 4, distance: 8 }] },
     ];
     for (const b of BEDROOMS) {
       const t = THEMES[b.id];
@@ -185,12 +261,12 @@ function RoamingLights() {
 function Lights() {
   return (
     <>
-      <hemisphereLight args={["#cfc6e6", "#3b3530", 0.22]} />
+      <Ambience />
       {/* Blue hour: the last soft light of the sky, from behind and to the left */}
       <directionalLight
         position={[-26, 14, -18]}
-        intensity={0.9}
-        color="#d7cdea"
+        intensity={0.55}
+        color="#9fb0e6"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-bias={-0.0004}
@@ -290,8 +366,7 @@ function HouseScene({ progress, room, onSelect, onReady, lite = false }: Props) 
         onIncline={() => setDpr((d) => Math.min(lite ? 1.25 : 1.75, d + 0.25))}
       />
       <Suspense fallback={null}>
-        <Environment files={`${SKY}_1k.hdr`} environmentIntensity={0.6} environmentRotation={turn} backgroundRotation={turn} backgroundIntensity={0.5} />
-        {/* after the Environment, which resets the backdrop settings when it loads */}
+        <Environment files={`${SKY}_1k.hdr`} environmentIntensity={0.6} environmentRotation={turn} />
         <Sky />
         <Lights />
         <StillShadows />

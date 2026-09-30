@@ -26,7 +26,7 @@ export type Surface = {
 
 export const SURFACES = {
   oakFloor: { name: "herringbone_parquet", tile: 2.2, tint: "#fff1dd", rough: 0.82, normal: 0.55, env: 0.4 },
-  plaster: { name: "beige_wall_001", tile: 2.5, tint: "#d6d0c6", rough: 0.95, normal: 0.3, noColour: true, env: 0.35 },
+  plaster: { name: "beige_wall_001", tile: 2.5, tint: "#dccab0", rough: 0.95, normal: 0.3, noColour: true, env: 0.35 },
   marble: { name: "marble_01", tile: 1.6, tint: "#f6f1ea", rough: 0.35, normal: 0.3, env: 0.6 },
   linen: { name: "rough_linen", tile: 0.5, tint: "#cdbfa9", rough: 1, normal: 1.1, noColour: true, env: 0.35 },
   wool: { name: "poly_wool_herringbone", tile: 0.9, tint: "#b9a88f", rough: 1, normal: 1.8, noColour: true, env: 0.3 },

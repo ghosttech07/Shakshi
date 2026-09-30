@@ -131,10 +131,11 @@ export function HouseExperience() {
       </div>
 
       {/* In a bedroom: its name, its mood and the mattress on its bed */}
-      <div className="pointer-events-none fixed left-0 top-24 z-10 max-w-[min(26rem,calc(100vw-4.5rem))] px-5 sm:bottom-24 sm:top-auto sm:px-10 lg:px-14">
-        <AnimatePresence mode="wait">
+      {/* (captions crossfade in place: a caption never waits on another's exit, so none can get stuck on screen) */}
+      <div className="pointer-events-none fixed left-0 top-24 z-10 grid w-[min(26rem,calc(100vw-4.5rem))] px-5 sm:bottom-24 sm:top-auto sm:w-[30rem] sm:px-10 lg:px-14">
+        <AnimatePresence initial={false}>
           {theme && !panel && (
-            <motion.div key={theme.id} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.8, ease: EASE }} className="text-pearl [text-shadow:0_2px_20px_rgb(0_0_0/0.6)]">
+            <motion.div key={theme.id} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10, transition: { duration: 0.35 } }} transition={{ duration: 0.8, ease: EASE }} className="text-pearl [grid-area:1/1] self-end [text-shadow:0_2px_20px_rgb(0_0_0/0.6)]">
               <p className="eyebrow text-gold-soft">
                 Bedroom {number} of {BEDROOMS.length}
               </p>

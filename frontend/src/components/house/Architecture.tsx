@@ -54,7 +54,7 @@ function WallZ({ z0, z1, x, mat, wins = [], h = HOUSE.height }: { z0: number; z1
 export function useGlass() {
   return useMemo(
     () =>
-      new THREE.MeshPhysicalMaterial({ color: "#dfe7ea", transparent: true, opacity: 0.14, roughness: 0.03, metalness: 0, envMapIntensity: 1.4, depthWrite: false, side: THREE.DoubleSide }),
+      new THREE.MeshPhysicalMaterial({ color: "#c9d3d8", transparent: true, opacity: 0.1, roughness: 0.03, metalness: 0, envMapIntensity: 0.55, depthWrite: false, side: THREE.DoubleSide }),
     []
   );
 }
@@ -151,7 +151,7 @@ function Downlights({ spots, y = HOUSE.height - 0.004 }: { spots: [number, numbe
 
 type Place = [number, number, number, number, number]; // x, y, z, scale, rotation
 
-/** Many copies of one model drawn in a single batch per part (instancing): trees and grass. */
+/** Many copies of one model drawn in a single batch per part (instancing): the trees. */
 function Scatter({ url, items, cast = false }: { url: string; items: Place[]; cast?: boolean }) {
   const { scene } = useGLTF(url);
   const parts = useMemo(() => {
@@ -194,11 +194,6 @@ function Scatter({ url, items, cast = false }: { url: string; items: Place[]; ca
       ))}
     </>
   );
-}
-
-/** Seeded random numbers, so the garden grows the same way every visit. */
-function seeded(seed: number) {
-  return () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 }
 
 /** The pool: stone coping around lit turquoise water that moves gently, with sun loungers. */
@@ -259,6 +254,37 @@ function Pool({ mats }: { mats: Mats }) {
   );
 }
 
+let glowTex: THREE.CanvasTexture | null = null;
+function glowTexture() {
+  if (glowTex) return glowTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d")!;
+  const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, "rgba(255,196,128,1)");
+  r.addColorStop(0.35, "rgba(255,170,100,0.45)");
+  r.addColorStop(1, "rgba(255,150,80,0)");
+  g.fillStyle = r;
+  g.fillRect(0, 0, 128, 128);
+  glowTex = new THREE.CanvasTexture(c);
+  glowTex.colorSpace = THREE.SRGBColorSpace;
+  return glowTex;
+}
+
+/** Pools of warm light on the ground around garden lights: [x, z, size]. */
+function GroundGlow({ spots, y, strength = 0.55 }: { spots: [number, number, number][]; y: number; strength?: number }) {
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({ map: glowTexture(), transparent: true, opacity: strength, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }), [strength]);
+  return (
+    <>
+      {spots.map(([x, z, size], i) => (
+        <mesh key={i} position={[x, y, z]} rotation={[-Math.PI / 2, 0, 0]} material={mat} renderOrder={2}>
+          <planeGeometry args={[size, size]} />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 /** Low garden bollards: warm points of light along the terrace edge. */
 function Bollards() {
   const spots = [-10, -6, -2, 2, 6, 10];
@@ -275,11 +301,12 @@ function Bollards() {
           </mesh>
         </group>
       ))}
+      <GroundGlow spots={spots.map((x) => [x, 11.4, 2.4] as [number, number, number])} y={0.005} strength={0.4} />
     </>
   );
 }
 
-/** The landscape: lawn rolling up into soft hills far away, clipped hedges, trees and grass. */
+/** The landscape: lawn rolling out to low hills, olive trees with garden lights, stepping stones. */
 function Garden({ mats }: { mats: Mats }) {
   // Flat near the house, rising into low hills far off, kept below the sunset on the horizon
   const ground = useMemo(() => {
@@ -299,13 +326,11 @@ function Garden({ mats }: { mats: Mats }) {
     return g;
   }, []);
 
-  const hedge = useMemo(() => {
-    const m = mats.lawn.clone();
-    m.color = new THREE.Color("#3f5a2e");
-    m.normalScale = new THREE.Vector2(2, 2);
+  const slab = useMemo(() => {
+    const m = mats.paving.clone();
+    m.color = new THREE.Color("#8f887e");
     return m;
-  }, [mats.lawn]);
-  const stoneMat = useMemo(() => new THREE.MeshStandardMaterial({ color: "#8d857a", roughness: 0.95 }), []);
+  }, [mats.paving]);
 
   const trees = useMemo<Place[]>(
     () => [
@@ -328,46 +353,23 @@ function Garden({ mats }: { mats: Mats }) {
     []
   );
 
-  const grass = useMemo(() => {
-    const rnd = seeded(7);
-    const out: Place[] = [];
-    const rows: [number, number, number, number][] = [
-      [-15, 7.2, -11, 7.2],
-      [11, 7.2, 15, 7.2],
-      [-15, 16.8, -3, 16.8],
-      [-16, 19.2, -8, 19.2],
-      [9, 19.2, 17, 19.2],
-      [9.6, 7.6, 9.6, 16],
-      [-9.8, -22.4, -9.8, 5.2],
-      [9.8, -22.4, 9.8, 5.2],
-      [-9, -22.8, 9, -22.8],
-    ];
-    for (const [x0, z0, x1, z1] of rows) {
-      const n = Math.round(Math.hypot(x1 - x0, z1 - z0) / 0.8);
-      for (let i = 0; i <= n; i++) {
-        const k = i / n;
-        out.push([x0 + (x1 - x0) * k + (rnd() - 0.5) * 0.6, -0.36, z0 + (z1 - z0) * k + (rnd() - 0.5) * 0.6, 0.9 + rnd() * 0.7, rnd() * 6.28]);
-      }
-    }
-    return out;
-  }, []);
-
-  const hedges: { at: [number, number, number]; size: [number, number, number] }[] = [
-    { at: [-19, 0.25, 4], size: [0.9, 1.2, 22] },
-    { at: [19, 0.25, 2], size: [0.9, 1.2, 26] },
-  ];
+  // Garden lights: a warm pool of light at the foot of the trees nearest the house
+  const lit = trees.filter(([x, , z]) => Math.hypot(x, z - 4) < 24);
 
   return (
     <group>
       <mesh geometry={ground} material={mats.lawn} position={[0, -0.36, 0]} receiveShadow />
-      {hedges.map((h, i) => (
-        <RoundedBox key={i} args={h.size} radius={0.25} smoothness={3} position={h.at} material={hedge} castShadow receiveShadow />
-      ))}
       <Scatter url="/house/models/island_tree_02.glb" items={trees} cast />
-      <Scatter url="/house/models/grass_medium_01.glb" items={grass} />
+      <GroundGlow spots={lit.map(([x, , z]) => [x + 0.9, z + 0.6, 2.6] as [number, number, number])} y={-0.34} strength={0.45} />
+      {lit.map(([x, , z], i) => (
+        <mesh key={i} position={[x + 0.9, -0.3, z + 0.6]} material={glowWarm}>
+          <cylinderGeometry args={[0.07, 0.09, 0.08, 12]} />
+        </mesh>
+      ))}
+      {/* stepping stones: sawn stone slabs set into the lawn */}
       {Array.from({ length: 6 }, (_, i) => (
-        <mesh key={i} position={[11.8 + (i % 2) * 0.35, -0.33, 17.2 + i * 1.05]} rotation={[0, i * 0.3, 0]} material={stoneMat} receiveShadow>
-          <cylinderGeometry args={[0.42, 0.44, 0.06, 18]} />
+        <mesh key={i} position={[11.9 + (i % 2) * 0.3, -0.34, 17.1 + i * 1.05]} rotation={[0, 0.12 + (i % 3) * 0.05, 0]} material={slab} receiveShadow>
+          <boxGeometry args={[1.05, 0.06, 0.5]} />
         </mesh>
       ))}
     </group>
@@ -384,6 +386,29 @@ export function Architecture({ mats, progress }: { mats: Mats; progress: Mutable
   const floorGeo = useMemo(() => plane(W, D, mats.oakFloor.userData.tile), [W, D, mats.oakFloor]);
   const ceilingGeo = useMemo(() => plane(W, D, 3).rotateX(Math.PI), [W, D]);
   const soffitGeo = useMemo(() => plane(W + 1.2, 2.2, 1.2).rotateX(Math.PI), [W]);
+  // The upper floor seen through its ribbon window: warm lamplight, brighter in pools, darker below
+  const upperGlow = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 64;
+    const g = c.getContext("2d")!;
+    const v = g.createLinearGradient(0, 0, 0, 64);
+    v.addColorStop(0, "#8a5a32");
+    v.addColorStop(0.5, "#5a3a22");
+    v.addColorStop(1, "#24160e");
+    g.fillStyle = v;
+    g.fillRect(0, 0, 512, 64);
+    for (const [x, r] of [[90, 70], [300, 90], [440, 60]]) {
+      const p = g.createRadialGradient(x, 18, 0, x, 18, r);
+      p.addColorStop(0, "rgba(255,200,140,0.95)");
+      p.addColorStop(1, "rgba(255,170,100,0)");
+      g.fillStyle = p;
+      g.fillRect(0, 0, 512, 64);
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, []);
 
   // Each bedroom: two tall windows in its outer wall, either side of the bed
   const sideWins = (side: -1 | 1): Win[] =>
@@ -453,7 +478,7 @@ export function Architecture({ mats, progress }: { mats: Mats; progress: Mutable
       <Block size={[10.4, 3.2, 10.2]} at={[-3.4, HOUSE.roofTop + 1.6, 2.1]} mat={mats.darkOak} />
       <mesh position={[-3.4, HOUSE.roofTop + 1.7, 7.205]}>
         <planeGeometry args={[9.2, 1.3]} />
-        <meshStandardMaterial color="#2a1d14" emissive="#ffb86e" emissiveIntensity={0.95} roughness={0.8} />
+        <meshStandardMaterial color="#1a120c" emissive="#ffffff" emissiveMap={upperGlow} emissiveIntensity={1} roughness={0.8} />
       </mesh>
       <mesh position={[-3.4, HOUSE.roofTop + 1.7, 7.23]} material={glass}>
         <planeGeometry args={[9.2, 1.3]} />

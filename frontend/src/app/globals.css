@@ -541,15 +541,3 @@ html.lamp-mode .lamp-photo .lamp-color {
   transform: translate3d(var(--mx, 0), var(--my, 0), 0) rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
   will-change: transform;
 }
-
-/* ---------- The 3D house ---------- */
-body[data-page="house"] > footer, body[data-page="house"] footer.relative, body[data-page="house"] .social-proof { display: none; }
-body[data-intro] .concierge-fab, body[data-intro] .cursor-ring, body[data-intro] .cursor-dot { opacity: 0; pointer-events: none; }
-.house-hotspot { position: relative; display: flex; align-items: center; gap: 0.6rem; transform: translateX(0.25rem); white-space: nowrap; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
-.house-hotspot-dot { position: relative; width: 14px; height: 14px; border-radius: 9999px; background: #c9a96e; box-shadow: 0 0 0 4px rgb(201 169 110 / 0.28), 0 0 18px 4px rgb(201 169 110 / 0.55); }
-.house-hotspot-dot::after { content: ""; position: absolute; inset: -6px; border-radius: 9999px; border: 1.5px solid rgb(245 240 232 / 0.75); animation: house-pulse 2.2s ease-out infinite; }
-.house-hotspot-label { padding: 0.35rem 0.7rem; border-radius: 9999px; background: rgb(14 20 32 / 0.72); color: #f5f0e8; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; backdrop-filter: blur(6px); opacity: 0.85; transition: opacity 0.4s, transform 0.4s, background 0.4s; }
-.house-hotspot.is-flipped { flex-direction: row-reverse; transform: translateX(-0.25rem); }
-.house-hotspot.is-hover .house-hotspot-label { opacity: 1; background: #c9a96e; color: #0e1420; transform: translateX(2px); }
-@keyframes house-pulse { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.9); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .house-hotspot-dot::after { animation: none; } }

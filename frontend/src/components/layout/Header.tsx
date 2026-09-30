@@ -230,9 +230,7 @@ export function Header() {
     );
   }
 
-  // The 3D house: the header floats over the scene, always visible, light on dark
-  const immersive = pathname === "/house";
-  const onDark = (immersive || (darkHero && !scrolled)) && !menu && !discover;
+  const onDark = darkHero && !scrolled && !menu && !discover;
   const count = hydrated ? cartCount(cart) : 0;
   const isActive = (n: NavItem) => (n.href && pathname.startsWith(n.href)) || !!n.children?.some((l) => l.href && pathname.startsWith(l.href.split("#")[0].split("?")[0]));
 
@@ -241,11 +239,10 @@ export function Header() {
       <motion.header
         className={cn(
           "fixed inset-x-0 top-0 z-[60] transition-[background-color,color,box-shadow,backdrop-filter] duration-1000 ease-silk",
-          ((scrolled && !immersive) || discover) && !menu ? "glass border-x-0 border-t-0 border-b-ink/5" : "border-b border-transparent",
-          immersive && !menu && !discover && "bg-gradient-to-b from-black/45 to-transparent",
+          (scrolled || discover) && !menu ? "glass border-x-0 border-t-0 border-b-ink/5" : "border-b border-transparent",
           onDark || menu ? "text-pearl" : "text-ink"
         )}
-        animate={{ y: hidden && !immersive ? "-100%" : "0%" }}
+        animate={{ y: hidden ? "-100%" : "0%" }}
         transition={{ duration: 0.9, ease: EASE }}
       >
         <AnimatePresence initial={false}>

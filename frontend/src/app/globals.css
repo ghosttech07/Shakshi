@@ -509,7 +509,10 @@ html[data-theme="night"] .hero-sky { background: radial-gradient(120% 90% at 15%
 .hero-poster { background: center / contain no-repeat url("/hero/day-mobile.webp"); }
 html[data-theme="night"] .hero-poster { background-image: url("/hero/night-mobile.webp"); }
 @media (min-width: 1024px) {
-  .hero-poster { background-size: cover; background-image: url("/hero/day-desktop-bare.webp"); }
+  /* Rendered from the live scene on a transparent background, and sized exactly as the scene is:
+     by the height, with the bed's centre 70% across (the scene's view offset), so the 3D bed
+     fades in over the picture at the very same size and place. */
+  .hero-poster { background-size: auto 100%; background-position: 70% 50%; background-image: url("/hero/day-desktop-bare.webp"); }
   .hero-poster[data-dressed] { background-image: url("/hero/day-desktop.webp"); }
   html[data-theme="night"] .hero-poster { background-image: url("/hero/night-desktop-bare.webp"); }
   html[data-theme="night"] .hero-poster[data-dressed] { background-image: url("/hero/night-desktop.webp"); }

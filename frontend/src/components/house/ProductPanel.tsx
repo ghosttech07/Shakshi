@@ -27,7 +27,7 @@ function MattressCard({ p, index, here }: { p: Product; index: number; here?: bo
   return (
     <motion.article initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: index * 0.06, ease: EASE }} className="group relative flex flex-col">
       <Link href={`/mattress/${p.slug}`} className="relative block aspect-[5/4] overflow-hidden rounded-sm bg-[#f6f5f2]">
-        <Image src={src} alt={p.name} fill sizes="(min-width:1280px) 22vw, (min-width:768px) 30vw, 90vw" className="object-contain p-4 transition-transform duration-700 ease-silk group-hover:scale-[1.04]" onError={() => setSrc(p.images[0])} />
+        <Image src={src} alt={p.name} data-keep-bright fill sizes="(min-width:1280px) 22vw, (min-width:768px) 30vw, 90vw" className="object-contain p-4 transition-transform duration-700 ease-silk group-hover:scale-[1.04]" onError={() => setSrc(p.images[0])} />
         {here ? (
           <span className="absolute left-3 top-3 rounded-sm bg-[#1c1c1c] px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">In this room</span>
         ) : p.badge && <span className="absolute left-3 top-3 rounded-sm bg-[#e4463b] px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">{p.badge}</span>}
@@ -47,7 +47,7 @@ function AccessoryCard({ a, index }: { a: Accessory; index: number }) {
   return (
     <motion.article initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: index * 0.06, ease: EASE }} className="group flex flex-col">
       <div className="relative aspect-[5/4] overflow-hidden rounded-sm bg-[#f6f5f2]">
-        <Image src={a.image} alt={a.name} fill sizes="(min-width:1280px) 22vw, (min-width:768px) 30vw, 90vw" className="object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.04]" />
+        <Image src={a.image} alt={a.name} data-keep-bright fill sizes="(min-width:1280px) 22vw, (min-width:768px) 30vw, 90vw" className="object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.04]" />
       </div>
       <p className="mt-3 font-medium text-[#1c1c1c]">{a.name}</p>
       <p className="mt-0.5 text-xs text-[#8a8a8a]">{a.note}</p>

@@ -152,12 +152,12 @@ export function HouseExperience() {
 
       {/* Jump between the bedrooms */}
       <AnimatePresence>
-        {!intro && !stage.welcome && !panel && (
-          <motion.nav key="rooms" aria-label="Bedrooms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }} className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col sm:right-8">
+        {!intro && !panel && (
+          <motion.nav key="rooms" aria-label="Bedrooms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }} className={cn("fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 flex-row sm:bottom-auto sm:left-auto sm:right-8 sm:top-1/2 sm:translate-x-0 sm:-translate-y-1/2 sm:flex-col", stage.welcome && "max-sm:hidden")}>
             {BEDROOMS.map((b) => {
               const on = room === b.id;
               return (
-                <button key={b.id} onClick={() => goTo(b.id)} aria-label={THEMES[b.id].name} aria-current={on ? "true" : undefined} className="group flex items-center justify-end gap-3 py-2 pl-3 pr-1 text-pearl">
+                <button key={b.id} onClick={() => goTo(b.id)} aria-label={THEMES[b.id].name} aria-current={on ? "true" : undefined} className="group flex items-center justify-end gap-3 p-2.5 text-pearl sm:py-2 sm:pl-3 sm:pr-1">
                   <span className={cn("hidden text-[0.65rem] font-semibold uppercase tracking-[0.18em] transition-opacity [text-shadow:0_1px_10px_rgb(0_0_0/0.7)] md:inline", on ? "opacity-100" : "opacity-0 group-hover:opacity-80")}>{THEMES[b.id].name}</span>
                   <span className={cn("block rounded-full border border-pearl/70 transition-all duration-500", on ? "h-3 w-3 bg-gold" : "h-2 w-2 group-hover:bg-pearl/60")} />
                 </button>
@@ -182,7 +182,7 @@ export function HouseExperience() {
       {/* In a bedroom: how to explore */}
       <AnimatePresence>
         {room && !panel && (
-          <motion.p key="hint" className="pointer-events-none fixed inset-x-0 bottom-6 z-10 mx-auto max-w-2xl px-5 text-center text-xs text-pearl/85 [text-shadow:0_1px_12px_rgb(0_0_0/0.6)] sm:text-sm" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, delay: 0.6 }}>
+          <motion.p key="hint" className="pointer-events-none fixed inset-x-0 bottom-6 z-10 mx-auto max-w-2xl pl-5 pr-24 text-left text-xs sm:px-5 sm:text-center text-pearl/85 [text-shadow:0_1px_12px_rgb(0_0_0/0.6)] sm:text-sm" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, delay: 0.6 }}>
             Tap the mattress, the pillows or the bedding to see the collection. Keep scrolling for the next bedroom.
           </motion.p>
         )}

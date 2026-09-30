@@ -12,7 +12,7 @@ const GOLD = new THREE.Color("#c9a96e");
 /**
  * Wraps something in the room that can be clicked. While `active` (the visitor has arrived in
  * the bedroom), it shows a pulsing dot; pointing at it lights it softly in gold with its label;
- * clicking opens what it stands for.
+ * clicking it, or its label, opens what it stands for.
  */
 export function Hotspot({ id, label, anchor, active, onSelect, children }: { id: HotspotId; label: string; anchor: [number, number, number]; active: boolean; onSelect: (id: HotspotId) => void; children: ReactNode }) {
   const group = useRef<THREE.Group>(null);
@@ -73,10 +73,18 @@ export function Hotspot({ id, label, anchor, active, onSelect, children }: { id:
       {children}
       {active && (
         <Html position={anchor} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
-          <div className={`house-hotspot ${hover ? "is-hover" : ""}`}>
+          {/* labels on the right of the bed open to the left, so they stay on screen */}
+          <button
+            type="button"
+            onClick={() => onSelect(id)}
+            onPointerEnter={() => setHover(true)}
+            onPointerLeave={() => setHover(false)}
+            className={`house-hotspot ${anchor[0] > 0.3 ? "is-flipped" : ""} ${hover ? "is-hover" : ""}`}
+            style={{ pointerEvents: "auto" }}
+          >
             <span className="house-hotspot-dot" />
             <span className="house-hotspot-label">{label}</span>
-          </div>
+          </button>
         </Html>
       )}
     </group>

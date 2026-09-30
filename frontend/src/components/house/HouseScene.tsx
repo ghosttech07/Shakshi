@@ -24,10 +24,18 @@ const SKY = "/house/env/qwantani_dusk_2_puresky";
  */
 function CameraRig({ progress }: { progress: MutableRefObject<number> }) {
   const { camera, pointer } = useThree();
+  // On a portrait phone the room is narrower than the bed, so the camera stands back in the corridor with a wider lens
+  const narrow = useThree((st) => st.size.width / st.size.height < 0.8);
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera;
+    cam.fov = narrow ? 57 : 50;
+    cam.updateProjectionMatrix();
+  }, [camera, narrow]);
   const route = useMemo(() => {
-    const curve = new THREE.CatmullRomCurve3(PATH.map((p) => new THREE.Vector3(...p.pos)), false, "centripetal");
+    const keys = PATH.map((p) => (narrow && p.room ? { ...p, pos: [Math.sign(p.look[0]) * 0.55, p.pos[1], p.pos[2]] as [number, number, number] } : p));
+    const curve = new THREE.CatmullRomCurve3(keys.map((p) => new THREE.Vector3(...p.pos)), false, "centripetal");
     let prev = 0;
-    const angles = PATH.map((p, i) => {
+    const angles = keys.map((p, i) => {
       const dx = p.look[0] - p.pos[0];
       const dy = p.look[1] - p.pos[1];
       const dz = p.look[2] - p.pos[2];
@@ -40,7 +48,7 @@ function CameraRig({ progress }: { progress: MutableRefObject<number> }) {
       return { yaw, pitch: Math.atan2(dy, Math.hypot(dx, dz)) };
     });
     return { curve, angles };
-  }, []);
+  }, [narrow]);
   const state = useMemo(() => ({ p: progress.current, sx: 0, sy: 0 }), [progress]);
 
   useFrame((_, dt) => {

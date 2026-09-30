@@ -8,19 +8,19 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import { duvetTexture, knitTexture, linenTexture, quiltTexture, woodTexture } from "./fabric";
 
 // Bed proportions (metres-ish)
-const W = 2.0;
-const D = 2.3;
-const LEG = 0.08;
-const FRAME_H = 0.2;
-const BASE = LEG + FRAME_H; // top of the upholstered base
-const H = 0.3; // mattress
-const TOP = BASE + H;
+export const W = 2.0;
+export const D = 2.3;
+export const LEG = 0.08;
+export const FRAME_H = 0.2;
+export const BASE = LEG + FRAME_H; // top of the upholstered base
+export const H = 0.3; // mattress
+export const TOP = BASE + H;
 
 // The duvet covers from below the pillows to beyond the foot, hanging over three sides.
 const OVER = 0.36;
-const CW = W + OVER * 2;
-const Z0 = -D / 2 + 0.62;
-const Z1 = D / 2 + OVER;
+export const CW = W + OVER * 2;
+export const Z0 = -D / 2 + 0.62;
+export const Z1 = D / 2 + OVER;
 const SEG_X = 90;
 const SEG_Z = 80;
 
@@ -30,7 +30,7 @@ const smooth = (t: number) => 1 - Math.pow(1 - t, 3);
 const ripple = (x: number, z: number) => 0.009 * Math.sin(x * 3.3 + z * 2.1) + 0.006 * Math.sin(x * 7.1 + z * 4.3) + 0.003 * Math.sin(x * 13 - z * 9);
 
 /** Where each point of the duvet rests once it has settled over the mattress edges. */
-function drape(x: number, z: number, out: THREE.Vector3) {
+export function drape(x: number, z: number, out: THREE.Vector3) {
   const ox = Math.max(0, Math.abs(x) - W / 2);
   const oz = Math.max(0, z - D / 2);
   const s = Math.hypot(ox, oz);
@@ -124,11 +124,11 @@ function Duvet({ settled, onSettled }: { settled: boolean; onSettled?: () => voi
 }
 
 // The knitted throw folded across the foot of the bed
-const THROW_W = W + 0.46;
-const THROW_D = 0.6;
-const THROW_Z = D / 2 - 0.5;
+export const THROW_W = W + 0.46;
+export const THROW_D = 0.6;
+export const THROW_Z = D / 2 - 0.5;
 
-function throwRest(x: number, z: number, out: THREE.Vector3) {
+export function throwRest(x: number, z: number, out: THREE.Vector3) {
   const edge = W / 2 + 0.07;
   const ox = Math.max(0, Math.abs(x) - edge);
   const lie = TOP + 0.065 + ripple(x, z) + 0.006 * Math.sin(z * 22);
@@ -191,7 +191,7 @@ function Throw({ show }: { show: boolean }) {
 }
 
 /** A stuffed pillow: two panels sewn at the edge, full in the middle and pinched at the seams. */
-function pillowGeometry(w: number, d: number, t: number) {
+export function pillowGeometry(w: number, d: number, t: number) {
   const panel = (up: boolean) => {
     const g = new THREE.PlaneGeometry(w, d, 44, 30);
     g.rotateX(up ? -Math.PI / 2 : Math.PI / 2);

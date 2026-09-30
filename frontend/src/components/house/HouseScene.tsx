@@ -119,6 +119,30 @@ function House({ progress, active, onSelect }: { progress: MutableRefObject<numb
   );
 }
 
+/** Development aid (?debug): logs draw calls, triangles, lights and frame time every 2 seconds. */
+function Perf() {
+  const { gl, scene } = useThree();
+  const acc = useRef({ t: 0, n: 0, last: 0 });
+  const on = useMemo(() => typeof location !== "undefined" && location.search.includes("debug"), []);
+  useFrame((_, dt) => {
+    if (!on) return;
+    const a = acc.current;
+    a.t += dt;
+    a.n++;
+    if (a.t - a.last < 2) return;
+    a.last = a.t;
+    let lights = 0;
+    let casters = 0;
+    scene.traverse((o) => {
+      if ((o as THREE.Light).isLight && o.visible) lights++;
+      if ((o as THREE.Mesh).isMesh && o.castShadow) casters++;
+    });
+    console.log(`[perf] calls ${gl.info.render.calls} · triangles ${gl.info.render.triangles} · lights ${lights} · shadow casters ${casters} · ${(a.n / 2).toFixed(0)} fps`);
+    a.n = 0;
+  });
+  return null;
+}
+
 /** Tells the page the first frames of the finished house are on screen. */
 function Ready({ onReady }: { onReady: () => void }) {
   const frames = useRef(0);
@@ -153,6 +177,7 @@ export default function HouseScene({ progress, active, onSelect, onReady, lite =
           <SMAA />
         </EffectComposer>
         <Ready onReady={onReady} />
+        <Perf />
       </Suspense>
     </Canvas>
   );

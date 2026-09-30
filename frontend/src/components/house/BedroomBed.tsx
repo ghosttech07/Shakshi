@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { BASE, CW, D, FRAME_H, H, LEG, THROW_D, THROW_W, THROW_Z, TOP, W, Z0, Z1, drape, pillowGeometry, throwRest } from "@/components/three/HeroScene";
 import { duvetTexture, knitTexture, linenTexture, quiltTexture, woodTexture } from "@/components/three/fabric";
 import { Hotspot, type HotspotId } from "./Hotspot";
-import { BED } from "./layout";
+import type { Theme } from "./themes";
 
 /** A settled surface (duvet or throw) built once from its resting shape. */
 function settled(w: number, d: number, sx: number, sz: number, z: number, rest: (x: number, z: number, out: THREE.Vector3) => void) {
@@ -27,7 +27,7 @@ function settled(w: number, d: number, sx: number, sz: number, z: number, rest: 
  * The bedroom's bed. The mattress, the two pillows and the bedding are each their own
  * clickable object: mattresses, pillows and covers.
  */
-export function BedroomBed({ active, onSelect }: { active: boolean; onSelect: (id: HotspotId) => void }) {
+export function BedroomBed({ theme, active, onSelect, position }: { theme: Theme; active: boolean; onSelect: (id: HotspotId) => void; position: [number, number, number] }) {
   const tex = useMemo(() => {
     const duvet = duvetTexture();
     duvet.repeat.set(8, 6);
@@ -49,7 +49,7 @@ export function BedroomBed({ active, onSelect }: { active: boolean; onSelect: (i
     [tex, geo]
   );
 
-  const upholstery = <meshPhysicalMaterial color="#b9a58a" roughness={0.95} sheen={0.8} sheenRoughness={0.6} sheenColor="#efe0c8" bumpMap={tex.linen} bumpScale={1.1} />;
+  const upholstery = <meshPhysicalMaterial color={theme.headboard} roughness={0.92} sheen={1} sheenRoughness={0.5} sheenColor={theme.headboardSheen} bumpMap={tex.linen} bumpScale={1.1} />;
   const HB_W = W + 0.5;
   const CH = 9;
   const cw = HB_W / CH;
@@ -61,12 +61,12 @@ export function BedroomBed({ active, onSelect }: { active: boolean; onSelect: (i
   ];
 
   return (
-    <group position={[BED.x, 0, BED.z]}>
+    <group position={position}>
       {/* Frame, legs and the channel-tufted headboard */}
       {legs.map(([x, z]) => (
         <mesh key={`${x}${z}`} position={[x, LEG / 2, z]} castShadow>
           <cylinderGeometry args={[0.032, 0.022, LEG, 20]} />
-          <meshStandardMaterial color="#8e6c47" roughness={0.55} bumpMap={tex.wood} bumpScale={0.6} />
+          <meshStandardMaterial color={theme.metal} roughness={0.4} metalness={0.6} bumpMap={tex.wood} bumpScale={0.6} />
         </mesh>
       ))}
       <RoundedBox args={[W + 0.14, FRAME_H, D + 0.1]} radius={0.045} smoothness={5} position={[0, LEG + FRAME_H / 2, 0.02]} castShadow receiveShadow>
@@ -89,7 +89,7 @@ export function BedroomBed({ active, onSelect }: { active: boolean; onSelect: (i
       <Hotspot id="pillows" label="Pillows" anchor={[0, TOP + 0.42, -D / 2 + 0.4]} active={active} onSelect={onSelect}>
         {[-0.47, 0.47].map((x) => (
           <mesh key={x} geometry={geo.pillow} position={[x, TOP + 0.17, -D / 2 + 0.36]} rotation={[-0.62, x > 0 ? -0.04 : 0.04, 0]} castShadow receiveShadow>
-            <meshPhysicalMaterial color="#fbf8f2" roughness={0.85} sheen={1} sheenRoughness={0.4} sheenColor="#ffffff" />
+            <meshPhysicalMaterial color={theme.pillow} roughness={0.85} sheen={1} sheenRoughness={0.4} sheenColor="#ffffff" />
           </mesh>
         ))}
       </Hotspot>
@@ -97,10 +97,10 @@ export function BedroomBed({ active, onSelect }: { active: boolean; onSelect: (i
       {/* Bedding: the duvet and the knitted throw */}
       <Hotspot id="covers" label="Covers & bedding" anchor={[-0.6, TOP + 0.12, 0.35]} active={active} onSelect={onSelect}>
         <mesh geometry={geo.duvet} castShadow receiveShadow>
-          <meshPhysicalMaterial color="#f8f4ed" roughness={0.82} sheen={1} sheenRoughness={0.45} sheenColor="#fff6e8" bumpMap={tex.duvet} bumpScale={2.2} side={THREE.DoubleSide} />
+          <meshPhysicalMaterial color={theme.duvet} roughness={0.82} sheen={1} sheenRoughness={0.45} sheenColor="#fff6e8" bumpMap={tex.duvet} bumpScale={2.2} side={THREE.DoubleSide} />
         </mesh>
         <mesh geometry={geo.throw} castShadow receiveShadow>
-          <meshPhysicalMaterial color="#b48d62" roughness={0.95} sheen={1} sheenRoughness={0.6} sheenColor="#f1d6ae" bumpMap={tex.knit} bumpScale={3} side={THREE.DoubleSide} />
+          <meshPhysicalMaterial color={theme.throw} roughness={0.95} sheen={1} sheenRoughness={0.6} sheenColor="#f1d6ae" bumpMap={tex.knit} bumpScale={3} side={THREE.DoubleSide} />
         </mesh>
       </Hotspot>
     </group>
